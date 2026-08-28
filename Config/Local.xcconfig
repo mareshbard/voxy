@@ -1,0 +1,6 @@
+// Overrides locais de assinatura (NÃO versionado).
+// Cada desenvolvedor define aqui o seu próprio Apple Developer Team.
+DEVELOPMENT_TEAM = 5ZA287RU8X
+
+// Team pessoal (conta gratuita) exige bundle id único: o prefixo garante isso.
+DEV_BUNDLE_PREFIX = dev.yohane.
