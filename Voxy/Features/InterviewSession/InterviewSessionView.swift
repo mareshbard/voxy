@@ -2,7 +2,7 @@ import SwiftUI
 import AVFoundation
 struct InterviewSessionView: View {
     
-    @State private var viewModel = InterviewSessionViewModel()
+    @StateObject private var viewModel = InterviewSessionViewModel()
     @Environment(\.dismiss) private var dismiss
     
     
@@ -27,9 +27,11 @@ struct InterviewSessionView: View {
                                 Text("Me conta sobre um projeto de design que você desenvolveu do zero. Como foi o seu processo?")
                             }
                             Button(action: {
-                                viewModel.speakQuestion()
+                                Task { await viewModel.speakQuestion()
+                                    
+                                }
                             }, label: {
-                                Image(systemName: "play.fill")
+                                Image(systemName: viewModel.synthesizer.isSpeaking ? "stop.fill" :"play.fill")
                                 
                                 Text("Ouvir pergunta")
                                     .bold()
@@ -51,9 +53,13 @@ struct InterviewSessionView: View {
                             .foregroundColor(Color(.purpleFont))
                         
                         Button(action: {
+                            Task {
+                            viewModel.isTranscribing ?
                             
+                            await viewModel.stopTranscription() : await viewModel.startTranscription()
+                            }
                         }, label: {
-                            Image(systemName: "mic.fill")
+                            Image(systemName: viewModel.isTranscribing ? "stop.fill" : "play.fill")
                                 .foregroundColor(Color(.white))
                                 .font(Font.system(size: 36))
                                 .padding(12)
@@ -104,7 +110,9 @@ struct InterviewSessionView: View {
             }
         }
         .onAppear {
-            viewModel.speakQuestion()
+            Task {
+            await viewModel.speakQuestion()
+        }
         }
         .padding()
     }
