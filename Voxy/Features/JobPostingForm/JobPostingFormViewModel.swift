@@ -7,50 +7,74 @@
 
 import Foundation
 import Observation
-import PhotosUI
-import _PhotosUI_SwiftUI
 
 @MainActor
 @Observable
 final class JobPostingFormViewModel {
     var title = ""
-    var descriptionText = ""
+    var jobDescription = ""
+    var isRecognizing = false
+    var errorMessage: String?
 
-    var selectedPhoto: PhotosPickerItem?
-    var imageData: Data?
-
-    private let store: JobPostingStore
-
-    init(store: JobPostingStore) {
-        self.store = store
+    var canTrain: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !jobDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    func loadSelectedPhoto() async {
-        guard let selectedPhoto else {
+    private let store: JobPostingStore
+    private let textRecognitionService: TextRecognitionServiceProtocol
+
+    init(
+        store: JobPostingStore,
+        textRecognitionService: TextRecognitionServiceProtocol? = nil
+    ) {
+        self.store = store
+        self.textRecognitionService = textRecognitionService ?? VisionTextRecognitionService()
+    }
+
+    func importRequirements(from imageData: Data?) async {
+        isRecognizing = true
+        errorMessage = nil
+        defer { isRecognizing = false }
+
+        guard let imageData else {
+            errorMessage = "Nao foi possivel carregar a imagem selecionada."
             return
         }
 
         do {
-            imageData = try await selectedPhoto.loadTransferable(
-                type: Data.self
+            let recognizedText = try await textRecognitionService.recognizeText(
+                from: imageData
             )
+
+            if recognizedText.isEmpty {
+                errorMessage = "Nao foi possivel encontrar texto na imagem."
+            } else {
+                jobDescription = recognizedText
+            }
         } catch {
-            print("Erro ao carregar imagem: \(error)")
+            errorMessage = "Nao foi possivel ler a imagem."
         }
     }
 
-    func save() throws {
-        let trimmedDescription = descriptionText
+    func save() -> Bool {
+        let trimmedTitle = title
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let description: String? =
-            trimmedDescription.isEmpty ? nil : trimmedDescription
+        let trimmedDescription = jobDescription
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let jobPosting = JobPosting(
-            title: title,
-            descriptionText: description
+            title: trimmedTitle,
+            jobDescription: trimmedDescription
         )
 
-        try store.save(jobPosting)
+        do {
+            try store.save(jobPosting)
+            return true
+        } catch {
+            errorMessage = "Nao foi possivel salvar a vaga."
+            return false
+        }
     }
 }
