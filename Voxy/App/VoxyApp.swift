@@ -1,10 +1,12 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct VoxyApp: App {
     var body: some Scene {
         WindowGroup {
-            JobPostingFormView()
+            OnBoardingView()
         }
+        .modelContainer(for: JobPosting.self)
     }
 }

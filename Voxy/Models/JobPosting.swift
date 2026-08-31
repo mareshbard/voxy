@@ -8,22 +8,20 @@
 import Foundation
 import SwiftData
 
+// assina com @Model - class que represeta o obejto "vaga" que será persistido
 @Model
-class JobPosting {
-    
-    var id: UUID
+final class JobPosting {
     var title: String
-    var jobDescription: String
-    var status: PostingStatus
-    
-    init (id: UUID, title: String, jobDescription: String, status: PostingStatus = .draft) {
-        self.id = id
-        self.title = title
-        self.jobDescription = jobDescription
-        self.status = status
-    }
-}
+    var descriptionText: String?
+    var countInterview: Int
 
-enum PostingStatus: String, Codable, CaseIterable {
-    case draft, saved, simulated
+    init(
+        title: String,
+        descriptionText: String? = nil,
+        countInterview: Int = 0
+    ) {
+        self.title = title
+        self.descriptionText = descriptionText
+        self.countInterview = countInterview
+    }
 }
