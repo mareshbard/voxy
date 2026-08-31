@@ -4,7 +4,7 @@ import SwiftUI
 struct VoxyApp: App {
     var body: some Scene {
         WindowGroup {
-            
+            InterviewSessionView()
         }
     }
 }
