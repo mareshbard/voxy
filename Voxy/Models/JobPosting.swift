@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  JobPosting.swift
 //  Voxy
 //
 //  Created by Voxy Team on 28/08/26.
