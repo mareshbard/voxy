@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+
 struct InterviewSessionView: View {
     
     @StateObject private var viewModel = InterviewSessionViewModel()
@@ -31,7 +32,7 @@ struct InterviewSessionView: View {
                                     
                                 }
                             }, label: {
-                                Image(systemName: viewModel.synthesizer.isSpeaking ? "stop.fill" :"play.fill")
+                                Image(systemName: viewModel.isSpeaking ? "stop.fill" :"play.fill")
                                 
                                 Text("Ouvir pergunta")
                                     .bold()
@@ -54,12 +55,12 @@ struct InterviewSessionView: View {
                         
                         Button(action: {
                             Task {
-                            viewModel.isTranscribing ?
+                                viewModel.speechAnalyzerManager.isTranscribing ?
                             
-                            await viewModel.stopTranscription() : await viewModel.startTranscription()
+                                await viewModel.speechAnalyzerManager.stopTranscription() : await viewModel.speechAnalyzerManager.startTranscription()
                             }
                         }, label: {
-                            Image(systemName: viewModel.isTranscribing ? "stop.fill" : "play.fill")
+                            Image(systemName: viewModel.speechAnalyzerManager.isTranscribing ? "stop.fill" : "play.fill")
                                 .foregroundColor(Color(.white))
                                 .font(Font.system(size: 36))
                                 .padding(12)
@@ -108,6 +109,20 @@ struct InterviewSessionView: View {
                     }
                 }
             }
+        }
+        //binding manual, pois não foi possível usar uma variavel do viewModel diretamente no binding
+        .alert("Microfone bloqueado", isPresented: Binding(
+            get: { viewModel.speechAnalyzerManager.showMicDeniedAlert },
+            set: { viewModel.speechAnalyzerManager.showMicDeniedAlert = $0 }
+        )) {
+            Button("Abrir ajustes"){
+                if let url = URL(string: UIApplication.openSettingsURLString){
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Agora não", role: .cancel) {}
+        } message: {
+            Text("Precisamos do microfone para analisar suas respostas")
         }
         .onAppear {
             Task {

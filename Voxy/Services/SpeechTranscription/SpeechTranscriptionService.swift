@@ -33,7 +33,7 @@ final class Transcriber {
         // TRANSCRICAO DE FALA AO VIVO
         transcriber = SpeechTranscriber(locale: supportedLocale, preset: .timeIndexedProgressiveTranscription)
         results = transcriber.results
-        
+       // print(results)
         // CRIANDO ANALISADOR APENAS COM O MÓDULO DE TRANSCRIÇÃO
         analyzer = SpeechAnalyzer(modules: [transcriber])
         

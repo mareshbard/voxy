@@ -1,7 +1,6 @@
 import AVFAudio
 
 // nonisolated: não precisa usar o await pois não é algo ligado a um state mutável
-
 nonisolated final class AudioCapturer {
     enum AudioCapturerError: Error {
         case permissionDenied
@@ -52,6 +51,7 @@ nonisolated final class AudioCapturer {
                 throw AudioCapturerError.permissionDenied
             }
         case .denied:
+            
             throw AudioCapturerError.permissionDenied
         case .granted:
             return

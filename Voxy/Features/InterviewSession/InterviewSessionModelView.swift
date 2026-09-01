@@ -1,34 +1,24 @@
 import Foundation
 import AVFoundation
 import Combine
-import Speech
 
-class InterviewSessionViewModel: NSObject, ObservableObject {
+// marcado para
+@MainActor
+class InterviewSessionViewModel: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     
     let synthesizer = AVSpeechSynthesizer()
-    @Published var isTranscribing = false
+    var speechAnalyzerManager = SpeechAnalyzeManager()
     @Published var isSpeaking = false
-    @Published var error: Error?
-    @Published var transcript: String = ""
-    var locale: Locale = .current
-    private var resultsTask: Task<Void, Never>?
-    private var audioTask: Task<Void, Never>?
-    private var audioCapturer: AudioCapturer?
-    private var transcriber: Transcriber?
     
-    func resetTranscript() {
-        transcript = ""
-        error = nil
+    
+    override init() {
+        super.init()
+        synthesizer.delegate = self
     }
-    
-    func updateTranscript(with text: String, isFinal: Bool) {
-        transcript = text
-    }
-    
     func speakQuestion() async {
         synthesizer.stopSpeaking(at: .immediate)
-        if isTranscribing  {
-            await stopTranscription()
+        if speechAnalyzerManager.isTranscribing  {
+            await speechAnalyzerManager.stopTranscription()
         }
             do {
                 try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
@@ -42,57 +32,17 @@ class InterviewSessionViewModel: NSObject, ObservableObject {
             synthesizer.speak(utterance)
         
     }
-    func startTranscription() async {
-        synthesizer.stopSpeaking(at: .immediate)
-        guard !isTranscribing else { return }
-        do {
-            resetTranscript()
-            let transcriber = try await Transcriber(locale: locale)
-            let audioCapturer = AudioCapturer()
-            self.transcriber = transcriber
-            self.audioCapturer = audioCapturer
-
-            resultsTask = Task { [weak self] in
-                do {
-                    for try await result in transcriber.results {
-                        let text = String(result.text.characters)
-                        await MainActor.run {
-                            self?.updateTranscript(with: text, isFinal: result.isFinal)
-                        }
-                    }
-                } catch {
-                    await MainActor.run {
-                        self?.error = error
-                        self?.isTranscribing = false
-                        print(error)
-                    }
-                }
-            }
-
-            audioTask = Task {
-                for await buffer in audioCapturer.audioStream {
-                    transcriber.streamAudio(buffer)
-                }
-            }
-            try await audioCapturer.start()
-            await MainActor.run { self.isTranscribing = true }
-        } catch {
-            await MainActor.run {
-                self.error = error
-                self.isTranscribing = false
-            }
-            await stopTranscription()
-        }
-    }
     
-    func stopTranscription() async {
-        resultsTask?.cancel()
-        audioTask?.cancel()
-        await transcriber?.stop()
-        await MainActor.run {
-            isTranscribing = false
-            audioCapturer = nil
-        }
+  nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+        Task { @MainActor in isSpeaking = true }
     }
-    
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,  didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor in isSpeaking = false }
+    }
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        Task { @MainActor in isSpeaking = false }
+    }
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
+        Task { @MainActor in isSpeaking = false }
+    }
 }
