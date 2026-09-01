@@ -4,7 +4,6 @@
 //
 //  Created by Voxy Team on 28/08/26.
 //
-
 import Foundation
 import SwiftData
 
@@ -26,4 +25,8 @@ final class JobPosting {
         self.descriptionText = descriptionText
         self.countInterview = countInterview
     }
+}
+
+enum PostingStatus: String, Codable {
+    case saved, simulated
 }
