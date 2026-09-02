@@ -68,7 +68,11 @@ final class Transcriber {
     func stop() async {
         // fecha o canal de entrada e encerra sessão de análise
         inputContinuation.finish()
-        await analyzer.cancelAndFinishNow()
+        do {
+            try await analyzer.finalizeAndFinishThroughEndOfInput()
+        } catch {
+            print(error)
+        }
     }
     
     private func convert(_ buffer: AVAudioPCMBuffer) throws -> AVAudioPCMBuffer {

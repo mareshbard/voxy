@@ -68,10 +68,9 @@ final class SpeechAnalyzeManager {
     }
     func stopTranscription() async {
         audioCapturer?.stop()
-        audioTask?.cancel()
-        resultsTask?.cancel()
-        
-        await transcriber?.stop()
+        await audioTask?.value // espera os buffers eram pra transcritor
+        await transcriber?.stop() // finaliza processando oq sobrou
+        await resultsTask?.value // espera o loop ler o resultado final
         
         audioCapturer = nil
         transcriber = nil

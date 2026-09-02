@@ -1,9 +1,9 @@
 import Foundation
 import AVFoundation
 
-// marcado para
 @MainActor
 @Observable
+
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     let synthesizer = AVSpeechSynthesizer()
@@ -12,29 +12,51 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var elapsedSeconds: Int = 0
     private var timerTask: Task<Void, Never>?
     
-    override init() {
+    var questions: [String]
+    var currentIndex: Int = 0
+    var currentQuestion: String {
+        questions[currentIndex]
+    }
+    var isTranscribing: Bool {
+        speechAnalyzerManager.isTranscribing
+    }
+    var showMicPermissionAlert: Bool {
+        get { speechAnalyzerManager.showMicDeniedAlert }
+        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
+    }
+    var canGoToNextQuestion: Bool {
+        elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
+    }
+    var restartConfirmation: Bool = false
+    init(questions: [String]) {
+        self.questions = questions
         super.init()
         synthesizer.delegate = self
+    }
+    
+    
+    func resetTranscript() {
+        speechAnalyzerManager.resetTranscript()
     }
     func speakQuestion() async {
         synthesizer.stopSpeaking(at: .immediate)
         if speechAnalyzerManager.isTranscribing  {
             await speechAnalyzerManager.stopTranscription()
         }
-            do {
-                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
-                try AVAudioSession.sharedInstance().setActive(true)
-            } catch {
-                print("Erro: \(error)")
-            }
-            let utterance = AVSpeechUtterance(string: "Me conta sobre um projeto de design que você desenvolveu do zero. Como foi o seu processo?")
-            utterance.voice = AVSpeechSynthesisVoice(language: "pt-br")
-            utterance.rate = 0.53
-            synthesizer.speak(utterance)
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Erro: \(error)")
+        }
+        let utterance = AVSpeechUtterance(string: currentQuestion)
+        utterance.voice = AVSpeechSynthesisVoice(language: "pt-br")
+        utterance.rate = 0.53
+        synthesizer.speak(utterance)
         
     }
     
-  nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         Task { @MainActor in isSpeaking = true }
     }
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,  didFinish utterance: AVSpeechUtterance) {
@@ -69,5 +91,38 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     func stopTimer(){
         timerTask?.cancel()
         timerTask = nil
+    }
+    
+    func record() async {
+        if speechAnalyzerManager.isTranscribing {
+            await speechAnalyzerManager.stopTranscription()
+            stopTimer()
+        } else {
+            synthesizer.stopSpeaking(at: .immediate)
+            await speechAnalyzerManager.startTranscription()
+            startTimer()
+        }
+    }
+    
+    func restartTranscript() {
+        resetTranscript()
+       elapsedSeconds = 0
+        stopTimer()
+    }
+    
+    func nextQuestion() {
+        if currentIndex < questions.count - 1 {
+            currentIndex += 1
+            elapsedSeconds = 0
+            stopTimer()
+        }
+    }
+    
+    func checkingReset() async {
+        if elapsedSeconds >= 10 && !speechAnalyzerManager.isTranscribing {
+            restartConfirmation = true
+        } else {
+            await record()
+        }
     }
 }

@@ -2,10 +2,8 @@ import SwiftUI
 import AVFoundation
 
 struct InterviewSessionView: View {
-    
-    @State private var viewModel = InterviewSessionViewModel()
+    @State private var viewModel = InterviewSessionViewModel(questions: ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"])
     @Environment(\.dismiss) private var dismiss
-    @State private var timer: Timer = .init()
     
     var body: some View {
         
@@ -25,7 +23,7 @@ struct InterviewSessionView: View {
                             VStack(alignment: .leading) {
                                 Text("MIA DIZ:")
                                     .font(.caption2.bold())
-                                Text("Me conta sobre um projeto de design que você desenvolveu do zero. Como foi o seu processo?")
+                                Text(viewModel.currentQuestion)
                             }
                             Button(action: {
                                 Task { await viewModel.speakQuestion()
@@ -54,17 +52,10 @@ struct InterviewSessionView: View {
                         
                         Button(action: {
                             Task {
-                                if viewModel.speechAnalyzerManager.isTranscribing {
-                                    await viewModel.speechAnalyzerManager.stopTranscription()
-                                    viewModel.stopTimer()
-                                } else {
-                                    viewModel.synthesizer.stopSpeaking(at: .immediate)
-                                    await viewModel.speechAnalyzerManager.startTranscription()
-                                    viewModel.startTimer()
-                                }
+                                await viewModel.checkingReset()
                             }
                         }, label: {
-                            Image(systemName: viewModel.speechAnalyzerManager.isTranscribing ? "stop.fill" : "play.fill")
+                            Image(systemName: viewModel.isTranscribing ? "stop.fill" : "play.fill")
                                 .foregroundColor(Color(.white))
                                 .font(Font.system(size: 36))
                                 .padding(12)
@@ -83,19 +74,19 @@ struct InterviewSessionView: View {
                     Spacer()
                 }
                 Button(action: {
-                    
+                    viewModel.nextQuestion()
                 }, label: {
                     Text("Próxima pergunta!")
                         .bold()
                         .frame(maxWidth: .infinity)
                     
                 })
+                .disabled(viewModel.canGoToNextQuestion)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                
             }
             
-            .navigationTitle("Pergunta 1/5")
+            .navigationTitle("\(viewModel.currentIndex + 1)/\(viewModel.questions.count)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -114,11 +105,8 @@ struct InterviewSessionView: View {
                 }
             }
         }
-        //binding manual, pois não foi possível usar uma variavel do viewModel diretamente no binding
-        .alert("Microfone bloqueado", isPresented: Binding(
-            get: { viewModel.speechAnalyzerManager.showMicDeniedAlert },
-            set: { viewModel.speechAnalyzerManager.showMicDeniedAlert = $0 }
-        )) {
+        // binding manual, pois não foi possível usar uma variavel do viewModel diretamente no binding
+        .alert("Microfone bloqueado", isPresented: $viewModel.showMicPermissionAlert) {
             Button("Abrir ajustes"){
                 if let url = URL(string: UIApplication.openSettingsURLString){
                     UIApplication.shared.open(url)
@@ -127,6 +115,21 @@ struct InterviewSessionView: View {
             Button("Agora não", role: .cancel) {}
         } message: {
             Text("Precisamos do microfone para analisar suas respostas")
+        }
+        
+        .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
+            Button("Recomeçar", role: .destructive) {
+                Task {
+                    viewModel.restartTranscript()
+                    await viewModel.record()
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .onChange(of: viewModel.currentIndex) {
+            Task {
+                await viewModel.speakQuestion()
+            }
         }
         .onAppear {
             Task {
@@ -139,5 +142,7 @@ struct InterviewSessionView: View {
 }
 
 #Preview {
+    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
     InterviewSessionView()
+    
 }
