@@ -369,7 +369,7 @@ struct JobPostingListView: View {
                 Spacer()
 
                 VStack(spacing: 2) {
-                    Text("\(jobPosting.countInterview)")
+                    Text("\(jobPosting.interviewCount)")
                         .font(
                         Font.custom("Nunito", size: 24)
                         .weight(.bold)
@@ -524,8 +524,8 @@ struct JobPostingListView: View {
             JobPosting(
                 title: "UX Designer Jr.",
                 companyName: "Nubank",
-                descriptionText: "Vaga para UX Designer",
-                countInterview: 8
+                jobDescription: "Vaga para UX Designer",
+                interviewCount: 8
             )
         )
 
@@ -533,8 +533,8 @@ struct JobPostingListView: View {
             JobPosting(
                 title: "iOS Developer Jr.",
                 companyName: "Apple",
-                descriptionText: "Vaga para desenvolvimento iOS",
-                countInterview: 3
+                jobDescription: "Vaga para desenvolvimento iOS",
+                interviewCount: 3
             )
         )
 
@@ -542,8 +542,8 @@ struct JobPostingListView: View {
             JobPosting(
                 title: "Product Designer",
                 companyName: "Uber",
-                descriptionText: "Vaga para Product Designer",
-                countInterview: 6
+                jobDescription: "Vaga para Product Designer",
+                interviewCount: 6
             )
         )
     }()
@@ -556,7 +556,7 @@ struct JobPostingListView: View {
         store: store
     )
 
-    return JobPostingListView(
+    JobPostingListView(
         viewModel: viewModel
     )
     .modelContainer(container)

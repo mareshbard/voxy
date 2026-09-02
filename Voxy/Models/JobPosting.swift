@@ -11,19 +11,22 @@ import SwiftData
 final class JobPosting {
     var title: String
     var companyName: String
-    var descriptionText: String
-    var countInterview: Int
+    var jobDescription: String
+    var status: PostingStatus
+    var interviewCount: Int
 
     init(
         title: String,
         companyName: String,
-        descriptionText: String,
-        countInterview: Int = 0
+        jobDescription: String,
+        status: PostingStatus = .saved,
+        interviewCount: Int = 0
     ) {
         self.title = title
         self.companyName = companyName
-        self.descriptionText = descriptionText
-        self.countInterview = countInterview
+        self.jobDescription = jobDescription
+        self.status = status
+        self.interviewCount = interviewCount
     }
 }
 

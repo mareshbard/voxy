@@ -52,14 +52,14 @@ struct JobPostingRowView: View {
     List {
         JobPostingRowView(
             jobPosting: JobPosting(
-                title: "UX Designer Jr.",
+                title: "UX Designer Jr.", companyName: "iFood",
                 jobDescription: "Vaga para atuar com pesquisa e prototipação em produtos digitais.",
                 status: .saved
             )
         )
         JobPostingRowView(
             jobPosting: JobPosting(
-                title: "Front-end Dev",
+                title: "Front-end Dev", companyName: "Uber",
                 jobDescription: "",
                 status: .simulated,
                 interviewCount: 3
