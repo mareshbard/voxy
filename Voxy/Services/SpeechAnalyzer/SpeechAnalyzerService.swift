@@ -21,7 +21,8 @@ final class SpeechAnalyzeManager {
     private var audioTask: Task<Void, Never>?
     private var resultsTask: Task<Void, Never>?
     
-    func startTranscription() async{
+    func startTranscription() async {
+       
         guard !isTranscribing else { return }
         do {
             resetTranscript()

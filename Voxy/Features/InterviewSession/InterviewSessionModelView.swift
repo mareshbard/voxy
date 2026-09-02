@@ -1,15 +1,16 @@
 import Foundation
 import AVFoundation
-import Combine
 
 // marcado para
 @MainActor
-class InterviewSessionViewModel: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+@Observable
+class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     let synthesizer = AVSpeechSynthesizer()
     var speechAnalyzerManager = SpeechAnalyzeManager()
-    @Published var isSpeaking = false
-    
+    var isSpeaking = false
+    var elapsedSeconds: Int = 0
+    private var timerTask: Task<Void, Never>?
     
     override init() {
         super.init()
@@ -44,5 +45,29 @@ class InterviewSessionViewModel: NSObject, ObservableObject, AVSpeechSynthesizer
     }
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
         Task { @MainActor in isSpeaking = false }
+    }
+    
+    var formattedTime: String {
+        String(format: "%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
+    }
+    
+    func startTimer() {
+        // cancela timer antigo
+        timerTask?.cancel()
+        // zerando contador
+        elapsedSeconds = 0
+        // tarefa assíncrona que roda em paralelo (referencia guardada em timerTask p/ poder cancelar depois)
+        timerTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                if Task.isCancelled { break }
+                self?.elapsedSeconds += 1
+            }
+        }
+    }
+    
+    func stopTimer(){
+        timerTask?.cancel()
+        timerTask = nil
     }
 }

@@ -42,6 +42,10 @@ nonisolated final class AudioCapturer {
     func stop() {
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
+        // Encerra o stream para liberar o consumidor -> indica que não vai mais receber nada
+        continuation.finish()
+        // Desativa a sessão de áudio -> desliga microfone
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
     
     private func requestPermission() async throws {

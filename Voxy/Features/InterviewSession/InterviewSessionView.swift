@@ -3,9 +3,9 @@ import AVFoundation
 
 struct InterviewSessionView: View {
     
-    @StateObject private var viewModel = InterviewSessionViewModel()
+    @State private var viewModel = InterviewSessionViewModel()
     @Environment(\.dismiss) private var dismiss
-    
+    @State private var timer: Timer = .init()
     
     var body: some View {
         
@@ -33,7 +33,6 @@ struct InterviewSessionView: View {
                                 }
                             }, label: {
                                 Image(systemName: viewModel.isSpeaking ? "stop.fill" :"play.fill")
-                                
                                 Text("Ouvir pergunta")
                                     .bold()
                             })
@@ -55,9 +54,14 @@ struct InterviewSessionView: View {
                         
                         Button(action: {
                             Task {
-                                viewModel.speechAnalyzerManager.isTranscribing ?
-                            
-                                await viewModel.speechAnalyzerManager.stopTranscription() : await viewModel.speechAnalyzerManager.startTranscription()
+                                if viewModel.speechAnalyzerManager.isTranscribing {
+                                    await viewModel.speechAnalyzerManager.stopTranscription()
+                                    viewModel.stopTimer()
+                                } else {
+                                    viewModel.synthesizer.stopSpeaking(at: .immediate)
+                                    await viewModel.speechAnalyzerManager.startTranscription()
+                                    viewModel.startTimer()
+                                }
                             }
                         }, label: {
                             Image(systemName: viewModel.speechAnalyzerManager.isTranscribing ? "stop.fill" : "play.fill")
@@ -68,7 +72,7 @@ struct InterviewSessionView: View {
                         }
                         )
                         .buttonStyle(.borderedProminent)
-                        Text("00:00")
+                        Text(viewModel.formattedTime)
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -126,12 +130,12 @@ struct InterviewSessionView: View {
         }
         .onAppear {
             Task {
-            await viewModel.speakQuestion()
-        }
+                await viewModel.speakQuestion()
+            }
         }
         .padding()
     }
-
+    
 }
 
 #Preview {
