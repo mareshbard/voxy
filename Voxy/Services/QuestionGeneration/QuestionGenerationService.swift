@@ -8,14 +8,40 @@
 import Foundation
 import FoundationModels
 
-/// Formato de saída esperado do modelo ao gerar uma entrevista.
 @Generable
 struct GeneratedInterview {
     @Guide(
-        description: "Faça 10 perguntas de entrevista técnica, específicas para a vaga descrita, evitando perguntas genéricas que serviriam para qualquer vaga.",
-        .count(10)
+        description: """
+        Gere 3 perguntas técnicas de entrevista, ancoradas exclusivamente em \
+        tecnologias, ferramentas ou requisitos específicos mencionados na \
+        descrição da vaga — nunca pergunte sobre algo que não foi citado nela. \
+        Misture pelo menos dois estilos, sem repetir o mesmo formato em todas:
+        - Conceitual direta (exemplo para vagas de desenvolvedor: "Como você garante consistência de dados \
+        numa arquitetura MVVM?"/ exemplo para designers: "Qual critério você utiliza para decidir se deve aplicar uma abordagem de pesquisa qualitativa ou quantitativa na fase de descoberta (discovery)? )
+        - Aplicação prática/cenário (exemplo para vagas de desenvolvedor: "Como você abordaria um cenário onde \
+        a API retorna dados inconsistentes?/ exemplo para designers: "Aplicação prática/cenário: Os testes de usabilidade revelaram que a funcionalidade mais solicitada pela diretoria é confusa e ignorada pelos usuários. Como você comunica esses dados aos stakeholders?")
+        Evite perguntas de sim/não e perguntas genéricas que serviriam para \
+        qualquer vaga de tecnologia. Escreva no tom de uma conversa real de \
+        entrevista, não como uma prova escrita. Além disso, não repita perguntas na mesma sessão.
+        """,
+        .count(3)
     )
-    let questions: [String]
+    let technicalQuestions: [String]
+
+    @Guide(
+        description: """
+        Gere 3 perguntas pedindo que o candidato conte sobre uma decisão de \
+        projeto, arquitetura ou experiência real — no estilo "me conte sobre \
+        uma vez que..." ou "descreva uma decisão que você tomou e por quê". \
+        Sempre que possível, direcione o tema da pergunta para algo coerente \
+        com a descrição da vaga (ex: se a vaga menciona escalabilidade, peça \
+        uma decisão relacionada a performance ou arquitetura. Evite perguntas que peçam apenas uma definição \
+        teórica — o objetivo é fazer o candidato narrar uma experiência \
+        Além disso, não repita perguntas na mesma sessão.
+        """,
+        .count(3)
+    )
+    let projectDecisionQuestions: [String]
 }
 
 @MainActor
@@ -76,11 +102,16 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
 
     init() {
         instructions = """
-        Você é um entrevistador técnico experiente em tecnologia e design. \
-        Gere perguntas de entrevista realistas, específicas e variadas, baseadas \
-        exclusivamente na descrição da vaga fornecida pelo usuário. Evite perguntas \
-        genéricas que serviriam para qualquer vaga — ancore cada pergunta em algo \
-        que a descrição realmente menciona.
+        Você é um entrevistador experiente que adapta as perguntas à ÁREA da vaga. \
+        Antes de gerar, identifique a área a partir da descrição (ex.: design/UX, \
+        produto, dados, engenharia de software, marketing, etc.) e permaneça \
+        estritamente nessa área. NÃO introduza temas de programação, APIs ou \
+        arquitetura de software a menos que a descrição os mencione explicitamente — \
+        por exemplo, numa vaga de design, pergunte sobre processo de design, \
+        pesquisa com usuários, design systems, prototipação e usabilidade, não sobre \
+        código. Gere perguntas realistas, específicas e variadas, ancoradas \
+        exclusivamente no que a descrição realmente menciona; evite perguntas \
+        genéricas que serviriam para qualquer vaga.
         """
         session = LanguageModelSession(instructions: instructions)
     }
@@ -129,7 +160,11 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
             generating: GeneratedInterview.self,
             options: options
         )
-        let questions = response.content.questions
+
+        // Ordem de exibição: primeiro as perguntas de decisão de projeto,
+        // depois as técnicas.
+        let content = response.content
+        let questions = content.projectDecisionQuestions + content.technicalQuestions
 
         await updateTokenUsage(prompt: prompt, questions: questions)
         return questions
@@ -153,7 +188,7 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
                 .joined(separator: "\n")
 
             return """
-            Gere 10 novas perguntas de entrevista para esta vaga, diferentes das anteriores. \
+            Gere novas perguntas de entrevista para esta vaga, diferentes das anteriores. \
             Não repita nem reformule nenhuma destas:
             \(avoid)
 
@@ -164,7 +199,7 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
 
         // Mesma sessão: o modelo lembra o que já perguntou nesta conversa,
         // então basta um prompt curto (economiza tokens do contexto).
-        return "Gere 10 novas perguntas de entrevista para a mesma vaga, completamente diferentes das que você já fez nesta conversa."
+        return "Gere novas perguntas de entrevista para a mesma vaga, completamente diferentes das que você já fez nesta conversa."
     }
 
     private func updateTokenUsage(prompt: String, questions: [String]) async {
@@ -178,7 +213,7 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
         usedTokens += await tokenCount(of: questions.joined(separator: "\n"))
     }
 
-    /// uma estimativa de ~4 caracteres por token.
+// Estimativa de mais ou menos 4 caracteres por tokens
     private func tokenCount(of text: String) async -> Int {
         if #available(iOS 26.4, *) {
             if let count = try? await model.tokenCount(for: text) {

@@ -19,13 +19,13 @@ struct AnswerFeedback {
     @Guide(description: "Vícios de linguagem e muletas encontrados no texto (ex.: repetições, 'tipo', 'né', 'então'). Deixe vazio se não houver.")
     let languageVices: [String]
 
-    @Guide(description: "Pontos técnicos fortes demonstrados na resposta.")
+    @Guide(description: "Seja honesto com os pontos técnicos fortes demonstrados na resposta. Valide se o que o usuário respondeu condiz com a pergunta feita.")
     let technicalStrengths: [String]
 
-    @Guide(description: "Seja honesto e aponte lacunas técnicas ou pontos a melhorar, enquadrados como sugestões de estudo.")
+    @Guide(description: "Seja honesto e aponte lacunas técnicas na resposta do usuário ou pontos a melhorar, enquadrados como sugestões de estudo.")
     let technicalGaps: [String]
 
-    @Guide(description: "Um resumo final acionável, em uma frase.")
+    @Guide(description: "Seja honesto e faça um resumo final acionável, em uma frase.")
     let summary: String
 }
 
@@ -53,9 +53,9 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol {
         instructions = """
         Você é um avaliador de entrevistas técnicas em tecnologia e design. \
         Avalie a RESPOSTA do candidato de forma construtiva, específica e honesta, \
-        em português. Considere três eixos: (1) articulação e clareza; \
-        (2) vícios de linguagem e muletas; (3) conteúdo técnico frente à pergunta. \
-        Baseie o feedback apenas no texto fornecido, sem inventar informações, e \
+        em português. Considere três eixos: (1) articulação da resposta e clareza; \
+        (2) vícios de linguagem e muletas; (3) conteúdo técnico frente à pergunta feita. \
+        Baseie o feedback apenas no texto fornecido levando em consideração a pergunta que foi feita, sem inventar informações, e \
         enquadre lacunas técnicas como sugestões de estudo, não como verdades absolutas.
         """
     }
