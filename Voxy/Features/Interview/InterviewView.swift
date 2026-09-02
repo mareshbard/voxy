@@ -71,7 +71,7 @@ struct InterviewView: View {
     NavigationStack {
         InterviewView(
             jobPosting: JobPosting(
-                title: "iOS Engineer",
+                title: "iOS Engineer", companyName: "Voxy",
                 jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
             )
         )
