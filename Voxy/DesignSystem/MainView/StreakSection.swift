@@ -11,25 +11,24 @@ struct StreakSection: View {
     var body: some View {
         HStack(spacing: 0) {
             StreakItemView(title: "OFENSIVA", value: "3", unit: "dias", valueColor: Color("StreakColorGreen"))
-                .frame(maxWidth: .infinity) // Divide o espaço igualmente (1/3)
-            
+                .frame(maxWidth: .infinity)
             Rectangle()
-                .fill(Color("DividerColor"))
-                .frame(width: 1, height: .infinity) // Linha com altura fixa e elegante
+                .fill(Color("SecondaryBlue"))
+                .frame(width: 1)
             
             StreakItemView(title: "RECORDE", value: "15", unit: "dias", valueColor: Color("StreakColorYellow"))
-                .frame(maxWidth: .infinity) // Divide o espaço igualmente (1/3)
+                .frame(maxWidth: .infinity)
             
             Rectangle()
-                .fill(Color("DividerColor"))
-                .frame(width: 1, height: .infinity)
+                .fill(Color("SecondaryBlue"))
+                .frame(width: 1)
             
             StreakItemView(title: "TOTAL", value: "15", unit: "sessões", valueColor: Color("StreakColorPink"))
-                .frame(maxWidth: .infinity) // Divide o espaço igualmente (1/3)
+                .frame(maxWidth: .infinity)
         }
+//        .frame(minWidth: .infinity, minHeight: 100)
         .padding(.vertical, 10)
-        .frame(width: .infinity, height: 100) // Expande para preencher a largura do pai
-        .background(Color.white)    // Garante que o fundo não seja transparente
+        .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
