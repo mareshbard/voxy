@@ -12,8 +12,9 @@ struct JobPostingCard: View {
     var body: some View {
         HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.pink.opacity(0.3))
+                .fill(Color.white)
                 .frame(width: 48, height: 48)
+            
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(title)
@@ -51,10 +52,15 @@ struct JobPostingCard: View {
                     .fill(Color("PrimaryBlue"))
                 
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color("SecondaryBlue"))
+                    .fill(Color("BackgroundJobCardColor"))
                     .offset(x: -5, y: -5)
             }
             .clipShape(RoundedRectangle(cornerRadius: 16))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Color("PrimaryBlue"), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }

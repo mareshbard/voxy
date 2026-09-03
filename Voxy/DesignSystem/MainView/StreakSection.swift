@@ -32,7 +32,7 @@ struct StreakSection: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(Color("PrimaryBlue"), lineWidth: 2)
+                .strokeBorder(Color("PrimaryBlue"), lineWidth: 1)
         )
     }
 }

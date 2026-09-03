@@ -25,11 +25,11 @@ struct HeaderSection: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Olá, Fulano!")
                             .font(.custom("Satoshi-Black", size: 19).weight(.black))
-                            .foregroundStyle(Color("PrimaryFontColor"))
+                            .foregroundStyle(Color("BallonFontColor"))
 
                         Text("Vamos treinar hoje?")
                             .font(.custom("Nunito", size: 14).weight(.bold))
-                            .foregroundStyle(Color("SecondaryFontColor"))
+                            .foregroundStyle(Color("BallonSecondaryFontColor"))
                     }
                     .padding(.horizontal, 30)
                 }
