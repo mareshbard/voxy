@@ -1,10 +1,3 @@
-//
-//  InterviewViewModel.swift
-//  Voxy
-//
-//  Created by Voxy Team on 31/08/26.
-//
-
 import Foundation
 import Observation
 
@@ -16,9 +9,9 @@ final class InterviewViewModel {
     var isLoading = false
     var errorMessage: String?
 
-//     Debug da quantidade de tokens utilizado nessa entrevista
+//  Debug da quantidade de tokens utilizado nessa entrevista
     var tokenUsagePercent = 0
-
+    
     private let service: QuestionGenerationServiceProtocol
 
 //  Todas as perguntas geradas nessa entrevista ficarão aqui

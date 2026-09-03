@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import AVFoundation
 
 @MainActor
@@ -6,6 +7,7 @@ import AVFoundation
 
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
+    var responses: [String] = []
     let synthesizer = AVSpeechSynthesizer()
     var speechAnalyzerManager = SpeechAnalyzeManager()
     var isSpeaking = false
@@ -27,17 +29,22 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var canGoToNextQuestion: Bool {
         elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
     }
+    
     var restartConfirmation: Bool = false
+    
     init(questions: [String]) {
         self.questions = questions
         super.init()
         synthesizer.delegate = self
     }
-    
+   var lastQuestion: Bool {
+        currentIndex == questions.count - 1
+    }
     
     func resetTranscript() {
         speechAnalyzerManager.resetTranscript()
     }
+    
     func speakQuestion() async {
         synthesizer.stopSpeaking(at: .immediate)
         if speechAnalyzerManager.isTranscribing  {
@@ -106,7 +113,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     func restartTranscript() {
         resetTranscript()
-       elapsedSeconds = 0
+        elapsedSeconds = 0
         stopTimer()
     }
     
@@ -116,6 +123,8 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             elapsedSeconds = 0
             stopTimer()
         }
+        saveResponse(response: speechAnalyzerManager.transcript)
+        print(responses)
     }
     
     func checkingReset() async {
@@ -124,5 +133,9 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         } else {
             await record()
         }
+    }
+    
+    func saveResponse(response: String) {
+        responses.append(response)
     }
 }
