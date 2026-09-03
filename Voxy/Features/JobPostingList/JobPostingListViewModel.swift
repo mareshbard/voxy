@@ -20,7 +20,41 @@ final class JobPostingListViewModel {
     init(store: JobPostingStore) {
         self.store = store
     }
-    
+
+    func makeFormViewModel() -> JobPostingFormViewModel {
+        JobPostingFormViewModel(store: store)
+    }
+
+    /// Formata a data do último treino: "Hoje" ou "Ontem" com o horário,
+    /// e para datas mais antigas exibe a data completa.
+    func lastSimulatedText(for jobPosting: JobPosting) -> String {
+        let date = jobPosting.lastSimulated
+        let calendar = Calendar.current
+        let time = Self.timeFormatter.string(from: date)
+
+        if calendar.isDateInToday(date) {
+            return "Hoje, \(time)"
+        } else if calendar.isDateInYesterday(date) {
+            return "Ontem, \(time)"
+        } else {
+            return Self.dateFormatter.string(from: date)
+        }
+    }
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "HH'h'mm"
+        return formatter
+    }()
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "dd/MM/yyyy, HH'h'mm"
+        return formatter
+    }()
+
     func loadJobPostings() {
         do {
             let fetchedJobPostings = try store.fetchAll()

@@ -10,6 +10,7 @@ import SwiftData
 
 struct JobPostingDetailsView: View {
     let jobPosting: JobPosting
+    @State private var shouldStartInterview: Bool = false
 
     var body: some View {
         ScrollView {
@@ -48,11 +49,20 @@ struct JobPostingDetailsView: View {
                         .font(.custom("Nunito", size: 22).weight(.bold))
                         .foregroundStyle(Color("PrimaryBlue"))
                 }
+
+                Button("Treinar agora!") {
+                    shouldStartInterview = true
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(GameButton())
             }
             .padding(24)
         }
         .navigationTitle(jobPosting.title)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $shouldStartInterview) {
+            InterviewView(jobPosting: jobPosting)
+        }
     }
 }
 

@@ -11,7 +11,6 @@ import SwiftData
 struct JobPostingListView: View {
     
     @Bindable var viewModel: JobPostingListViewModel
-    @Environment(\.modelContext) private var modelContext
     @State private var isShowingJobPostingForm: Bool = false
     
     var body: some View {
@@ -20,6 +19,7 @@ struct JobPostingListView: View {
                 // Seções do topo inseridas como itens da List
                 Group {
                     HeaderSection()
+                        .padding(.bottom, 10)
                     
                     StreakSection()
                         .padding(.vertical, 10)
@@ -50,7 +50,7 @@ struct JobPostingListView: View {
                         JobPostingCard(
                             title: jobPosting.title,
                             companyName: jobPosting.companyName,
-                            lastSimulating: "Ontem, 10h45",
+                            lastSimulating: viewModel.lastSimulatedText(for: jobPosting),
                             count: "\(jobPosting.countInterview)",
                             unit: "treinos"
                         )
@@ -95,14 +95,26 @@ struct JobPostingListView: View {
                 viewModel.loadJobPostings()
             }) {
                 JobPostingFormView(
-                    viewModel: JobPostingFormViewModel(
-                        store: JobPostingStore(
-                            modelContext: modelContext
-                        )
-                    )
+                    viewModel: viewModel.makeFormViewModel()
                 )
             }
             .scrollEdgeEffectHidden(true, for: .top)
+            .alert(
+                "Erro",
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.errorMessage = nil
+                        }
+                    }
+                ),
+                presenting: viewModel.errorMessage
+            ) { _ in
+                Button("OK", role: .cancel) {}
+            } message: { message in
+                Text(message)
+            }
         }
     }
 }
