@@ -72,6 +72,7 @@ struct InterviewView: View {
         InterviewView(
             jobPosting: JobPosting(
                 title: "iOS Engineer",
+                companyName: "Nubank",
                 jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
             )
         )

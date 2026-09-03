@@ -12,6 +12,7 @@ import Observation
 @Observable
 final class JobPostingFormViewModel {
     var title = ""
+    let companyName = ""
     var jobDescription = ""
     var isRecognizing = false
     var errorMessage: String?
@@ -60,12 +61,15 @@ final class JobPostingFormViewModel {
     func save() -> Bool {
         let trimmedTitle = title
             .trimmingCharacters(in: .whitespacesAndNewlines)
-
+        
+        let trimmedCompanyName = companyName
+        
         let trimmedDescription = jobDescription
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let jobPosting = JobPosting(
             title: trimmedTitle,
+            companyName: trimmedCompanyName,
             jobDescription: trimmedDescription
         )
 

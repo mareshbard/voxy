@@ -524,7 +524,7 @@ struct JobPostingListView: View {
             JobPosting(
                 title: "UX Designer Jr.",
                 companyName: "Nubank",
-                descriptionText: "Vaga para UX Designer",
+                jobDescription: "Vaga para UX Designer",
                 countInterview: 8
             )
         )
@@ -533,7 +533,7 @@ struct JobPostingListView: View {
             JobPosting(
                 title: "iOS Developer Jr.",
                 companyName: "Apple",
-                descriptionText: "Vaga para desenvolvimento iOS",
+                jobDescription: "Vaga para desenvolvimento iOS",
                 countInterview: 3
             )
         )
@@ -542,7 +542,7 @@ struct JobPostingListView: View {
             JobPosting(
                 title: "Product Designer",
                 companyName: "Uber",
-                descriptionText: "Vaga para Product Designer",
+                jobDescription: "Vaga para Product Designer",
                 countInterview: 6
             )
         )
@@ -556,7 +556,7 @@ struct JobPostingListView: View {
         store: store
     )
 
-    return JobPostingListView(
+    JobPostingListView(
         viewModel: viewModel
     )
     .modelContainer(container)

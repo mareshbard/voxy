@@ -28,8 +28,8 @@ struct JobPostingRowView: View {
                     .font(Font.custom("Nunito", size: 12).weight(.bold))
                     .foregroundStyle(.secondary)
 
-                if jobPosting.interviewCount > 0 {
-                    Text("· \(jobPosting.interviewCount) entrevista(s)")
+                if jobPosting.countInterview > 0 {
+                    Text("· \(jobPosting.countInterview) entrevista(s)")
                         .font(Font.custom("Nunito", size: 12).weight(.semibold))
                         .foregroundStyle(.tertiary)
                 }
@@ -53,16 +53,15 @@ struct JobPostingRowView: View {
         JobPostingRowView(
             jobPosting: JobPosting(
                 title: "UX Designer Jr.",
+                companyName: "Nubank",
                 jobDescription: "Vaga para atuar com pesquisa e prototipação em produtos digitais.",
-                status: .saved
             )
         )
         JobPostingRowView(
             jobPosting: JobPosting(
                 title: "Front-end Dev",
+                companyName: "Nubank",
                 jobDescription: "",
-                status: .simulated,
-                interviewCount: 3
             )
         )
     }
