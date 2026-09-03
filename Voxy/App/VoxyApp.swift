@@ -10,7 +10,7 @@ struct VoxyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            OnBoardingView()
+            InterviewSessionView()
         }
         .modelContainer(for: JobPosting.self)
     }
