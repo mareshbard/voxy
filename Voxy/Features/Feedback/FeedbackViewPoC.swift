@@ -365,6 +365,6 @@ final class MockFeedbackEngine: FeedbackEngineProtocol {
 }
 
 #Preview {
-    FeedbackView(engine: MockFeedbackEngine())
+    FeedbackViewPoC(engine: MockFeedbackEngine())
 }
 

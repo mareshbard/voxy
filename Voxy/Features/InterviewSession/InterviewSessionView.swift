@@ -4,7 +4,7 @@ import AVFoundation
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @Environment(\.dismiss) private var dismiss
-
+    
     init(questions: [String]) {
         _viewModel = State(initialValue: InterviewSessionViewModel(questions: questions))
     }
@@ -36,21 +36,29 @@ struct InterviewSessionView: View {
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.circle)
                             .tint(Color(.timerBg))
-                            VStack {
+                            VStack(alignment: .center, spacing: 0) {
                                 
-                                VStack(alignment: .leading) {
-                                    Text(viewModel.currentQuestion)
-                                        .font(
-                                            Font.custom("Nunito", size: 17)
-                                                .weight(.semibold)
-                                        )
+                                
+                                Triangle()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundStyle(Color(.systemGray6))
+                                
+                                VStack(alignment: .center) {
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(viewModel.currentQuestion)
+                                            .font(
+                                                Font.custom("Nunito", size: 17)
+                                                    .weight(.semibold)
+                                            )
+                                    }
+                                    
                                 }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(24)
                                 
                             }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(24)
-                            
                         }
                         Spacer(minLength: 92)
                         MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
@@ -74,7 +82,7 @@ struct InterviewSessionView: View {
                     .controlSize(.large)
                 }
                 
-                .navigationTitle("\(viewModel.currentIndex + 1)/\(viewModel.questions.count)")
+                .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -83,7 +91,7 @@ struct InterviewSessionView: View {
                         } label: {
                             Text("Pular")
                         }
-                        //   .disabled(viewModel.lastQuestion)
+                        //  .disabled(viewModel.lastQuestion)
                     }
                     
                 }
