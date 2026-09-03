@@ -1,13 +1,6 @@
-//
-//  FeedbackView.swift
-//  Voxy
-//
-//  Created by Voxy Team on 01/09/26.
-//
-
 import SwiftUI
 
-struct FeedbackView: View {
+struct FeedbackViewPoC: View {
     @State private var viewModel: FeedbackViewModel
     
     init(engine: FeedbackEngineProtocol? = nil) {
