@@ -9,12 +9,14 @@ import SwiftUI
 
 struct InterviewView: View {
     @State private var viewModel: InterviewViewModel
+    @State private var isSessionActive = false
 
     init(jobPosting: JobPosting) {
         _viewModel = State(initialValue: InterviewViewModel(jobPosting: jobPosting))
     }
-
+    
     var body: some View {
+        VStack {
         List {
             if let errorMessage = viewModel.errorMessage {
                 Section {
@@ -22,7 +24,7 @@ struct InterviewView: View {
                         .foregroundStyle(.red)
                 }
             }
-
+            
             if viewModel.isLoading {
                 Section {
                     HStack(spacing: 12) {
@@ -32,12 +34,13 @@ struct InterviewView: View {
                     }
                 }
             }
-
+            
             if !viewModel.questions.isEmpty {
                 Section {
                     ForEach(Array(viewModel.questions.enumerated()), id: \.offset) { index, question in
                         Text("\(index + 1). \(question)")
                     }
+                    
                 } header: {
                     Text("Perguntas")
                 } footer: {
@@ -63,6 +66,17 @@ struct InterviewView: View {
                 return
             }
             await viewModel.generateQuestions()
+        }
+            // passando perguntas geradas para a tela de entrevista
+            Button {
+                isSessionActive = true
+            } label: {
+                Text("Começar entrevista")
+            }
+            // navegacao lazy: só renderiza quando necessário
+            .navigationDestination(isPresented: $isSessionActive) {
+                InterviewSessionView(questions: viewModel.questions)
+            }
         }
     }
 }
