@@ -90,6 +90,9 @@ struct JobPostingFormView: View {
                             .accessibilityLabel(Text("Cancelar"))
                             .accessibilityHint("Cancela o formulário e volta à tela anterior")
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 24)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
