@@ -19,12 +19,12 @@ struct JobPostingFormView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color("BackgroundJobCardColor")
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    
+                    HeaderSectionForm()
+                        .frame(maxWidth: .infinity)
+                    
                         Section {
                             FocusableTextField(placeholder: "Ex: Front-end Developer Sr., UX Designer Jr...", text: $viewModel.title)
                         } header: {
@@ -53,13 +53,14 @@ struct JobPostingFormView: View {
                             SectionLabel(title: "DESCRIÇÃO DA VAGA", required: true)
                         }
                         
-                        Section {
-                            QuestionCountSelector(selectedValue: $viewModel.questionCount)
-                            
-                        } header: {
-                            SectionLabel(title: "NÚMERO DE PERGUNTAS", required: false)
-                        }
+//                        Section {
+//                            QuestionCountSelector(selectedValue: $viewModel.questionCount)
+//                            
+//                        } header: {
+//                            SectionLabel(title: "NÚMERO DE PERGUNTAS", required: false)
+//                        }
                         Spacer()
+                    
                         Button("Treinar agora!") {
                             if let jobPosting = viewModel.save() {
                                 savedJobPosting = jobPosting
@@ -68,16 +69,18 @@ struct JobPostingFormView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .buttonStyle(GameButton())
+                        .disabled(viewModel.title.isEmpty || viewModel.companyName.isEmpty || viewModel.jobDescription.isEmpty)
+                        Spacer()
                     }
+                    .padding(24)
                     .navigationDestination(isPresented: $shouldStartInterview) {
                         if let savedJobPosting {
                             InterviewView(jobPosting: savedJobPosting)
                         }
                     }
-                }
-                .padding(24)
-                .scrollContentBackground(.hidden)
             }
+            .scrollContentBackground(.hidden)
+            .background(Color("BackgroundJobCardColor").ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
@@ -102,7 +105,7 @@ struct JobPostingFormView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(Color("PrimaryBlue"))
-                    .disabled(viewModel.title.isEmpty || viewModel.companyName.isEmpty)
+                    .disabled(viewModel.title.isEmpty || viewModel.companyName.isEmpty || viewModel.jobDescription.isEmpty)
                     
                 }
             }
@@ -118,6 +121,7 @@ struct JobPostingFormView: View {
         }
     }
 }
+
 
 #Preview {
     let container = try! ModelContainer(
