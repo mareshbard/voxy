@@ -16,9 +16,9 @@ final class FeedbackViewModel {
     var feedback: AnswerFeedback?
     var isLoading = false
     var errorMessage: String?
-
+    var responses: [String] = []
     private let engine: FeedbackEngineProtocol
-
+    var finalFeedback: FinalFeedback?
     init(engine: FeedbackEngineProtocol? = nil) {
         self.engine = engine ?? FoundationFeedbackEngine()
     }
@@ -53,4 +53,15 @@ final class FeedbackViewModel {
             errorMessage = "Erro ao gerar feedback: \(error.localizedDescription)"
         }
     }
+    
+    // MARK: Funções para a tela de feedback
+    
+    var bestMoments: [String] {
+        feedback?.technicalStrengths ?? []
+    }
+    
+    var improvementSuggestions: [String] {
+        feedback?.technicalGaps ?? []
+    }
+    
 }

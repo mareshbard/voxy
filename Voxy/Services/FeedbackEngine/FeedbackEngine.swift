@@ -19,14 +19,37 @@ struct AnswerFeedback {
     @Guide(description: "Vícios de linguagem e muletas encontrados no texto (ex.: repetições, 'tipo', 'né', 'então'). Deixe vazio se não houver.")
     let languageVices: [String]
 
-    @Guide(description: "Seja honesto com os pontos técnicos fortes demonstrados na resposta. Valide se o que o usuário respondeu condiz com a pergunta feita.")
+    @Guide(description: "Seja honesto com os pontos técnicos fortes demonstrados na resposta. Valide se o que o usuário respondeu condiz com a pergunta feita.", .count(3))
     let technicalStrengths: [String]
 
-    @Guide(description: "Seja honesto e aponte lacunas técnicas na resposta do usuário ou pontos a melhorar, enquadrados como sugestões de estudo.")
+    @Guide(description: "Seja honesto e aponte lacunas técnicas na resposta do usuário ou pontos a melhorar, enquadrados como sugestões de estudo.", .count(4))
     let technicalGaps: [String]
 
     @Guide(description: "Seja honesto e faça um resumo final acionável, em uma frase.")
     let summary: String
+    
+//    @Guide(description: "Seja honesto e diga onde o usuário deve melhorar, com sugestões específicas e curtas", .count(4))
+//    let improve: [String]
+//    
+//    @Guide(description: "Seja honesto e diga os melhores momentos da entrevista, onde o usuário foi bem, em frases curtas", .count(3))
+//    let bestMoments: [String]
+}
+
+@Generable
+
+struct FinalFeedback {
+    @Guide(description: "Seja honesto e diga onde o usuário deve melhorar, com sugestões específicas e curtas", .count(4))
+    let improve: [String]
+    
+    @Guide(description: "Seja honesto e diga os melhores momentos da entrevista, onde o usuário foi bem, em frases curtas", .count(3))
+    let bestMoments: [String]
+    
+    @Guide(description: "Seja honesto e diga informacoes sobre a clareza das respostas, de maneira curta e concisa", .count(2))
+    let clarity: [String]
+    
+    @Guide(description: "Seja honesto e diga os principais vicios encontrados na entrevista de maneira curta", .count(3))
+    let vicios: [String]
+    
 }
 
 @MainActor

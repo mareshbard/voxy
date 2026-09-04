@@ -359,7 +359,8 @@ final class MockFeedbackEngine: FeedbackEngineProtocol {
                 "Estudar protocolos de comunicação com stakeholders durante incidentes",
                 "Mencionar análise de causa raiz (RCA) e Post-Mortem após a contenção"
             ],
-            summary: "A resposta técnica é sólida. Foque em eliminar as palavras de transição ('tipo', 'né') para demonstrar mais senioridade e segurança."
+            summary: "A resposta técnica é sólida. Foque em eliminar as palavras de transição ('tipo', 'né') para demonstrar mais senioridade e segurança.", /*improve: [],*/
+//            bestMoments: []
         )
     }
 }

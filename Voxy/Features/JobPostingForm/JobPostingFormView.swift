@@ -69,7 +69,7 @@ struct JobPostingFormView: View {
                 .padding(.bottom, 24)
             }
             .navigationDestination(isPresented: $shouldNavigate) {
-                FeedbackView()
+         //       FeedbackView()
             }
             .background(VoxyDesignColor.sheetGroupedBackground)
             .alert(

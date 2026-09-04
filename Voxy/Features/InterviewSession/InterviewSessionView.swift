@@ -3,10 +3,12 @@ import AVFoundation
 
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
+    @State private var feedbackEngine: FeedbackEngineProtocol
     @Environment(\.dismiss) private var dismiss
-    
-    init(questions: [String]) {
-        _viewModel = State(initialValue: InterviewSessionViewModel(questions: questions))
+
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol) {
+        _viewModel = State(initialValue: InterviewSessionViewModel(questions: questions, feedbackEngine: feedbackEngine))
+        _feedbackEngine = State(initialValue: feedbackEngine)   
     }
     
     var body: some View {
@@ -70,7 +72,9 @@ struct InterviewSessionView: View {
                     }
                     .scrollIndicators(.hidden)
                     Button(action: {
-                        viewModel.nextQuestion()
+                        Task {
+                            await viewModel.advance()
+                        }
                     }, label: {
                         Text("Próxima pergunta!")
                             .bold()
@@ -87,7 +91,10 @@ struct InterviewSessionView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            viewModel.nextQuestion()
+                            Task {
+                             await viewModel.advance()
+
+                            }
                         } label: {
                             Text("Pular")
                         }
@@ -108,6 +115,9 @@ struct InterviewSessionView: View {
                 Text("Precisamos do microfone para analisar suas respostas")
             }
             
+            .navigationDestination(isPresented: $viewModel.goToFeedback, destination: {
+                FeedbackView(question: viewModel.currentQuestion)
+            })
             .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
                 Button("Recomeçar", role: .destructive) {
                     Task {
@@ -133,7 +143,7 @@ struct InterviewSessionView: View {
 }
 
 #Preview {
-    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
-    InterviewSessionView(questions: questions)
-    
+//    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
+//    InterviewSessionView(questions: questions)
+//    
 }
