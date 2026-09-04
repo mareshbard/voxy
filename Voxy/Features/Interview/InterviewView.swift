@@ -75,6 +75,7 @@ struct InterviewView: View {
             } label: {
                 Text("Começar entrevista")
             }
+            .buttonStyle(GameButton())
             // navegacao lazy: só renderiza quando necessário
             .navigationDestination(isPresented: $isSessionActive) {
                 InterviewSessionView(questions: viewModel.questions, feedbackEngine: feedbackEngine)

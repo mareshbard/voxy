@@ -28,28 +28,25 @@ struct AnswerFeedback {
     @Guide(description: "Seja honesto e faça um resumo final acionável, em uma frase.")
     let summary: String
     
-//    @Guide(description: "Seja honesto e diga onde o usuário deve melhorar, com sugestões específicas e curtas", .count(4))
-//    let improve: [String]
-//    
-//    @Guide(description: "Seja honesto e diga os melhores momentos da entrevista, onde o usuário foi bem, em frases curtas", .count(3))
-//    let bestMoments: [String]
 }
 
 @Generable
 
 struct FinalFeedback {
-    @Guide(description: "Seja honesto e diga onde o usuário deve melhorar, com sugestões específicas e curtas", .count(4))
+    @Guide(description: "Seja honesto e diga onde o usuário deve melhorar, com sugestões específicas e curtas, sem repetir pontos técnicos.", .count(4))
     let improve: [String]
     
-    @Guide(description: "Seja honesto e diga os melhores momentos da entrevista, onde o usuário foi bem, em frases curtas", .count(3))
+    @Guide(description: "Seja honesto e diga os melhores momentos da entrevista, onde o usuário foi bem, em frases curtas, sem repetir pontos técnicos", .count(3))
     let bestMoments: [String]
     
-    @Guide(description: "Seja honesto e diga informacoes sobre a clareza das respostas, de maneira curta e concisa", .count(2))
+    @Guide(description: "Seja honesto e diga informacoes sobre a clareza das respostas, de maneira curta e concisa, sem repetir pontos técnicos", .count(2))
     let clarity: [String]
     
-    @Guide(description: "Seja honesto e diga os principais vicios encontrados na entrevista de maneira curta", .count(3))
+    @Guide(description: "Seja honesto e diga os principais vicios encontrados na entrevista de maneira curta, sem repetir pontos técnicos", .count(3))
     let vicios: [String]
     
+    @Guide(description: "Seja honesto e comente sobre a profundidade das respostas com frases curtas", .count(3))
+    let profundity: [String]
 }
 
 @MainActor
@@ -61,10 +58,32 @@ protocol FeedbackEngineProtocol {
     /// `question` pode ser vazia (a análise foca só na resposta).
     func evaluate(question: String, answer: String) async throws -> AnswerFeedback
 }
+
+@MainActor
+protocol FinalFeedbackProtocol {
+    
+    var availabilityMessage: String? { get }
+
+    /// Avalia a resposta a uma pergunta e retorna o feedback estruturado.
+    /// `question` pode ser vazia (a análise foca só na resposta).
+    func evaluate(feedbacks: String) async throws -> FinalFeedback
+}
 // Implementação on-device (offline-first) baseada no FoundationModels
 
 @MainActor
-final class FoundationFeedbackEngine: FeedbackEngineProtocol {
+final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProtocol{
+    func evaluate(feedbacks: String) async throws -> FinalFeedback {
+        let session = LanguageModelSession(instructions: instructions)
+        let prompt = makePrompt(feedbacks: feedbacks)
+
+        let response = try await session.respond(
+            to: prompt,
+            generating: FinalFeedback.self,
+            options: options
+        )
+        return response.content
+    }
+    
     private let model = SystemLanguageModel.default
     private let instructions: String
 
@@ -127,6 +146,19 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol {
         \"\"\"
 
         Gere o feedback estruturado da resposta acima.
+        """
+    }
+    
+    private func makePrompt(feedbacks: String) -> String {
+        let block = feedbacks.isEmpty
+            ? "FEEDBACKS: (não encontrados)"
+            : "FEEDBACKS DAS RESPOSTAS:\n\"\"\"\n\(feedbacks)\n\"\"\""
+
+        return """
+        \(block)
+
+        Com base no conjunto de feedbacks acima de toda a entrevista, \
+        gere um feedback final consolidado.
         """
     }
 }

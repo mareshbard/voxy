@@ -81,8 +81,10 @@ struct InterviewSessionView: View {
                             .frame(maxWidth: .infinity)
                         
                     })
+                    .buttonStyle(GameButton())
+
                     .disabled(viewModel.canGoToNextQuestion)
-                    .buttonStyle(.borderedProminent)
+
                     .controlSize(.large)
                 }
                 
@@ -116,7 +118,7 @@ struct InterviewSessionView: View {
             }
             
             .navigationDestination(isPresented: $viewModel.goToFeedback, destination: {
-                FeedbackView(question: viewModel.currentQuestion)
+                FeedbackView(question: viewModel.currentQuestion, feedbacks: viewModel.feedbacks)
             })
             .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
                 Button("Recomeçar", role: .destructive) {
@@ -125,6 +127,7 @@ struct InterviewSessionView: View {
                         await viewModel.record()
                     }
                 }
+                
                 Button("Cancelar", role: .cancel) {}
             }
             .onChange(of: viewModel.currentIndex) {

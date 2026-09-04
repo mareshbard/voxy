@@ -175,10 +175,14 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         defer { isGeneratingFeedback = false }
         do {
             let feedback = try await feedbackEngine.evaluate(question: question, answer: answer)
-            print(feedback)
+            feedbacks.append(feedback)
         } catch {
             print("Erro ao gerar feedback")
         }
+        
+    }
+    
+    var counter = {
         
     }
 }

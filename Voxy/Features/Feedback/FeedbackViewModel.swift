@@ -17,9 +17,11 @@ final class FeedbackViewModel {
     var isLoading = false
     var errorMessage: String?
     var responses: [String] = []
-    private let engine: FeedbackEngineProtocol
+    private let engine: FeedbackEngineProtocol & FinalFeedbackProtocol
     var finalFeedback: FinalFeedback?
-    init(engine: FeedbackEngineProtocol? = nil) {
+    var feedbacks: [AnswerFeedback] = []
+    
+    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil) {
         self.engine = engine ?? FoundationFeedbackEngine()
     }
 
@@ -54,6 +56,28 @@ final class FeedbackViewModel {
         }
     }
     
+    func analyzeFinal() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+        
+        // Serializa os feedbacks já coletados em texto para o modelo resumir
+        let joined = feedbacks.enumerated().map { i, fb in
+            """
+            Resposta \(i + 1) — nota \(fb.articulationScore)/5
+            Articulação: \(fb.articulationNotes)
+            Vícios: \(fb.languageVices.joined(separator: ", "))
+            Pontos fortes: \(fb.technicalStrengths.joined(separator: "; "))
+            Lacunas: \(fb.technicalGaps.joined(separator: "; "))
+            """
+        }.joined(separator: "\n\n")
+
+        do {
+            finalFeedback = try await engine.evaluate(feedbacks: joined)
+        } catch {
+            errorMessage = "Erro ao gerar feedback final: \(error.localizedDescription)"
+        }
+    }
     // MARK: Funções para a tela de feedback
     
     var bestMoments: [String] {
