@@ -3,10 +3,12 @@ import AVFoundation
 
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
+    @State private var feedbackEngine: FeedbackEngineProtocol
     @Environment(\.dismiss) private var dismiss
 
-    init(questions: [String]) {
-        _viewModel = State(initialValue: InterviewSessionViewModel(questions: questions))
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol) {
+        _viewModel = State(initialValue: InterviewSessionViewModel(questions: questions, feedbackEngine: feedbackEngine))
+        _feedbackEngine = State(initialValue: feedbackEngine)   
     }
     
     var body: some View {
@@ -36,21 +38,29 @@ struct InterviewSessionView: View {
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.circle)
                             .tint(Color(.timerBg))
-                            VStack {
+                            VStack(alignment: .center, spacing: 0) {
                                 
-                                VStack(alignment: .leading) {
-                                    Text(viewModel.currentQuestion)
-                                        .font(
-                                            Font.custom("Nunito", size: 17)
-                                                .weight(.semibold)
-                                        )
+                                
+                                Triangle()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundStyle(Color(.systemGray6))
+                                
+                                VStack(alignment: .center) {
+                                    
+                                    VStack(alignment: .leading) {
+                                        Text(viewModel.currentQuestion)
+                                            .font(
+                                                Font.custom("Nunito", size: 17)
+                                                    .weight(.semibold)
+                                            )
+                                    }
+                                    
                                 }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(24)
                                 
                             }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(24)
-                            
                         }
                         Spacer(minLength: 92)
                         MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
@@ -62,7 +72,9 @@ struct InterviewSessionView: View {
                     }
                     .scrollIndicators(.hidden)
                     Button(action: {
-                        viewModel.nextQuestion()
+                        Task {
+                            await viewModel.advance()
+                        }
                     }, label: {
                         Text("Próxima pergunta!")
                             .bold()
@@ -74,16 +86,19 @@ struct InterviewSessionView: View {
                     .controlSize(.large)
                 }
                 
-                .navigationTitle("\(viewModel.currentIndex + 1)/\(viewModel.questions.count)")
+                .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            viewModel.nextQuestion()
+                            Task {
+                             await viewModel.advance()
+
+                            }
                         } label: {
                             Text("Pular")
                         }
-                        //   .disabled(viewModel.lastQuestion)
+                        //  .disabled(viewModel.lastQuestion)
                     }
                     
                 }
@@ -100,6 +115,9 @@ struct InterviewSessionView: View {
                 Text("Precisamos do microfone para analisar suas respostas")
             }
             
+            .navigationDestination(isPresented: $viewModel.goToFeedback, destination: {
+                FeedbackView(question: viewModel.currentQuestion)
+            })
             .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
                 Button("Recomeçar", role: .destructive) {
                     Task {
@@ -125,7 +143,7 @@ struct InterviewSessionView: View {
 }
 
 #Preview {
-    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
-    InterviewSessionView(questions: questions)
-    
+//    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
+//    InterviewSessionView(questions: questions)
+//    
 }

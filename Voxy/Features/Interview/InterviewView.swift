@@ -9,10 +9,12 @@ import SwiftUI
 
 struct InterviewView: View {
     @State private var viewModel: InterviewViewModel
+    @State private var feedbackEngine: FeedbackEngineProtocol
     @State private var isSessionActive = false
 
-    init(jobPosting: JobPosting) {
+    init(jobPosting: JobPosting, feedbackEngine: FeedbackEngineProtocol) {
         _viewModel = State(initialValue: InterviewViewModel(jobPosting: jobPosting))
+        _feedbackEngine = State(initialValue: feedbackEngine)
     }
     
     var body: some View {
@@ -75,7 +77,7 @@ struct InterviewView: View {
             }
             // navegacao lazy: só renderiza quando necessário
             .navigationDestination(isPresented: $isSessionActive) {
-                InterviewSessionView(questions: viewModel.questions)
+                InterviewSessionView(questions: viewModel.questions, feedbackEngine: feedbackEngine)
             }
         }
     }
@@ -83,11 +85,11 @@ struct InterviewView: View {
 
 #Preview {
     NavigationStack {
-        InterviewView(
-            jobPosting: JobPosting(
-                title: "iOS Engineer", companyName: "Voxy",
-                jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
-            )
-        )
+//        InterviewView(
+//            jobPosting: JobPosting(
+//                title: "iOS Engineer", companyName: "Voxy",
+//                jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
+//            )
+//        )
     }
 }
