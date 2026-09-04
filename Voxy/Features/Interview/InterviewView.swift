@@ -85,11 +85,12 @@ struct InterviewView: View {
 
 #Preview {
     NavigationStack {
-//        InterviewView(
-//            jobPosting: JobPosting(
-//                title: "iOS Engineer", companyName: "Voxy",
-//                jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
-//            )
-//        )
+        InterviewView(
+            jobPosting: JobPosting(
+                title: "iOS Engineer",
+                companyName: "Nubank",
+                jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
+            )
+        )
     }
 }
