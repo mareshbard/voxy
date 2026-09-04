@@ -61,7 +61,7 @@ struct JobPostingDetailsView: View {
         .navigationTitle(jobPosting.title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $shouldStartInterview) {
-            InterviewView(jobPosting: jobPosting)
+            InterviewView(jobPosting: jobPosting, feedbackEngine: FoundationFeedbackEngine())
         }
     }
 }

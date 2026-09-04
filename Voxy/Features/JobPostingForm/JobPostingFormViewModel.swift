@@ -14,7 +14,6 @@ final class JobPostingFormViewModel {
     var title = ""
     var companyName = ""
     var jobDescription = ""
-    var companyName = ""
     var isRecognizing = false
     var errorMessage: String?
     var questionCount: Int = 6 
@@ -64,11 +63,8 @@ final class JobPostingFormViewModel {
         let trimmedTitle = title
             .trimmingCharacters(in: .whitespacesAndNewlines)
         
-        let trimmedCompany = companyName
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-
         let trimmedCompanyName = companyName
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let trimmedDescription = jobDescription
             .trimmingCharacters(in: .whitespacesAndNewlines)
