@@ -75,6 +75,7 @@ struct InterviewView: View {
             } label: {
                 Text("Começar entrevista")
             }
+            .disabled(viewModel.questions.isEmpty || viewModel.isLoading)
             // navegacao lazy: só renderiza quando necessário
             .navigationDestination(isPresented: $isSessionActive) {
                 InterviewSessionView(questions: viewModel.questions, feedbackEngine: feedbackEngine)
@@ -90,7 +91,8 @@ struct InterviewView: View {
                 title: "iOS Engineer",
                 companyName: "Nubank",
                 jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
-            )
+            ),
+            feedbackEngine: FoundationFeedbackEngine()
         )
     }
 }

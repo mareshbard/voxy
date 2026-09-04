@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GameButton: ButtonStyle {
+    var height: CGFloat = 60
     
     var faceColor: Color = Color("ButtonFaceColor")
     var deepColor: Color = Color("ButtonBackgroundColor")
@@ -46,7 +47,7 @@ struct GameButton: ButtonStyle {
                 )
                 .offset(y: configuration.isPressed ? 0 : -lipHeight * 1.6)
         }
-        .frame(height: 60)
+        .frame(height: height)
         .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
         .onChange(of: configuration.isPressed) { _, isPressed in
             if isPressed {

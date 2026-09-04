@@ -14,10 +14,9 @@ final class JobPostingFormViewModel {
     var title = ""
     var companyName = ""
     var jobDescription = ""
-    var companyName = ""
     var isRecognizing = false
     var errorMessage: String?
-    var questionCount: Int = 6 
+    var questionCount: Int = 6
 
     var canTrain: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -63,12 +62,9 @@ final class JobPostingFormViewModel {
     func save() -> JobPosting? {
         let trimmedTitle = title
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        let trimmedCompany = companyName
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
 
         let trimmedCompanyName = companyName
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let trimmedDescription = jobDescription
             .trimmingCharacters(in: .whitespacesAndNewlines)

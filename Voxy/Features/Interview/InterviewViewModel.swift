@@ -1,20 +1,25 @@
+//
+//  InterviewViewModel.swift
+//  Voxy
+//
+
 import Foundation
 import Observation
 
 @MainActor
 @Observable
 final class InterviewViewModel {
+
     let jobPosting: JobPosting
+
     var questions: [String] = []
     var isLoading = false
     var errorMessage: String?
 
-//  Debug da quantidade de tokens utilizado nessa entrevista
     var tokenUsagePercent = 0
-    
+
     private let service: QuestionGenerationServiceProtocol
 
-//  Todas as perguntas geradas nessa entrevista ficarão aqui
     private var askedQuestions: [String] = []
 
     init(
@@ -38,31 +43,74 @@ final class InterviewViewModel {
             return
         }
 
+        guard !isLoading else {
+            return
+        }
+
         isLoading = true
         errorMessage = nil
         questions = []
-        defer { isLoading = false }
+
+        defer {
+            isLoading = false
+            tokenUsagePercent = service.tokenUsagePercent
+        }
 
         do {
             let generated = try await service.generateQuestions(
                 for: description,
                 avoiding: askedQuestions
             )
+
             questions = generated
             askedQuestions.append(contentsOf: generated)
-        } catch {
-            errorMessage = "Erro ao gerar perguntas: \(error.localizedDescription)"
-        }
 
-        tokenUsagePercent = service.tokenUsagePercent
+        } catch {
+            handleGenerationError(error)
+        }
     }
 
-//     Reinicia a entrevista e os tokens
     func startNewInterview() {
         askedQuestions = []
         questions = []
         errorMessage = nil
+
         service.reset()
+
         tokenUsagePercent = service.tokenUsagePercent
+    }
+
+    // MARK: - Error Handling
+
+    private func handleGenerationError(_ error: Error) {
+        let nsError = error as NSError
+
+        print("========== FOUNDATION MODELS ERROR ==========")
+        print("Domain:", nsError.domain)
+        print("Code:", nsError.code)
+        print("Description:", nsError.localizedDescription)
+        print("UserInfo:", nsError.userInfo)
+        print("=============================================")
+
+        let fullError = String(describing: nsError.userInfo)
+
+        if fullError.contains("SensitiveContentAnalysisML")
+            || fullError.contains("ModelManagerError")
+            || fullError.localizedCaseInsensitiveContains("rate limit") {
+
+            errorMessage = """
+            O modelo de IA está temporariamente indisponível.
+
+            Aguarde alguns instantes e tente gerar as perguntas novamente.
+            """
+
+            return
+        }
+
+        errorMessage = """
+        Não foi possível gerar as perguntas.
+
+        Tente novamente em alguns instantes.
+        """
     }
 }
