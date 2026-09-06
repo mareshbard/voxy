@@ -10,7 +10,10 @@ import SwiftUI
 struct StreakSection: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    /// Empilha as células verticalmente quando a fonte atinge tamanhos de acessibilidade.
+    @AppStorage(StreakManager.Keys.currentStreak) private var currentStreak: Int = 0
+    @AppStorage(StreakManager.Keys.maxStreak) private var maxStreak: Int = 0
+    @AppStorage(StreakManager.Keys.totalSessions) private var totalSessions: Int = 0
+
     private var isStacked: Bool {
         dynamicTypeSize.isAccessibilitySize
     }
@@ -19,17 +22,17 @@ struct StreakSection: View {
         let layout = isStacked ? AnyLayout(VStackLayout(spacing: 0)) : AnyLayout(HStackLayout(spacing: 0))
 
         layout {
-            StreakItemView(title: "OFENSIVA", value: "3", unit: "dias", valueColor: Color("StreakColorGreen"))
+            StreakItemView(title: "OFENSIVA", value: "\(currentStreak)", unit: "dias", valueColor: Color("StreakColorGreen"))
                 .frame(maxWidth: .infinity)
 
             divider
 
-            StreakItemView(title: "RECORDE", value: "15", unit: "dias", valueColor: Color("StreakColorYellow"))
+            StreakItemView(title: "RECORDE", value: "\(maxStreak)", unit: "dias", valueColor: Color("StreakColorYellow"))
                 .frame(maxWidth: .infinity)
 
             divider
 
-            StreakItemView(title: "TOTAL", value: "15", unit: "sessões", valueColor: Color("StreakColorPink"))
+            StreakItemView(title: "TOTAL", value: "\(totalSessions)", unit: "sessões", valueColor: Color("StreakColorPink"))
                 .frame(maxWidth: .infinity)
         }
         .padding(.vertical, 10)
@@ -39,9 +42,11 @@ struct StreakSection: View {
             RoundedRectangle(cornerRadius: 16)
                 .strokeBorder(Color("PrimaryBlue"), lineWidth: 1)
         )
+        .onAppear {
+            StreakManager.refreshIfStreakBroken()
+        }
     }
 
-    /// Divisor que acompanha a orientação do layout: vertical em linha, horizontal quando empilhado.
     private var divider: some View {
         Rectangle()
             .fill(Color("SecondaryBlue"))
@@ -67,11 +72,11 @@ struct StreakItemView: View {
                 .font(.custom("Nunito", size: 12).weight(.bold))
                 .tracking(1.1)
                 .foregroundStyle(Color("PrimaryFontColor"))
-            
+
             Text(value)
                 .font(.custom("Nunito", size: 24).weight(.black))
                 .foregroundStyle(valueColor)
-            
+
             Text(unit)
                 .font(.custom("Nunito", size: 14).weight(.bold))
                 .foregroundStyle(Color("SecondaryFontColor"))

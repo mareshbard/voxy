@@ -91,8 +91,7 @@ struct InterviewView: View {
                 title: "iOS Engineer",
                 companyName: "Nubank",
                 jobDescription: "Experiência com Swift, SwiftUI, testes unitários e CI/CD."
-            ),
-            feedbackEngine: FoundationFeedbackEngine()
-        )
+
+            ), feedbackEngine: FoundationFeedbackEngine() )
     }
 }
