@@ -79,10 +79,14 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
     private var instructionsTokens: Int?
 
     var tokenUsagePercent: Int {
-        let contextSize = model.contextSize
-        guard contextSize > 0 else { return 0 }
-        let fraction = Double(usedTokens) / Double(contextSize)
-        return min(100, max(0, Int((fraction * 100).rounded())))
+        let estimatedContextSize = 4096
+
+        let fraction = Double(usedTokens) / Double(estimatedContextSize)
+
+        return min(
+            100,
+            max(0, Int((fraction * 100).rounded()))
+        )
     }
 
     var availabilityMessage: String? {
@@ -215,11 +219,9 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
 
 // Estimativa de mais ou menos 4 caracteres por tokens
     private func tokenCount(of text: String) async -> Int {
-        if #available(iOS 26.4, *) {
-            if let count = try? await model.tokenCount(for: text) {
-                return count
-            }
-        }
-        return max(1, Int((Double(text.count) / 4.0).rounded(.up)))
+        max(
+            1,
+            Int((Double(text.count) / 4.0).rounded(.up))
+        )
     }
 }
