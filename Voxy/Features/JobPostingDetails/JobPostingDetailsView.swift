@@ -44,7 +44,6 @@ struct JobPostingDetailsView: View {
         .toolbar(.hidden, for: .navigationBar)
     }
 
-    // MARK: - Header
 
     private var header: some View {
         ZStack {
@@ -105,7 +104,6 @@ struct JobPostingDetailsView: View {
         .frame(height: 234)
     }
 
-    // MARK: - Training Card
 
     private var trainingCountCard: some View {
         VStack(spacing: 4) {
@@ -138,7 +136,6 @@ struct JobPostingDetailsView: View {
         }
     }
 
-    // MARK: - Description
 
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -148,7 +145,7 @@ struct JobPostingDetailsView: View {
                 .foregroundStyle(Color("PrimaryFontColor"))
 
             VStack(alignment: .leading, spacing: 24) {
-                ForEach(jobDescriptionItems, id: \.self) { item in
+                ForEach(Array(jobDescriptionItems.enumerated()), id: \.offset) { _, item in
                     HStack(alignment: .top, spacing: 16) {
                         Circle()
                             .fill(Color("PrimaryBlue"))
@@ -170,15 +167,46 @@ struct JobPostingDetailsView: View {
     }
 
     private var jobDescriptionItems: [String] {
-        jobPosting.jobDescription
+        let lines = jobPosting.jobDescription
             .components(separatedBy: .newlines)
             .map {
                 $0.trimmingCharacters(in: .whitespacesAndNewlines)
             }
-            .filter { !$0.isEmpty }
+            .filter {
+                !$0.isEmpty
+            }
+
+        var items: [String] = []
+        var currentItem = ""
+
+        for line in lines {
+            if currentItem.isEmpty {
+                currentItem = line
+            } else {
+                currentItem += " " + line
+            }
+
+            if endsRequirement(line) {
+                items.append(currentItem)
+                currentItem = ""
+            }
+        }
+
+        if !currentItem.isEmpty {
+            items.append(currentItem)
+        }
+
+        return items
     }
 
-    // MARK: - Train Button
+    private func endsRequirement(_ text: String) -> Bool {
+        guard let lastCharacter = text.last else {
+            return false
+        }
+
+        return ".;!?".contains(lastCharacter)
+    }
+
 
     private var trainButton: some View {
         Button {
@@ -193,10 +221,10 @@ struct JobPostingDetailsView: View {
         .background(.white)
     }
 
-    // MARK: - Actions
 
     private func editJobPosting() {
-        // TODO: navegar para edição da vaga
+        // TODO: implementar edição da vaga reutilizando o formulário existente.
+
     }
 }
 
