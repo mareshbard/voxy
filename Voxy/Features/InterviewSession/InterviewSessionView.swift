@@ -6,9 +6,13 @@ struct InterviewSessionView: View {
     @State private var feedbackEngine: FeedbackEngineProtocol
     @Environment(\.dismiss) private var dismiss
 
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol) {
-        _viewModel = State(initialValue: InterviewSessionViewModel(questions: questions, feedbackEngine: feedbackEngine))
-        _feedbackEngine = State(initialValue: feedbackEngine)   
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
+        _viewModel = State(initialValue: InterviewSessionViewModel(
+            questions: questions,
+            feedbackEngine: feedbackEngine,
+            jobPosting: jobPosting
+        ))
+        _feedbackEngine = State(initialValue: feedbackEngine)
     }
     
     var body: some View {
@@ -118,7 +122,12 @@ struct InterviewSessionView: View {
             }
             
             .navigationDestination(isPresented: $viewModel.goToFeedback, destination: {
-                FeedbackView(question: viewModel.currentQuestion, feedbacks: viewModel.feedbacks)
+                FeedbackView(
+                    engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
+                    question: viewModel.currentQuestion,
+                    feedbacks: viewModel.feedbacks,
+                    interviewCount: viewModel.jobPosting?.interviewCount ?? 0
+                )
             })
             .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
                 Button("Recomeçar", role: .destructive) {

@@ -10,7 +10,6 @@ import SwiftData
 
 struct JobPostingListView: View {
     @Bindable var viewModel: JobPostingListViewModel
-
     var body: some View {
         ZStack {
             Color(

@@ -3,9 +3,11 @@ import SwiftUI
 struct FeedbackView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: FeedbackViewModel
-    //@State private var goHome = false
+    @State private var goHome = false
+    private let interviewCount: Int
 
-    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = []) {
+    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], interviewCount: Int = 0) {
+        self.interviewCount = interviewCount
         _viewModel = State(initialValue: FeedbackViewModel(engine: engine))
         _viewModel.wrappedValue.question = question
         _viewModel.wrappedValue.feedbacks = feedbacks
@@ -23,8 +25,8 @@ struct FeedbackView: View {
                             Text("JÁ TREINOU")
                                 .font(Font.custom("Nunito", size: 11)
                                     .weight(.bold))
-                            Text("15")
-                            Text("vezes!")
+                            Text("\(interviewCount)")
+                            Text(interviewCount == 1 ? "vez" : "vezes")
                         }
                         .padding(16)
                         .background(Color(.systemGray6))
@@ -48,16 +50,18 @@ struct FeedbackView: View {
                 .padding(24)
             
         }
-//        .navigationDestination(isPresented: $goHome) {
-//            OnBoardingView(feedbackEngine: FoundationFeedbackEngine())
-//        }
-//        .toolbar {
-//            ToolbarItem(placement: .topBarTrailing) {
-//                Button(action: { goHome = true }) {
-//                    Label("Início", systemImage: "house")
-//                }
-//            }
-//        }
+            .navigationDestination(isPresented: $goHome) {
+                        OnBoardingView()
+                    }
+            .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button(action: {
+                                goHome = true // Ativa a navegação para a home
+                            }) {
+                                Label("Início", systemImage: "xmark")
+                            }
+                        }
+                    }
         .scrollIndicators(.hidden)
         .task {
             await viewModel.analyzeFinal()

@@ -69,16 +69,20 @@ struct InterviewView: View {
             }
             await viewModel.generateQuestions()
         }
-            // passando perguntas geradas para a tela de entrevista
             Button {
                 isSessionActive = true
             } label: {
                 Text("Começar entrevista")
             }
             .buttonStyle(GameButton())
-            // navegacao lazy: só renderiza quando necessário
+            .disabled(viewModel.questions.isEmpty || viewModel.isLoading)
+            .padding()
             .navigationDestination(isPresented: $isSessionActive) {
-                InterviewSessionView(questions: viewModel.questions, feedbackEngine: feedbackEngine)
+                InterviewSessionView(
+                    questions: viewModel.questions,
+                    feedbackEngine: feedbackEngine,
+                    jobPosting: viewModel.jobPosting
+                )
             }
         }
     }

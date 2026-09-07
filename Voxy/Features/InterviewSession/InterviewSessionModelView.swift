@@ -8,6 +8,7 @@ import AVFoundation
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
 
     private var feedbackEngine: FeedbackEngineProtocol
+    let jobPosting: JobPosting?
     var feedbacks: [AnswerFeedback] = []
     var isGeneratingFeedback: Bool = false
     var finalFeedback: String = ""
@@ -31,14 +32,19 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         set { speechAnalyzerManager.showMicDeniedAlert = newValue}
     }
     var canGoToNextQuestion: Bool {
-        elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
+        if lastQuestion {
+            return speechAnalyzerManager.isTranscribing
+        }
+
+        return elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
     }
     
     var restartConfirmation: Bool = false
     
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol) {
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
         self.questions = questions
         self.feedbackEngine = feedbackEngine
+        self.jobPosting = jobPosting
         super.init()
         synthesizer.delegate = self
     }
@@ -130,10 +136,10 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             stopTimer()
             resetTranscript()
         } else {
+            jobPosting?.interviewCount += 1
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
-            
         }
         //        saveResponse(response: speechAnalyzerManager.transcript)
     }

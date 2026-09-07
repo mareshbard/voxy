@@ -10,7 +10,7 @@ struct VoxyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            OnBoardingView(feedbackEngine: FoundationFeedbackEngine())
+            OnBoardingView()
         }
         .modelContainer(for: JobPosting.self)
     }

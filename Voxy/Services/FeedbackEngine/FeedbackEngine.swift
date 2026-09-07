@@ -9,7 +9,7 @@ import Foundation
 import FoundationModels
 
 @Generable
-struct AnswerFeedback {
+struct AnswerFeedback: Hashable {
     @Guide(description: "Seja honesto e dê uma nota de 1 a 5 que condiz com a clareza e a articulação da resposta.", .range(1...5))
     let articulationScore: Int
 
