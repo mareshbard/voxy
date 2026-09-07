@@ -18,6 +18,7 @@ struct FeedbackSection: View {
                     Text(item)
                         .font(Font.custom("Nunito", size: 14))
                         .foregroundColor(Color(.gray))
+                        .bold()
                 }
             }
         }
@@ -26,7 +27,7 @@ struct FeedbackSection: View {
         .padding(.horizontal, 12)
         .background(highlighted ? Color(.fbBg) : Color.clear)
         .cornerRadius(12)
-        .foregroundStyle(highlighted ? Color(.black) : Color.primary)
+        .foregroundStyle(highlighted ? Color(.grayText) : Color.primary)
     }
 }
 #Preview {

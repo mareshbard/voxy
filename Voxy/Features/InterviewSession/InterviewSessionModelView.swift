@@ -6,7 +6,7 @@ import AVFoundation
 @Observable
 
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
-
+    
     private var feedbackEngine: FeedbackEngineProtocol
     let jobPosting: JobPosting?
     var feedbacks: [AnswerFeedback] = []
@@ -35,7 +35,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         if lastQuestion {
             return speechAnalyzerManager.isTranscribing
         }
-
+        
         return elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
     }
     
@@ -57,10 +57,16 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func speakQuestion() async {
-        synthesizer.stopSpeaking(at: .immediate)
+        // synthesizer.stopSpeaking(at: .immediate)
         if speechAnalyzerManager.isTranscribing  {
             await speechAnalyzerManager.stopTranscription()
         }
+        // Se já estiver falando, apenas interrompe e sai da função
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+            return
+        }
+        
         do {
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try AVAudioSession.sharedInstance().setActive(true)

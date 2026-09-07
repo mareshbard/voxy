@@ -18,20 +18,28 @@ struct FeedbackView: View {
                 VStack {
                     VStack {
                         Text("Mandou bem!")
-                            .font(Font.custom("Nunito", size: 28)
-                                .weight(.bold))
+                            .font(.custom("Satoshi-Bold", size: 32))
+                            .bold()
                         Text("Você está arrasando!")
+                            .font(Font.custom("Nunito", size: 20)
+                                .weight(.bold))
                         VStack {
                             Text("JÁ TREINOU")
-                                .font(Font.custom("Nunito", size: 11)
+                                .font(Font.custom("Satoshi-Bold", size: 12)
                                     .weight(.bold))
                             Text("\(interviewCount)")
-                            Text(interviewCount == 1 ? "vez" : "vezes")
+                                .font(Font.custom("Nunito", size: 24)
+                                    .weight(.bold))
+                                .foregroundStyle(Color(.total))
+                            Text(interviewCount == 1 ? "vez!" : "vezes!")
                         }
                         .padding(16)
-                        .background(Color(.systemGray6))
+                        .frame(width: 120, height: 100) // Dimensões do cartão
+                        .background(Color(.fbBg))
                         .cornerRadius(24)
+                        .foregroundStyle(Color(.fbText))
                     }
+              
 
 
                     if viewModel.isLoading {
