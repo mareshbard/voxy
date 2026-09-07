@@ -58,7 +58,7 @@ struct InterviewSessionView: View {
                         }
                         .padding(.top, 16)
                         
-                        Spacer(minLength: 40)
+                        Spacer(minLength: 20)
                         
                         // Card do Microfone
                         MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
@@ -112,7 +112,7 @@ struct InterviewSessionView: View {
                 engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
                 question: viewModel.currentQuestion,
                 feedbacks: viewModel.feedbacks,
-                interviewCount: viewModel.jobPosting?.interviewCount ?? 0
+                interviewCount: viewModel.jobPosting?.countInterview ?? 0
             )
         })
         .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {

@@ -142,7 +142,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             stopTimer()
             resetTranscript()
         } else {
-            jobPosting?.interviewCount += 1
+            jobPosting?.countInterview += 1
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
