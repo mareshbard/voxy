@@ -12,10 +12,11 @@ import Observation
 @Observable
 final class JobPostingFormViewModel {
     var title = ""
-    var jobDescription = ""
     var companyName = ""
+    var jobDescription = ""
     var isRecognizing = false
     var errorMessage: String?
+    var questionCount: Int = 6
 
     var canTrain: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -58,29 +59,28 @@ final class JobPostingFormViewModel {
         }
     }
 
-    func save() -> Bool {
+    func save() -> JobPosting? {
         let trimmedTitle = title
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        let trimmedCompany = companyName
-            .trimmingCharacters(in: .whitespacesAndNewlines)
 
+        let trimmedCompanyName = companyName
+            .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let trimmedDescription = jobDescription
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         let jobPosting = JobPosting(
             title: trimmedTitle,
-            companyName: trimmedCompany,
+            companyName: trimmedCompanyName,
             jobDescription: trimmedDescription
         )
 
         do {
             try store.save(jobPosting)
-            return true
+            return jobPosting
         } catch {
             errorMessage = "Nao foi possivel salvar a vaga."
-            return false
+            return nil
         }
     }
 }

@@ -13,20 +13,23 @@ final class JobPosting {
     var companyName: String
     var jobDescription: String
     var status: PostingStatus
-    var interviewCount: Int
+    var countInterview: Int
+    var lastSimulated: Date
 
     init(
         title: String,
         companyName: String,
         jobDescription: String,
         status: PostingStatus = .saved,
-        interviewCount: Int = 0
+        countInterview: Int = 0,
+        lastSimulated: Date = .now
     ) {
         self.title = title
         self.companyName = companyName
         self.jobDescription = jobDescription
         self.status = status
-        self.interviewCount = interviewCount
+        self.countInterview = countInterview
+        self.lastSimulated = lastSimulated
     }
 }
 
