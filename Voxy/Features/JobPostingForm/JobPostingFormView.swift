@@ -57,6 +57,11 @@ struct JobPostingFormView: View {
                             isRecognizing: viewModel.isRecognizing,
                             selection: $selectedPhoto
                         )
+                        
+                        Text("Para uma melhor leitura, insira a imagem recortada, contendo apenas as informações da vaga.")
+                                .font(.custom("Nunito-SemiBold", size: 14))
+                                .foregroundStyle(Color("SecondaryFontColor"))
+                                .fixedSize(horizontal: false, vertical: true)
                     } header: {
                         SectionLabel(
                             title: "PRINT DA VAGA",
