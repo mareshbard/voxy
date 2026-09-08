@@ -10,90 +10,193 @@ import SwiftData
 import PhotosUI
 
 struct JobPostingFormView: View {
-    @Bindable var viewModel: JobPostingFormViewModel
+
+    @State private var shouldShowJobDetails = false
+    @State private var shouldStartInterview = false
+    @State private var savedJobPosting: JobPosting?
     @State private var selectedPhoto: PhotosPickerItem?
+
+    @Bindable var viewModel: JobPostingFormViewModel
 
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 0) {
-            JobPostingSheetHeader(
-                title: "Nova vaga",
-                onCancel: { dismiss() },
-                onSave: {
-                    if viewModel.save() {
-                        dismiss()
-                    }
-                }
-            )
-
+        NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    AssistantMessageCard(
-                        eyebrow: "Mia diz:",
-                        title: "Vamos treinar!",
-                        message: "Insira a descrição da vaga em texto ou adicionar um print se preferir!"
-                    )
+                VStack(alignment: .leading, spacing: 16) {
 
-                    VoxyFormTextField(
-                        title: "NOME DA VAGA*",
-                        placeholder: "Ex: UX Designer Jr., Front-end Dev...",
-                        text: $viewModel.title
-                    )
+                    HeaderSectionForm()
+                        .frame(maxWidth: .infinity)
 
-                    VoxyImagePickerField(
-                        selection: $selectedPhoto,
-                        isRecognizing: viewModel.isRecognizing
-                    )
+                    Section {
+                        FocusableTextField(
+                            placeholder: "Escreva o título da vaga...",
+                            text: $viewModel.title
+                        )
+                    } header: {
+                        SectionLabel(
+                            title: "NOME DA VAGA",
+                            required: true
+                        )
+                        .accessibilityHint(Text("Obrigatório"))
 
-                    VoxyTextEditorField(
-                        title: "DESCRIÇÃO EM TEXTO",
-                        placeholder: "Ou cole aqui o texto da vaga...",
-                        text: $viewModel.jobDescription
+                    }
+
+                    Section {
+                        FocusableTextField(
+                            placeholder: "Digite o nome da empresa...",
+                            text: $viewModel.companyName
+                        )
+                    } header: {
+                        SectionLabel(
+                            title: "EMPRESA",
+                            required: true
+                        )
+                        .accessibilityHint(Text("Obrigatório"))
+
+                    }
+
+                    Section {
+                        PhotoPickerItem(
+                            title: "Adicionar imagem da vaga",
+                            isRecognizing: viewModel.isRecognizing,
+                            selection: $selectedPhoto
+                        )
+                        
+                        Text("Para uma melhor leitura, insira a imagem recortada, contendo apenas as informações da vaga.")
+                                .font(.custom("Nunito-SemiBold", size: 14))
+                                .foregroundStyle(Color("SecondaryFontColor"))
+                                .fixedSize(horizontal: false, vertical: true)
+                    } header: {
+                        SectionLabel(
+                            title: "PRINT DA VAGA",
+                            required: false
+                        )
+                    }
+
+                    Section {
+                        FocusableTextFieldDescription(
+                            placeholder: "Digite os requisitos da vaga ou carregue uma imagem...",
+                            text: $viewModel.jobDescription
+                        )
+                    } header: {
+                        SectionLabel(
+                            title: "DESCRIÇÃO DA VAGA",
+                            required: true
+                        )
+                        .accessibilityHint(Text("Obrigatório"))
+
+                    }
+
+                    Spacer()
+
+                    Button("Continuar") {
+                        saveAndShowDetails()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .buttonStyle(GameButton())
+                    .disabled(!canSave)
+
+                    Spacer()
+                }
+                .padding(24)
+            }
+            .navigationDestination(
+                isPresented: $shouldShowJobDetails
+            ) {
+                if let jobPosting = savedJobPosting {
+                    JobPostingDetailsView(
+                        jobPosting: jobPosting
                     )
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 24)
-                .padding(.bottom, 24)
             }
-
-            VoxyPrimaryButton(title: "Treinar agora!") {
-                // Treinar agora
-            }
-                .disabled(!viewModel.canTrain)
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
-                .padding(.bottom, 24)
-        }
-        .background(VoxyDesignColor.sheetGroupedBackground)
-        .presentationBackground(VoxyDesignColor.sheetGroupedBackground)
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
-        .alert(
-            "Erro ao ler imagem",
-            isPresented: Binding(
-                get: { viewModel.errorMessage != nil },
-                set: { if !$0 { viewModel.errorMessage = nil } }
+            .scrollContentBackground(.hidden)
+            .background(
+                Color("BackgroundJobCardColor")
+                    .ignoresSafeArea()
             )
-        ) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(viewModel.errorMessage ?? "")
-        }
-        .onChange(of: selectedPhoto) { _, newPhoto in
-            guard let newPhoto else {
-                return
-            }
+            .toolbar {
+                ToolbarItem(
+                    placement: .cancellationAction
+                ) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .accessibilityLabel(
+                                Text("Cancelar")
+                            )
+                            .accessibilityHint(
+                                "Cancela o formulário e volta à tela anterior"
+                            )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 24)
+                }
 
-            Task {
-                let imageData = try? await newPhoto.loadTransferable(type: Data.self)
-                await viewModel.importRequirements(from: imageData)
+                ToolbarItem(
+                    placement: .confirmationAction
+                ) {
+                    Button {
+                        saveAndShowDetails()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .accessibilityLabel(
+                                Text("Salvar")
+                            )
+                            .accessibilityHint(
+                                "Salva a vaga e exibe seus detalhes"
+                            )
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("PrimaryBlue"))
+                    .disabled(!canSave)
+                }
+            }
+            .toolbar(.hidden, for: .tabBar)
+            .scrollDismissesKeyboard(.immediately)
+            .onChange(of: selectedPhoto) { _, newPhoto in
+                guard let newPhoto else { return }
+
+                Task {
+                    let imageData = try? await newPhoto
+                        .loadTransferable(type: Data.self)
+
+                    await viewModel.importRequirements(
+                        from: imageData
+                    )
+                }
             }
         }
+
+//        savedJobPosting = jobPosting
+//        shouldStartInterview = true
+    }
+
+    private var canSave: Bool {
+        !viewModel.title
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+            && !viewModel.companyName
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty
+            && !viewModel.jobDescription
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty
+    }
+
+    private func saveAndShowDetails() {
+        guard let jobPosting = viewModel.save() else {
+            return
+        }
+
+        savedJobPosting = jobPosting
+        shouldShowJobDetails = true
     }
 }
 
-#Preview {
+#Preview("Nova vaga") {
     let container = try! ModelContainer(
         for: JobPosting.self,
         configurations: ModelConfiguration(
@@ -109,25 +212,44 @@ struct JobPostingFormView: View {
         store: store
     )
 
-    return JobPostingFormPreview(
+    JobPostingFormView(
         viewModel: viewModel
     )
+    .modelContainer(container)
 }
 
-private struct JobPostingFormPreview: View {
-    let viewModel: JobPostingFormViewModel
+#Preview("Editar vaga") {
+    let container = try! ModelContainer(
+        for: JobPosting.self,
+        configurations: ModelConfiguration(
+            isStoredInMemoryOnly: true
+        )
+    )
 
-    @State private var isPresented = true
+    let store = JobPostingStore(
+        modelContext: container.mainContext
+    )
 
-    var body: some View {
-        Color.gray.opacity(0.15)
-            .ignoresSafeArea()
-            .sheet(isPresented: $isPresented) {
-                JobPostingFormView(
-                    viewModel: viewModel
-                )
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
-            }
-    }
+    let jobPosting = JobPosting(
+        title: "UX Designer PL",
+        companyName: "iFood",
+        jobDescription: """
+        Ensino Superior completo ou cursando em Design.
+
+        Experiência com UX/UI e prototipação.
+
+        Conhecimento em ferramentas de design.
+        """,
+        countInterview: 1
+    )
+
+    let viewModel = JobPostingFormViewModel(
+        store: store,
+        editingJobPosting: jobPosting
+    )
+
+    JobPostingFormView(
+        viewModel: viewModel
+    )
+    .modelContainer(container)
 }

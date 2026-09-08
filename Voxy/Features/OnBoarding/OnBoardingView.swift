@@ -33,7 +33,7 @@ struct OnBoardingView: View {
                 }
             }
             .navigationDestination(for: JobPosting.self) { jobPosting in
-                InterviewView(jobPosting: jobPosting)
+                InterviewView(jobPosting: jobPosting, feedbackEngine: FoundationFeedbackEngine())
             }
             .navigationTitle("Início")
             .toolbar {
