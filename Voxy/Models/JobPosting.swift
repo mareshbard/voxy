@@ -16,13 +16,18 @@ final class JobPosting {
     var countInterview: Int
     var lastSimulated: Date
     var feedback: InterviewFeedbackRecord?
+    /// Perguntas já geradas para esta vaga em treinos anteriores. Uso interno
+    /// (não exibido ao usuário): serve para evitar que uma mesma pergunta se
+    /// repita entre sessões diferentes da mesma vaga.
+    var askedQuestions: [String] = []
     init(
         title: String,
         companyName: String,
         jobDescription: String,
         status: PostingStatus = .saved,
         countInterview: Int = 0,
-        lastSimulated: Date = .now
+        lastSimulated: Date = .now,
+        askedQuestions: [String] = []
     ) {
         self.title = title
         self.companyName = companyName
@@ -30,6 +35,7 @@ final class JobPosting {
         self.status = status
         self.countInterview = countInterview
         self.lastSimulated = lastSimulated
+        self.askedQuestions = askedQuestions
     }
 }
 

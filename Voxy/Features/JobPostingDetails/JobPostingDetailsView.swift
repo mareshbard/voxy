@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct JobPostingDetailsView: View {
 
@@ -17,10 +18,10 @@ struct JobPostingDetailsView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
+        ScrollView {
+            VStack(spacing: 0) {
+                header
 
-            ScrollView {
                 VStack(spacing: 24) {
                     trainingCountCard
                     descriptionSection
@@ -30,7 +31,8 @@ struct JobPostingDetailsView: View {
                 .padding(.bottom, 120)
             }
         }
-        .background(Color.white)
+        .scrollEdgeEffectHidden(true, for: .top)
+        .background(Color(.systemBackground))
         .ignoresSafeArea(edges: .top)
         .safeAreaInset(edge: .bottom) {
             trainButton
@@ -38,10 +40,7 @@ struct JobPostingDetailsView: View {
         .navigationDestination(
             isPresented: $shouldStartInterview
         ) {
-            InterviewView(
-                jobPosting: jobPosting,
-                feedbackEngine: FoundationFeedbackEngine()
-            )
+            InterviewLoadingView(jobPosting: jobPosting)
         }
         
         .sheet(isPresented: $shouldEditJobPosting) {
@@ -54,7 +53,25 @@ struct JobPostingDetailsView: View {
                 )
             )
         }
-        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .accessibilityLabel(Text("Voltar"))
+                }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Editar") {
+                    shouldEditJobPosting = true
+                }
+            }
+        }
+        .tint(Color("IconPrimaryColor"))
     }
 
 
@@ -76,43 +93,6 @@ struct JobPostingDetailsView: View {
                     .frame(maxWidth: .infinity, alignment: .top)
             }
             .padding(.top, 110)
-
-            VStack {
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 19, weight: .medium))
-                            .foregroundStyle(Color("IconPrimaryColor"))
-                            .frame(width: 48, height: 48)
-                            .background(
-                                Circle()
-                                    .fill(.white.opacity(0.9))
-                            )
-                    }
-
-                    Spacer()
-
-                    Button {
-                        shouldEditJobPosting = true
-                    } label: {
-                        Text("Editar")
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(Color("IconPrimaryColor"))
-                            .padding(.horizontal, 20)
-                            .frame(height: 48)
-                            .background(
-                                Capsule()
-                                    .fill(.white)
-                            )
-                    }
-                }
-
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 74)
         }
         .frame(height: 234)
     }
@@ -229,9 +209,8 @@ struct JobPostingDetailsView: View {
                 .frame(maxWidth: .infinity)
         }
         .frame(width: 336)
-        .buttonStyle(GameButton(height: 50))
+        .buttonStyle(GameButton())
         .padding(.bottom, 8)
-        .background(.white)
     }
 
 

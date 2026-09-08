@@ -11,11 +11,11 @@ struct HeaderSectionForm: View {
     var body: some View {
         VStack(spacing: 8) {
             // Mascote centralizado no topo.
-            Image("VoxyMascotFelizBracosPTras")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 90, height: 90)
-                .padding(.bottom, -250)
+            MiaForms()
+                .fixedSize()                  // Garante o tamanho original de referência
+                .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
+                .frame(width: 150, height: 150) // Ajusta a caixa de layout para a View pai
+                .clipped()
 
             // Balão branco full-width com rabinho apontando para cima (centro).
             VStack(alignment: .leading, spacing: 2) {

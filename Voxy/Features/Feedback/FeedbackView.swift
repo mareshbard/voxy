@@ -19,12 +19,13 @@ struct FeedbackView: View {
         ScrollView {
             VStack {
                 VStack {
-                    Text("Mandou bem!")
+                    Text(viewModel.hasAnswers ? "Mandou bem!" : "Entrevista incompleta")
                         .font(.custom("Satoshi-Bold", size: 32))
                         .bold()
-                    Text("Você está arrasando!")
+                    Text(viewModel.hasAnswers ? "Você está arrasando!" : "Você não respondeu nenhuma pergunta.")
                         .font(Font.custom("Nunito", size: 20)
                             .weight(.bold))
+                        .multilineTextAlignment(.center)
                     VStack {
                         Text("JÁ TREINOU")
                             .font(Font.custom("Satoshi-Bold", size: 12)
@@ -46,17 +47,27 @@ struct FeedbackView: View {
                 
                 Spacer(minLength: 25)
                 
-                if viewModel.isLoading {
+                if !viewModel.hasAnswers {
+                    VStack(spacing: 8) {
+                        Text("Não há nada para analisar")
+                            .font(.custom("Satoshi-Bold", size: 18))
+                        Text("Responda ao menos uma pergunta em voz alta para receber seu feedback.")
+                            .font(Font.custom("Nunito", size: 16).weight(.bold))
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 20)
+                } else if viewModel.isLoading {
                     ProgressView("Analisando entrevista...")
                         .padding()
                 } else if let final = viewModel.finalFeedback {
-                    
+
                     FeedbackSection(title: "CLAREZA", items: final.clarity, highlighted: true)
                     FeedbackSection(title: "VÍCIOS", items: final.vicios, highlighted: true)
                     FeedbackSection(title: "PROFUNDIDADE", items: final.profundity, highlighted: true)
                     FeedbackSection(title: "MELHORES MOMENTOS", items: final.bestMoments)
                     FeedbackSection(title: "ONDE MELHORAR", items: final.improve)
-                    
+
                 }
             }
             .padding(24)

@@ -15,7 +15,7 @@ struct FocusableTextField: View {
     var body: some View {
         TextField(placeholder, text: $text)
             .font(.custom("Nunito-SemiBold", size: 14))
-            .foregroundStyle(Color("DisabledFontColor"))
+            .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
@@ -34,7 +34,7 @@ struct FocusableTextFieldDescription: View {
     var body: some View {
         TextField(placeholder, text: $text, axis: .vertical)
             .font(.custom("Nunito-SemiBold", size: 14))
-            .foregroundStyle(Color("DisabledFontColor"))
+            .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
             .lineLimit(3...10)
             .multilineTextAlignment(.leading)
             .padding(16)

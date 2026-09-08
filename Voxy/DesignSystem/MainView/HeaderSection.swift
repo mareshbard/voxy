@@ -29,9 +29,9 @@ struct HeaderSection: View {
                     .fixedSize()                  // Garante o tamanho original de referência
                     .scaleEffect(0.5)             // Reduz a imagem e todas as posições em 70%
                     .frame(width: 150, height: 150) // Ajusta a caixa de layout para a View pai
-                    .clipped()                    // Corta as áreas fora do limite de 90x90
+                    .clipped()                    // Corta as áreas 
                 
-                Spacer()
+//                Spacer()
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Olá, \(username)!")
