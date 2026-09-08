@@ -31,12 +31,20 @@ struct GameButton: ButtonStyle {
                 .shadow(radius: 1, x: 0, y: 2)
             // Cor principal
             RoundedRectangle(cornerRadius: 16)
-                .fill(isEnabled ? deepColor : deepColor)
+                .fill(
+                    isEnabled
+                        ? deepColor
+                        : Color("ButtonDisabledColor")
+                )
                 .shadow(radius: 1, x: 0, y: 2)
                 .padding(borderWidth)
             // Face do botão
             RoundedRectangle(cornerRadius: 16)
-                .fill(isEnabled ? faceColor : faceColor)
+                .fill(
+                    isEnabled
+                        ? faceColor
+                        : Color("ButtonDisabledColor")
+                )
                 .shadow(color: .white.opacity(0.3), radius: 0, x: 0, y: 4)
                 .padding(borderWidth)
  
