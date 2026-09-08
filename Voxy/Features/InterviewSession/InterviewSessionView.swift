@@ -39,6 +39,10 @@ struct InterviewSessionView: View {
                                     .bold()
                                     .foregroundStyle(Color(.bg))
                             })
+                          //  .accessibilityHidden(true)
+                            .accessibilityLabel(viewModel.isTranscribing ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
+
+                        //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.circle)
                             .tint(Color(.timerBg))
@@ -52,6 +56,7 @@ struct InterviewSessionView: View {
                                 VStack(alignment: .leading) {
                                     Text(viewModel.currentQuestion)
                                         .font(Font.custom("Nunito", size: 17).weight(.semibold))
+                                        .accessibilityHidden(true)
                                 }
                                 .padding()
                                 .background(Color(.systemGray6))
@@ -108,6 +113,14 @@ struct InterviewSessionView: View {
         } message: {
             Text("Precisamos do microfone para analisar suas respostas")
         }
+        
+        .onChange(of: viewModel.goToFeedback) { _, goToFeedback in
+            if goToFeedback && !didRecordSession {
+                StreakManager.recordSession()
+                didRecordSession = true
+            }
+        }
+        
         .navigationDestination(isPresented: $viewModel.goToFeedback) {
           FeedbackView(
                     engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),

@@ -33,6 +33,9 @@ struct JobPostingDetailsView: View {
         }
         .scrollEdgeEffectHidden(true, for: .top)
         .background(Color(.systemBackground))
+        .toolbar(.hidden, for: .tabBar)
+
+        .background(Color.white)
         .ignoresSafeArea(edges: .top)
         .safeAreaInset(edge: .bottom) {
             trainButton
@@ -110,6 +113,7 @@ struct JobPostingDetailsView: View {
                 .foregroundStyle(Color("SecondaryFontColor"))
                 .frame(maxWidth: .infinity, alignment: .top)
         }
+        .accessibilityElement(children: .combine)
         .padding(16)
         .frame(width: 117, alignment: .center)
         .overlay {
@@ -207,6 +211,7 @@ struct JobPostingDetailsView: View {
         } label: {
             Text("Treinar agora!")
                 .frame(maxWidth: .infinity)
+            
         }
         .frame(width: 336)
         .buttonStyle(GameButton())

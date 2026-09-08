@@ -57,6 +57,7 @@ struct JobPostingCard: View {
             }
             .fixedSize(horizontal: true, vertical: false)
         }
+        .accessibilityElement(children: .combine)
         .padding(12)
         .background(
             ZStack {

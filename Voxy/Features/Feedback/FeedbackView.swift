@@ -38,11 +38,26 @@ struct FeedbackView: View {
                             .font(Font.custom("Nunito", size: 14)
                                 .weight(.bold))
                     }
+                    .accessibilityElement(children: .combine)
                     .padding(16)
-                    .frame(width: 120, height: 100) // Dimensões do cartão
-                    .background(Color(.fbBg))
-                    .cornerRadius(24)
+                    //.frame(width: 120, height: 100)
                     .foregroundStyle(Color(.fbText))
+                    .background(
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color("PrimaryBlue"))
+                            
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color("BackgroundJobCardColor"))
+                                .offset(x: -5, y: -5) // Efeito 3D de sombra/deslocamento
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(Color("PrimaryBlue"), lineWidth: 1)
+                    )
                 }
                 
                 Spacer(minLength: 25)

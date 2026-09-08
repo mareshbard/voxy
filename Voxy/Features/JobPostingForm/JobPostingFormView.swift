@@ -31,7 +31,7 @@ struct JobPostingFormView: View {
 
                     Section {
                         FocusableTextField(
-                            placeholder: "Ex: Front-end Developer Sr., UX Designer Jr...",
+                            placeholder: "Escreva o título da vaga...",
                             text: $viewModel.title
                         )
                     } header: {
@@ -39,6 +39,8 @@ struct JobPostingFormView: View {
                             title: "NOME DA VAGA",
                             required: true
                         )
+                        .accessibilityHint(Text("Obrigatório"))
+
                     }
 
                     Section {
@@ -51,6 +53,8 @@ struct JobPostingFormView: View {
                             title: "EMPRESA",
                             required: true
                         )
+                        .accessibilityHint(Text("Obrigatório"))
+
                     }
 
                     Section {
@@ -81,6 +85,8 @@ struct JobPostingFormView: View {
                             title: "DESCRIÇÃO DA VAGA",
                             required: true
                         )
+                        .accessibilityHint(Text("Obrigatório"))
+
                     }
 
                     Spacer()
