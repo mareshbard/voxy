@@ -239,7 +239,6 @@ struct JobPostingDetailsView: View {
                 Experiência com UX/UI e prototipação;
                 Conhecimento em ferramentas de design.
                 """,
-                countInterview: 1
             )
         )
     }

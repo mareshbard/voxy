@@ -15,7 +15,7 @@ final class JobPosting {
     var status: PostingStatus
     var countInterview: Int
     var lastSimulated: Date
-
+    var feedback: InterviewFeedbackRecord?
     init(
         title: String,
         companyName: String,
@@ -35,4 +35,21 @@ final class JobPosting {
 
 enum PostingStatus: String, Codable {
     case saved, simulated
+}
+
+@Model
+final class InterviewFeedbackRecord {
+    var improve: [String]
+    var bestMoments: [String]
+    var clarity: [String]
+    var vicios: [String]
+    var profundity: [String]
+
+    init(improve: [String], bestMoments: [String], clarity: [String], vicios: [String], profundity: [String]) {
+        self.improve = improve
+        self.bestMoments = bestMoments
+        self.clarity = clarity
+        self.vicios = vicios
+        self.profundity = profundity
+    }
 }

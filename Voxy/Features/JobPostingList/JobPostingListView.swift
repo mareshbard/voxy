@@ -46,7 +46,7 @@ struct JobPostingListView: View {
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
                 } else {
-                    ForEach(viewModel.jobPostings, id: \.persistentModelID) { jobPosting in
+                    ForEach(viewModel.jobPostings.prefix(5), id: \.persistentModelID) { jobPosting in
                         JobPostingCard(
                             title: jobPosting.title,
                             companyName: jobPosting.companyName,
@@ -115,6 +115,9 @@ struct JobPostingListView: View {
             } message: { message in
                 Text(message)
             }
+        }
+        .onAppear {
+            viewModel.loadJobPostings()
         }
     }
 }
