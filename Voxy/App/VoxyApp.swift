@@ -19,8 +19,26 @@ struct VoxyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            JobPostingListView(viewModel: jobPostingListViewModel)
+            RootView(listViewModel: jobPostingListViewModel)
         }
         .modelContainer(modelContainer)
+    }
+}
+
+/// Coordena a entrada do app com base na etapa do onboarding:
+/// splash → cadastro do nome → listagem de vagas.
+private struct RootView: View {
+    let listViewModel: JobPostingListViewModel
+    @State private var viewModel = OnBoardingViewModel()
+
+    var body: some View {
+        switch viewModel.step {
+        case .splash:
+            SplashView(onFinished: { viewModel.splashDidFinish() })
+        case .onboarding:
+            OnBoardingView(viewModel: viewModel)
+        case .home:
+            JobPostingListView(viewModel: listViewModel)
+        }
     }
 }

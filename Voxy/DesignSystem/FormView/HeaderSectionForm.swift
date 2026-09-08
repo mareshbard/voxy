@@ -30,11 +30,7 @@ struct HeaderSectionForm: View {
             .padding(.vertical, 45)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                // Balão esticável: o topo (rabinho + canto arredondado) fica protegido
-                // pelos capInsets enquanto o miolo estica para acompanhar o texto.
-                // O asset tem 24pt de margem transparente embutida em cada lado, então
-                // sangramos -24pt (cancelando o padding do formulário) para o branco do
-                // balão alinhar exatamente com a largura dos textfields.
+                
                 Image("BallonForm")
                     .resizable(
                         capInsets: EdgeInsets(top: 30, leading: 16, bottom: 16, trailing: 16),

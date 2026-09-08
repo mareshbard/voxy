@@ -43,7 +43,7 @@ struct GameButton: ButtonStyle {
                 .overlay(
                     configuration.label
                         .foregroundColor(isEnabled ? .white : .white)
-                        .font(.custom("Satoshi-Bold", size: 20))
+                        .font(.custom("Satoshi-Bold", size: 24))
                 )
                 .offset(y: configuration.isPressed ? 0 : -lipHeight * 1.6)
         }

@@ -10,7 +10,6 @@ import SwiftUI
 struct HeaderSection: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    /// Empilha mascote e balão verticalmente quando a fonte atinge tamanhos de acessibilidade.
     private var isStacked: Bool {
         dynamicTypeSize.isAccessibilitySize
     }
@@ -31,7 +30,7 @@ struct HeaderSection: View {
                 Spacer()
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Olá, Fulano!")
+                    Text("Olá, username!")
                         .font(.custom("Satoshi-Black", size: 19, relativeTo: .title3).weight(.black))
                         .foregroundStyle(Color("BallonFontColor"))
 

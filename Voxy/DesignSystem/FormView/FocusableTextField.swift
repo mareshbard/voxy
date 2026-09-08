@@ -21,7 +21,7 @@ struct FocusableTextField: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(.systemBackground))
-                    .stroke(isFocused ? Color("PrimaryBlue") : Color("DropShadow"), lineWidth: 1)
+                    .stroke(isFocused ? Color("DarkerBlue") : Color("DropShadow"), lineWidth: 1)
             )
             .focused($isFocused)
     }
@@ -42,7 +42,7 @@ struct FocusableTextFieldDescription: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(.systemBackground))
-                    .stroke(isFocused ? Color("PrimaryBlue") : Color("DropShadow"), lineWidth: 1)
+                    .stroke(isFocused ? Color("DarkerBlue") : Color("DropShadow"), lineWidth: 1)
                 
             )
             .focused($isFocused)

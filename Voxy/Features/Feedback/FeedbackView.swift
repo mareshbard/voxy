@@ -1,7 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct FeedbackView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel: FeedbackViewModel
     @State private var goHome = false
     private let interviewCount: Int
@@ -61,7 +63,11 @@ struct FeedbackView: View {
             
         }
         .navigationDestination(isPresented: $goHome) {
-            OnBoardingView()
+            JobPostingListView(
+                viewModel: JobPostingListViewModel(
+                    store: JobPostingStore(modelContext: modelContext)
+                )
+            )
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
