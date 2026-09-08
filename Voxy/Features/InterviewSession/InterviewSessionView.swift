@@ -2,113 +2,104 @@ import SwiftUI
 import AVFoundation
 
 struct InterviewSessionView: View {
-    @State private var viewModel = InterviewSessionViewModel(questions: ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"])
+    @State private var viewModel: InterviewSessionViewModel
+    @State private var feedbackEngine: FeedbackEngineProtocol
     @Environment(\.dismiss) private var dismiss
     
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
+        _viewModel = State(initialValue: InterviewSessionViewModel(
+            questions: questions,
+            feedbackEngine: feedbackEngine,
+            jobPosting: jobPosting
+        ))
+        _feedbackEngine = State(initialValue: feedbackEngine)
+    }
+    
     var body: some View {
-        
-        NavigationStack {
-            Spacer()
-            VStack {
+        ZStack {
+            Color(Color.bg)
+                .ignoresSafeArea(edges: .all)
+            
+            VStack(spacing: 0) {
                 ScrollView {
-                    
-                    HStack(spacing: 8) {
-                        VStack {
-                            
-                        }
-                        .padding(40)
-                        .background(Color(.systemGray6))
-                        VStack {
-                            
-                            VStack(alignment: .leading) {
-                                Text("MIA DIZ:")
-                                    .font(.caption2.bold())
-                                Text(viewModel.currentQuestion)
-                            }
+                    VStack {
+                        
+                    }
+                    .padding(40)
+                    .background(Color(.systemGray6))
+                    VStack(alignment: .center, spacing: 20) {
+                        // Bloco da Pergunta e Áudio
+                        VStack(alignment: .center, spacing: 0) {
                             Button(action: {
-                                Task { await viewModel.speakQuestion()
-                                    
-                                }
+                                Task { await viewModel.speakQuestion() }
                             }, label: {
-                                Image(systemName: viewModel.isSpeaking ? "stop.fill" :"play.fill")
-                                Text("Ouvir pergunta")
+                                Image(systemName: viewModel.isSpeaking ? "stop.fill" : "speaker.wave.1.fill")
                                     .bold()
+                                    .foregroundStyle(Color(.bg))
                             })
                             .buttonStyle(.borderedProminent)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(24)
-                        
-                    }
-                    Spacer(minLength: 92)
-                    VStack(alignment: .center, spacing: 20) {
-                        Text("---------------")
-                            .foregroundColor(Color(.purpleFont))
-                        
-                        Text("Toque no microfone para responder")
-                            .font(.callout)
-                            .foregroundColor(Color(.purpleFont))
-                        
-                        Button(action: {
-                            Task {
-                                await viewModel.checkingReset()
-                            }
-                        }, label: {
-                            Image(systemName: viewModel.isTranscribing ? "stop.fill" : "play.fill")
-                                .foregroundColor(Color(.white))
-                                .font(Font.system(size: 36))
-                                .padding(12)
+                            .buttonBorderShape(.circle)
+                            .tint(Color(.timerBg))
+                            .padding(.bottom, 8)
                             
+                            VStack(alignment: .center, spacing: 0) {
+                                Triangle()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundStyle(Color(.systemGray6))
+                                
+                                VStack(alignment: .leading) {
+                                    Text(viewModel.currentQuestion)
+                                        .font(Font.custom("Nunito", size: 17).weight(.semibold))
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(24)
+                            }
                         }
-                        )
-                        .buttonStyle(.borderedProminent)
-                        Text(viewModel.formattedTime)
+                        .padding(.top, 16)
+                        
+                        Spacer(minLength: 20)
+                        
+                        // Card do Microfone
+                        MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
+                            Task { await viewModel.checkingReset() }
+                        })
+                        
+                        Spacer(minLength: 40)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(24)
-                    
-                    
-                    Spacer()
+                    .padding(.horizontal, 24)
                 }
-                Button(action: {
-                    viewModel.nextQuestion()
-                }, label: {
-                    Text("Próxima pergunta!")
-                        .bold()
-                        .frame(maxWidth: .infinity)
-                    
-                })
-                .disabled(viewModel.canGoToNextQuestion)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .scrollIndicators(.hidden)
+                
+                VStack {
+                    Button(action: {
+                        Task { await viewModel.advance() }
+                    }, label: {
+                        Text("Próxima pergunta!")
+                            .bold()
+                            .frame(maxWidth: .infinity)
+                    })
+                    .buttonStyle(GameButton())
+                    .disabled(viewModel.canGoToNextQuestion)
+                    .controlSize(.large)
+                }
+                .padding(24)
             }
-            
-            .navigationTitle("\(viewModel.currentIndex + 1)/\(viewModel.questions.count)")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Text("Pular")
-                    }
+        }
+        .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    Task { await viewModel.advance() }
+                } label: {
+                    Text("Pular")
                 }
             }
         }
-        // binding manual, pois não foi possível usar uma variavel do viewModel diretamente no binding
         .alert("Microfone bloqueado", isPresented: $viewModel.showMicPermissionAlert) {
-            Button("Abrir ajustes"){
-                if let url = URL(string: UIApplication.openSettingsURLString){
+            Button("Abrir ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
@@ -116,7 +107,14 @@ struct InterviewSessionView: View {
         } message: {
             Text("Precisamos do microfone para analisar suas respostas")
         }
-        
+        .navigationDestination(isPresented: $viewModel.goToFeedback, destination: {
+            FeedbackView(
+                engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
+                question: viewModel.currentQuestion,
+                feedbacks: viewModel.feedbacks,
+                interviewCount: viewModel.jobPosting?.countInterview ?? 0
+            )
+        })
         .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
             Button("Recomeçar", role: .destructive) {
                 Task {
@@ -127,22 +125,16 @@ struct InterviewSessionView: View {
             Button("Cancelar", role: .cancel) {}
         }
         .onChange(of: viewModel.currentIndex) {
-            Task {
-                await viewModel.speakQuestion()
-            }
+            Task { await viewModel.speakQuestion() }
         }
         .onAppear {
-            Task {
-                await viewModel.speakQuestion()
-            }
+            Task { await viewModel.speakQuestion() }
         }
-        .padding()
     }
-    
 }
 
 #Preview {
-    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
-    InterviewSessionView()
-    
+    //    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
+    //    InterviewSessionView(questions: questions)
+    //
 }

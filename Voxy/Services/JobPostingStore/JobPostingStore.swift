@@ -19,6 +19,11 @@ final class JobPostingStore {
         modelContext.insert(jobPosting)
         try modelContext.save()
     }
+    
+    func delete(_ jobPosting: JobPosting) throws {
+        modelContext.delete(jobPosting)
+        try modelContext.save()
+    }
 
     func fetchAll() throws -> [JobPosting] {
         let descriptor = FetchDescriptor<JobPosting>()

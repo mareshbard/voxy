@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import AVFoundation
 
 @MainActor
@@ -6,12 +7,18 @@ import AVFoundation
 
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
+    private var feedbackEngine: FeedbackEngineProtocol
+    let jobPosting: JobPosting?
+    var feedbacks: [AnswerFeedback] = []
+    var isGeneratingFeedback: Bool = false
+    var finalFeedback: String = ""
+    var responses: String = ""
     let synthesizer = AVSpeechSynthesizer()
     var speechAnalyzerManager = SpeechAnalyzeManager()
     var isSpeaking = false
     var elapsedSeconds: Int = 0
     private var timerTask: Task<Void, Never>?
-    
+    var goToFeedback: Bool = false
     var questions: [String]
     var currentIndex: Int = 0
     var currentQuestion: String {
@@ -25,24 +32,41 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         set { speechAnalyzerManager.showMicDeniedAlert = newValue}
     }
     var canGoToNextQuestion: Bool {
-        elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
+        if lastQuestion {
+            return speechAnalyzerManager.isTranscribing
+        }
+        
+        return elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
     }
+    
     var restartConfirmation: Bool = false
-    init(questions: [String]) {
+    
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
         self.questions = questions
+        self.feedbackEngine = feedbackEngine
+        self.jobPosting = jobPosting
         super.init()
         synthesizer.delegate = self
     }
-    
+    var lastQuestion: Bool {
+        currentIndex == questions.count - 1
+    }
     
     func resetTranscript() {
         speechAnalyzerManager.resetTranscript()
     }
+    
     func speakQuestion() async {
-        synthesizer.stopSpeaking(at: .immediate)
+        // synthesizer.stopSpeaking(at: .immediate)
         if speechAnalyzerManager.isTranscribing  {
             await speechAnalyzerManager.stopTranscription()
         }
+        // Se já estiver falando, apenas interrompe e sai da função
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+            return
+        }
+        
         do {
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try AVAudioSession.sharedInstance().setActive(true)
@@ -106,16 +130,39 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     func restartTranscript() {
         resetTranscript()
-       elapsedSeconds = 0
+        elapsedSeconds = 0
         stopTimer()
     }
     
-    func nextQuestion() {
+    func advance () async {
+        await finishCurrentQuestion()
         if currentIndex < questions.count - 1 {
             currentIndex += 1
             elapsedSeconds = 0
             stopTimer()
+            resetTranscript()
+        } else {
+            jobPosting?.countInterview += 1
+            finalFeedback = buildFeedbackString()
+            goToFeedback = true
+            print(responses)
         }
+        //        saveResponse(response: speechAnalyzerManager.transcript)
+    }
+    
+    private func buildFeedbackString() -> String {
+        feedbacks.enumerated().map { index, fb in
+            """
+            Pergunta \(index + 1)
+            Nota de articulação: \(fb.articulationScore) / \(fb.articulationNotes)
+                    Vícios de linguagem: \(fb.languageVices.joined(separator: ", "))
+                    Pontos fortes: \(fb.technicalStrengths.joined(separator: ", "))
+                    A melhorar: \(fb.technicalGaps.joined(separator: ", "))
+                    Resumo: \(fb.summary)
+            
+            """
+        }
+        .joined(separator: "\n\n")
     }
     
     func checkingReset() async {
@@ -124,5 +171,30 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         } else {
             await record()
         }
+    }
+    
+    func saveResponse(response: String) {
+        responses += response
+    }
+    
+    func  finishCurrentQuestion() async {
+        let question = currentQuestion
+        let answer = speechAnalyzerManager.transcript
+        
+        guard !answer.isEmpty else { return }
+        
+        isGeneratingFeedback = true
+        defer { isGeneratingFeedback = false }
+        do {
+            let feedback = try await feedbackEngine.evaluate(question: question, answer: answer)
+            feedbacks.append(feedback)
+        } catch {
+            print("Erro ao gerar feedback")
+        }
+        
+    }
+    
+    var counter = {
+        
     }
 }
