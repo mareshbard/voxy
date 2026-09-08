@@ -12,7 +12,9 @@ struct JobPostingDetailsView: View {
     let jobPosting: JobPosting
 
     @State private var shouldStartInterview = false
+    @State private var shouldEditJobPosting = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,6 +41,17 @@ struct JobPostingDetailsView: View {
             InterviewView(
                 jobPosting: jobPosting,
                 feedbackEngine: FoundationFeedbackEngine()
+            )
+        }
+        
+        .sheet(isPresented: $shouldEditJobPosting) {
+            JobPostingFormView(
+                viewModel: JobPostingFormViewModel(
+                    store: JobPostingStore(
+                        modelContext: modelContext
+                    ),
+                    editingJobPosting: jobPosting
+                )
             )
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -82,7 +95,7 @@ struct JobPostingDetailsView: View {
                     Spacer()
 
                     Button {
-                        editJobPosting()
+                        shouldEditJobPosting = true
                     } label: {
                         Text("Editar")
                             .font(.system(size: 17, weight: .medium))
@@ -222,10 +235,7 @@ struct JobPostingDetailsView: View {
     }
 
 
-    private func editJobPosting() {
-        // TODO: implementar edição da vaga reutilizando o formulário existente.
-
-    }
+    
 }
 
 #Preview {
@@ -239,6 +249,7 @@ struct JobPostingDetailsView: View {
                 Experiência com UX/UI e prototipação;
                 Conhecimento em ferramentas de design.
                 """,
+                countInterview: 1
             )
         )
     }
