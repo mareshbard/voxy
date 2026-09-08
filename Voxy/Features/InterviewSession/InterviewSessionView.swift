@@ -4,6 +4,7 @@ import AVFoundation
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
+    @State private var didRecordSession = false
     @Environment(\.dismiss) private var dismiss
     
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
