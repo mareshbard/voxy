@@ -4,6 +4,7 @@ import AVFoundation
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
+    @State private var didRecordSession = false
     @Environment(\.dismiss) private var dismiss
     
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
@@ -105,6 +106,14 @@ struct InterviewSessionView: View {
         } message: {
             Text("Precisamos do microfone para analisar suas respostas")
         }
+        
+        .onChange(of: viewModel.goToFeedback) { _, goToFeedback in
+            if goToFeedback && !didRecordSession {
+                StreakManager.recordSession()
+                didRecordSession = true
+            }
+        }
+        
         .navigationDestination(isPresented: $viewModel.goToFeedback) {
           FeedbackView(
                     engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
