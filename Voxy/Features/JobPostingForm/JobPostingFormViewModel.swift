@@ -93,6 +93,12 @@ final class JobPostingFormViewModel {
         let trimmedDescription = jobDescription
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
+        let jobPosting = JobPosting(
+            title: trimmedTitle,
+            companyName: trimmedCompanyName,
+            jobDescription: trimmedDescription
+        )
+
         do {
             if let editingJobPosting {
                 editingJobPosting.title = trimmedTitle

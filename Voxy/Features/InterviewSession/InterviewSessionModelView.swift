@@ -7,8 +7,9 @@ import AVFoundation
 
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
+    private var lastSpokenIndex: Int = -1
     private var feedbackEngine: FeedbackEngineProtocol
-    let jobPosting: JobPosting?
+    let jobPosting: JobPosting
     var feedbacks: [AnswerFeedback] = []
     var isGeneratingFeedback: Bool = false
     var finalFeedback: String = ""
@@ -21,6 +22,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var goToFeedback: Bool = false
     var questions: [String]
     var currentIndex: Int = 0
+    
     var currentQuestion: String {
         questions[currentIndex]
     }
@@ -41,7 +43,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     var restartConfirmation: Bool = false
     
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
         self.questions = questions
         self.feedbackEngine = feedbackEngine
         self.jobPosting = jobPosting
@@ -64,9 +66,11 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         // Se já estiver falando, apenas interrompe e sai da função
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
-            return
+            if lastSpokenIndex == currentIndex {
+                return
+            }
         }
-        
+        lastSpokenIndex = currentIndex
         do {
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try AVAudioSession.sharedInstance().setActive(true)
@@ -135,6 +139,9 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func advance () async {
+        if synthesizer.isSpeaking {
+                synthesizer.stopSpeaking(at: .immediate)
+            }
         await finishCurrentQuestion()
         if currentIndex < questions.count - 1 {
             currentIndex += 1
@@ -142,7 +149,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             stopTimer()
             resetTranscript()
         } else {
-            jobPosting?.countInterview += 1
+            jobPosting.countInterview += 1
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
@@ -191,10 +198,5 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         } catch {
             print("Erro ao gerar feedback")
         }
-        
-    }
-    
-    var counter = {
-        
     }
 }

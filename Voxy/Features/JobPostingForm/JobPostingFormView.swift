@@ -22,112 +22,79 @@ struct JobPostingFormView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
 
-                customHeader
-                
-                Image("FoxyMascotFelizBracosPTras")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 102, height: 150)
-                    .offset(y: 35)
+                    HeaderSectionForm()
+                        .frame(maxWidth: .infinity)
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-
-                        HeaderSectionForm()
-                            .frame(maxWidth: .infinity)
-
-                        Section {
-                            FocusableTextField(
-                                placeholder: "Ex: Front-end Developer Sr., UX Designer Jr...",
-                                text: $viewModel.title
-                            )
-                        } header: {
-                            SectionLabel(
-                                title: "NOME DA VAGA",
-                                required: true
-                            )
-                        }
-
-                        Section {
-                            FocusableTextField(
-                                placeholder: "Digite o nome da empresa...",
-                                text: $viewModel.companyName
-                            )
-                        } header: {
-                            SectionLabel(
-                                title: "EMPRESA",
-                                required: true
-                            )
-                        }
-
-                        Section {
-                            VStack(alignment: .leading, spacing: 8) {
-
-                                PhotoPickerItem(
-                                    title: "Adicionar imagem da vaga",
-                                    isRecognizing: viewModel.isRecognizing,
-                                    selection: $selectedPhoto
-                                )
-
-                                Text(
-                                    "Para uma melhor leitura, insira a imagem recortada, contendo apenas as informações da vaga."
-                                )
-                                .font(
-                                    .custom(
-                                        "Nunito-SemiBold",
-                                        size: 14
-                                    )
-                                )
-                                .foregroundStyle(
-                                    Color("SecondaryFontColor")
-                                )
-                                .fixedSize(
-                                    horizontal: false,
-                                    vertical: true
-                                )
-                            }
-                        } header: {
-                            SectionLabel(
-                                title: "PRINT DA VAGA",
-                                required: false
-                            )
-                        }
-
-                        Section {
-                            FocusableTextFieldDescription(
-                                placeholder: "Digite os requisitos da vaga ou carregue uma imagem...",
-                                text: $viewModel.jobDescription
-                            )
-                        } header: {
-                            SectionLabel(
-                                title: "DESCRIÇÃO DA VAGA",
-                                required: true
-                            )
-                        }
-
-                        Spacer(minLength: 32)
-
-                        Button {
-                            saveAndStartInterview()
-                        } label: {
-                            Text("Treinar agora!")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(GameButton())
-                        .disabled(!canSave)
-
-                        Spacer(minLength: 24)
+                    Section {
+                        FocusableTextField(
+                            placeholder: "Ex: Front-end Developer Sr., UX Designer Jr...",
+                            text: $viewModel.title
+                        )
+                    } header: {
+                        SectionLabel(
+                            title: "NOME DA VAGA",
+                            required: true
+                        )
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
+
+                    Section {
+                        FocusableTextField(
+                            placeholder: "Digite o nome da empresa...",
+                            text: $viewModel.companyName
+                        )
+                    } header: {
+                        SectionLabel(
+                            title: "EMPRESA",
+                            required: true
+                        )
+                    }
+
+                    Section {
+                        PhotoPickerItem(
+                            title: "Adicionar imagem da vaga",
+                            isRecognizing: viewModel.isRecognizing,
+                            selection: $selectedPhoto
+                        )
+                        
+                        Text("Para uma melhor leitura, insira a imagem recortada, contendo apenas as informações da vaga.")
+                                .font(.custom("Nunito-SemiBold", size: 14))
+                                .foregroundStyle(Color("SecondaryFontColor"))
+                                .fixedSize(horizontal: false, vertical: true)
+                    } header: {
+                        SectionLabel(
+                            title: "PRINT DA VAGA",
+                            required: false
+                        )
+                    }
+
+                    Section {
+                        FocusableTextFieldDescription(
+                            placeholder: "Digite os requisitos da vaga ou carregue uma imagem...",
+                            text: $viewModel.jobDescription
+                        )
+                    } header: {
+                        SectionLabel(
+                            title: "DESCRIÇÃO DA VAGA",
+                            required: true
+                        )
+                    }
+
+                    Spacer()
+
+                    Button("Continuar") {
+                        saveAndShowDetails()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .buttonStyle(GameButton())
+                    .disabled(!canSave)
+
+                    Spacer()
                 }
+                .padding(24)
             }
-            .background(
-                Color("BackgroundJobCardColor")
-                    .ignoresSafeArea()
-            )
             .navigationDestination(
                 isPresented: $shouldShowJobDetails
             ) {
@@ -137,23 +104,54 @@ struct JobPostingFormView: View {
                     )
                 }
             }
-            .navigationDestination(
-                isPresented: $shouldStartInterview
-            ) {
-                if let jobPosting = savedJobPosting {
-                    InterviewView(
-                        jobPosting: jobPosting,
-                        feedbackEngine: FoundationFeedbackEngine()
-                    )
+            .scrollContentBackground(.hidden)
+            .background(
+                Color("BackgroundJobCardColor")
+                    .ignoresSafeArea()
+            )
+            .toolbar {
+                ToolbarItem(
+                    placement: .cancellationAction
+                ) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .accessibilityLabel(
+                                Text("Cancelar")
+                            )
+                            .accessibilityHint(
+                                "Cancela o formulário e volta à tela anterior"
+                            )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 24)
+                }
+
+                ToolbarItem(
+                    placement: .confirmationAction
+                ) {
+                    Button {
+                        saveAndShowDetails()
+                    } label: {
+                        Image(systemName: "checkmark")
+                            .accessibilityLabel(
+                                Text("Salvar")
+                            )
+                            .accessibilityHint(
+                                "Salva a vaga e exibe seus detalhes"
+                            )
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("PrimaryBlue"))
+                    .disabled(!canSave)
                 }
             }
-            .toolbar(.hidden, for: .navigationBar)
             .toolbar(.hidden, for: .tabBar)
             .scrollDismissesKeyboard(.immediately)
             .onChange(of: selectedPhoto) { _, newPhoto in
-                guard let newPhoto else {
-                    return
-                }
+                guard let newPhoto else { return }
 
                 Task {
                     let imageData = try? await newPhoto
@@ -165,146 +163,30 @@ struct JobPostingFormView: View {
                 }
             }
         }
-    }
 
-    private var customHeader: some View {
-        HStack(alignment: .center) {
-
-            HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(.white)
-                            .frame(
-                                width: 48,
-                                height: 48
-                            )
-
-                        Image(systemName: "xmark")
-                            .font(
-                                .system(
-                                    size: 22,
-                                    weight: .medium
-                                )
-                            )
-                            .foregroundStyle(
-                                Color("IconPrimaryColor")
-                            )
-                    }
-                    .frame(
-                        width: 48,
-                        height: 48
-                    )
-                    .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Cancelar")
-                .accessibilityHint(
-                    "Cancela e volta para a tela anterior"
-                )
-
-                Spacer()
-            }
-            .frame(width: 91)
-
-            Spacer()
-
-            Text(
-                viewModel.isEditing
-                    ? "Editar vaga"
-                    : "Nova vaga"
-            )
-            .font(
-                .custom(
-                    "Satoshi-Bold",
-                    size: 17
-                )
-            )
-            .multilineTextAlignment(.center)
-            .foregroundStyle(
-                Color("IconPrimaryColor")
-            )
-            .lineLimit(1)
-
-            Spacer()
-
-            Button {
-                saveFromHeader()
-            } label: {
-                Text("Salvar")
-                    .font(
-                        .system(
-                            size: 17,
-                            weight: .medium
-                        )
-                    )
-                    .foregroundStyle(.white)
-                    .frame(
-                        width: 91,
-                        height: 48
-                    )
-                    .background {
-                        Capsule()
-                            .fill(
-                                Color("PrimaryBlue")
-                            )
-                    }
-            }
-            .buttonStyle(.plain)
-            .disabled(!canSave)
-            .opacity(
-                canSave ? 1 : 0.5
-            )
-            .accessibilityLabel("Salvar")
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 12)
-        .frame(
-            maxWidth: .infinity,
-            alignment: .center
-        )
+        savedJobPosting = jobPosting
+        shouldStartInterview = true
     }
 
     private var canSave: Bool {
         !viewModel.title
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
+            .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty
-        && !viewModel.companyName
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
-            .isEmpty
-        && !viewModel.jobDescription
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
-            .isEmpty
+            && !viewModel.companyName
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty
+            && !viewModel.jobDescription
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty
     }
 
-    private func saveFromHeader() {
-        guard let jobPosting = viewModel.save() else {
-            return
-        }
-
-        if viewModel.isEditing {
-            dismiss()
-        } else {
-            savedJobPosting = jobPosting
-            shouldShowJobDetails = true
-        }
-    }
-
-    private func saveAndStartInterview() {
+    private func saveAndShowDetails() {
         guard let jobPosting = viewModel.save() else {
             return
         }
 
         savedJobPosting = jobPosting
-        shouldStartInterview = true
+        shouldShowJobDetails = true
     }
 }
 
