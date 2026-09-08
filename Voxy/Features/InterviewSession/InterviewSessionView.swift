@@ -110,6 +110,14 @@ struct InterviewSessionView: View {
         } message: {
             Text("Precisamos do microfone para analisar suas respostas")
         }
+        
+        .onChange(of: viewModel.goToFeedback) { _, goToFeedback in
+            if goToFeedback && !didRecordSession {
+                StreakManager.recordSession()
+                didRecordSession = true
+            }
+        }
+        
         .navigationDestination(isPresented: $viewModel.goToFeedback) {
           FeedbackView(
                     engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
