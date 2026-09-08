@@ -6,8 +6,9 @@ import AVFoundation
 @Observable
 
 class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
-
+    
     private var feedbackEngine: FeedbackEngineProtocol
+    let jobPosting: JobPosting?
     var feedbacks: [AnswerFeedback] = []
     var isGeneratingFeedback: Bool = false
     var finalFeedback: String = ""
@@ -31,14 +32,19 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         set { speechAnalyzerManager.showMicDeniedAlert = newValue}
     }
     var canGoToNextQuestion: Bool {
-        elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
+        if lastQuestion {
+            return speechAnalyzerManager.isTranscribing
+        }
+        
+        return elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
     }
     
     var restartConfirmation: Bool = false
     
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol) {
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
         self.questions = questions
         self.feedbackEngine = feedbackEngine
+        self.jobPosting = jobPosting
         super.init()
         synthesizer.delegate = self
     }
@@ -51,10 +57,16 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func speakQuestion() async {
-        synthesizer.stopSpeaking(at: .immediate)
+        // synthesizer.stopSpeaking(at: .immediate)
         if speechAnalyzerManager.isTranscribing  {
             await speechAnalyzerManager.stopTranscription()
         }
+        // Se já estiver falando, apenas interrompe e sai da função
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+            return
+        }
+        
         do {
             try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try AVAudioSession.sharedInstance().setActive(true)
@@ -130,10 +142,10 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             stopTimer()
             resetTranscript()
         } else {
+            jobPosting?.countInterview += 1
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
-            
         }
         //        saveResponse(response: speechAnalyzerManager.transcript)
     }
@@ -175,10 +187,14 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         defer { isGeneratingFeedback = false }
         do {
             let feedback = try await feedbackEngine.evaluate(question: question, answer: answer)
-            print(feedback)
+            feedbacks.append(feedback)
         } catch {
             print("Erro ao gerar feedback")
         }
+        
+    }
+    
+    var counter = {
         
     }
 }

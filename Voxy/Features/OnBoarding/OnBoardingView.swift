@@ -12,8 +12,7 @@ struct OnBoardingView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \JobPosting.title) private var jobPostings: [JobPosting]
     @State private var isShowingJobPostingForm = false
-    let feedbackEngine: FeedbackEngineProtocol
-    
+
     var body: some View {
         NavigationStack {
             Group {
@@ -34,7 +33,7 @@ struct OnBoardingView: View {
                 }
             }
             .navigationDestination(for: JobPosting.self) { jobPosting in
-                InterviewView(jobPosting: jobPosting, feedbackEngine: feedbackEngine)
+                InterviewView(jobPosting: jobPosting, feedbackEngine: FoundationFeedbackEngine())
             }
             .navigationTitle("Início")
             .toolbar {
@@ -59,6 +58,6 @@ struct OnBoardingView: View {
 }
 
 #Preview {
-//    OnBoardingView()
-//        .modelContainer(for: JobPosting.self, inMemory: true)
+    OnBoardingView()
+        .modelContainer(for: JobPosting.self, inMemory: true)
 }
