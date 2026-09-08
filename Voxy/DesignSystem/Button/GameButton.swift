@@ -13,6 +13,7 @@ struct GameButton: ButtonStyle {
     var faceColor: Color = Color("ButtonFaceColor")
     var deepColor: Color = Color("ButtonBackgroundColor")
     var borderColor: Color = Color("ButtonBorder")
+    var ButtonDisabledColor: Color = Color("ButtonDisabledColor")
     
     let feedback = UIImpactFeedbackGenerator(style: .soft)
     
@@ -31,12 +32,12 @@ struct GameButton: ButtonStyle {
                 .shadow(radius: 1, x: 0, y: 2)
             // Cor principal
             RoundedRectangle(cornerRadius: 16)
-                .fill(isEnabled ? deepColor : deepColor)
+                .fill(isEnabled ? deepColor : ButtonDisabledColor)
                 .shadow(radius: 1, x: 0, y: 2)
                 .padding(borderWidth)
             // Face do botão
             RoundedRectangle(cornerRadius: 16)
-                .fill(isEnabled ? faceColor : faceColor)
+                .fill(isEnabled ? faceColor : ButtonDisabledColor)
                 .shadow(color: .white.opacity(0.3), radius: 0, x: 0, y: 4)
                 .padding(borderWidth)
  
@@ -65,4 +66,3 @@ struct GameButton: ButtonStyle {
     .buttonStyle(GameButton())
     .padding(.horizontal, 24)
 }
-

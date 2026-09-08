@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct JobPostingListView: View {
+struct HistoryView: View {
     
     @Bindable var viewModel: JobPostingListViewModel
     @State private var isShowingJobPostingForm: Bool = false
@@ -18,12 +18,12 @@ struct JobPostingListView: View {
             List {
                 // Seções do topo inseridas como itens da List
                 Group {
-                    HeaderSection()
+                    HeaderSectionHistory()
                         .padding(.bottom, 10)
                     
-                    StreakSection()
-                        .padding(.vertical, 10)
-                    
+//                    StreakSection()
+//                        .padding(.vertical, 10)
+//
                     Text("VAGAS")
                         .font(.custom("Satoshi-Bold", size: 12))
                         .tracking(1.1)
@@ -46,7 +46,7 @@ struct JobPostingListView: View {
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
                 } else {
-                    ForEach(viewModel.jobPostings.prefix(5), id: \.persistentModelID) { jobPosting in
+                    ForEach(viewModel.jobPostings, id: \.persistentModelID) { jobPosting in
                         JobPostingCard(
                             title: jobPosting.title,
                             companyName: jobPosting.companyName,
@@ -186,7 +186,7 @@ struct JobPostingListView: View {
         store: store
     )
     
-    JobPostingListView(
+    HistoryView(
         viewModel: viewModel
     )
     .modelContainer(container)

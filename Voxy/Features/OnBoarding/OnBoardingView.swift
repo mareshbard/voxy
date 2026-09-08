@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-/// Tela de onboarding onde o usuário informa como quer ser chamado.
 struct OnBoardingView: View {
     @Bindable var viewModel: OnBoardingViewModel
     
@@ -58,5 +57,5 @@ struct OnBoardingView: View {
 }
 
 #Preview {
-    OnBoardingView(viewModel: OnBoardingViewModel())
+ OnBoardingView(viewModel: OnBoardingViewModel())
 }

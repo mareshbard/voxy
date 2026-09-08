@@ -6,13 +6,13 @@ struct FeedbackView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: FeedbackViewModel
     @State private var goHome = false
-    private let interviewCount: Int
-    
-    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], interviewCount: Int = 0) {
-        self.interviewCount = interviewCount
-        _viewModel = State(initialValue: FeedbackViewModel(engine: engine))
+    // private let interviewCount: Int
+    var job: JobPosting
+    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], job: JobPosting) {
+        _viewModel = State(initialValue: FeedbackViewModel(job: job, engine: engine))
         _viewModel.wrappedValue.question = question
         _viewModel.wrappedValue.feedbacks = feedbacks
+        self.job = job
     }
     
     var body: some View {
@@ -29,11 +29,11 @@ struct FeedbackView: View {
                         Text("JÁ TREINOU")
                             .font(Font.custom("Satoshi-Bold", size: 12)
                                 .weight(.bold))
-                        Text("\(interviewCount)")
+                        Text("\(job.countInterview)")
                             .font(Font.custom("Nunito", size: 24)
                                 .weight(.bold))
                             .foregroundStyle(Color(.total))
-                        Text(interviewCount == 1 ? "vez!" : "vezes!")
+                        Text(job.countInterview == 1 ? "vez!" : "vezes!")
                             .font(Font.custom("Nunito", size: 14)
                                 .weight(.bold))
                     }
@@ -47,7 +47,7 @@ struct FeedbackView: View {
                 Spacer(minLength: 25)
                 
                 if viewModel.isLoading {
-                    ProgressView("Gerando feedback...")
+                    ProgressView("Analisando entrevista...")
                         .padding()
                 } else if let final = viewModel.finalFeedback {
                     
@@ -61,6 +61,9 @@ struct FeedbackView: View {
             }
             .padding(24)
             
+        }
+        .onAppear {
+            viewModel.saveLastFeedback()
         }
         .navigationDestination(isPresented: $goHome) {
             JobPostingListView(
@@ -87,5 +90,5 @@ struct FeedbackView: View {
 }
 
 #Preview {
-    FeedbackView(question: "")
+    FeedbackView(question: "", job: JobPosting(title: "Dev Web", companyName: "LIT", jobDescription: "NextJS, NestJS", status: .saved, lastSimulated: Date()))
 }

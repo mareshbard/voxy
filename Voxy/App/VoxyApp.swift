@@ -25,8 +25,6 @@ struct VoxyApp: App {
     }
 }
 
-/// Coordena a entrada do app com base na etapa do onboarding:
-/// splash → cadastro do nome → listagem de vagas.
 private struct RootView: View {
     let listViewModel: JobPostingListViewModel
     @State private var viewModel = OnBoardingViewModel()

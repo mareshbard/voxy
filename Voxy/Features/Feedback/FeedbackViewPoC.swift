@@ -4,7 +4,7 @@
 //    @State private var viewModel: FeedbackViewModel
 //    
 //    init(engine: FeedbackEngineProtocol? = nil) {
-//        _viewModel = State(initialValue: FeedbackViewModel(engine: engine))
+//        _viewModel = State(initialValue: FeedbackViewModel(job: job, engine: engine))
 //    }
 //    
 //    var body: some View {

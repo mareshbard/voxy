@@ -12,6 +12,7 @@ import PhotosUI
 struct JobPostingFormView: View {
 
     @State private var shouldShowJobDetails = false
+    @State private var shouldStartInterview = false
     @State private var savedJobPosting: JobPosting?
     @State private var selectedPhoto: PhotosPickerItem?
 
@@ -186,7 +187,7 @@ struct JobPostingFormView: View {
     }
 }
 
-#Preview {
+#Preview("Nova vaga") {
     let container = try! ModelContainer(
         for: JobPosting.self,
         configurations: ModelConfiguration(
@@ -200,6 +201,42 @@ struct JobPostingFormView: View {
 
     let viewModel = JobPostingFormViewModel(
         store: store
+    )
+
+    JobPostingFormView(
+        viewModel: viewModel
+    )
+    .modelContainer(container)
+}
+
+#Preview("Editar vaga") {
+    let container = try! ModelContainer(
+        for: JobPosting.self,
+        configurations: ModelConfiguration(
+            isStoredInMemoryOnly: true
+        )
+    )
+
+    let store = JobPostingStore(
+        modelContext: container.mainContext
+    )
+
+    let jobPosting = JobPosting(
+        title: "UX Designer PL",
+        companyName: "iFood",
+        jobDescription: """
+        Ensino Superior completo ou cursando em Design.
+
+        Experiência com UX/UI e prototipação.
+
+        Conhecimento em ferramentas de design.
+        """,
+        countInterview: 1
+    )
+
+    let viewModel = JobPostingFormViewModel(
+        store: store,
+        editingJobPosting: jobPosting
     )
 
     JobPostingFormView(
