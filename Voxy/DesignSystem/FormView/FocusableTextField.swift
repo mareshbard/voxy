@@ -15,13 +15,13 @@ struct FocusableTextField: View {
     var body: some View {
         TextField(placeholder, text: $text)
             .font(.custom("Nunito-SemiBold", size: 14))
-            .foregroundStyle(Color("DisabledFontColor"))
+            .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(.systemBackground))
-                    .stroke(isFocused ? Color("PrimaryBlue") : Color("DropShadow"), lineWidth: 1)
+                    .stroke(isFocused ? Color("DarkerBlue") : Color("DropShadow"), lineWidth: 1)
             )
             .focused($isFocused)
     }
@@ -34,7 +34,7 @@ struct FocusableTextFieldDescription: View {
     var body: some View {
         TextField(placeholder, text: $text, axis: .vertical)
             .font(.custom("Nunito-SemiBold", size: 14))
-            .foregroundStyle(Color("DisabledFontColor"))
+            .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
             .lineLimit(3...10)
             .multilineTextAlignment(.leading)
             .padding(16)
@@ -42,7 +42,7 @@ struct FocusableTextFieldDescription: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(.systemBackground))
-                    .stroke(isFocused ? Color("PrimaryBlue") : Color("DropShadow"), lineWidth: 1)
+                    .stroke(isFocused ? Color("DarkerBlue") : Color("DropShadow"), lineWidth: 1)
                 
             )
             .focused($isFocused)

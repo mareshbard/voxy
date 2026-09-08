@@ -28,10 +28,19 @@ final class InterviewViewModel {
     ) {
         self.jobPosting = jobPosting
         self.service = service ?? FoundationQuestionGenerationService()
+        // Começa evitando tudo o que já foi perguntado para esta vaga em
+        // treinos anteriores (persistido no modelo), para nunca repetir.
+        self.askedQuestions = jobPosting.askedQuestions
     }
 
     var availabilityMessage: String? {
         service.availabilityMessage
+    }
+
+    /// Pré-carrega o modelo. Chame ao entrar na tela de carregamento para
+    /// que a geração comece mais rápido.
+    func prewarm() {
+        service.prewarm()
     }
 
     func generateQuestions() async {
@@ -57,13 +66,23 @@ final class InterviewViewModel {
         }
 
         do {
+            let job = JobContext(
+                title: jobPosting.title,
+                companyName: jobPosting.companyName,
+                description: description
+            )
+
             let generated = try await service.generateQuestions(
-                for: description,
+                for: job,
                 avoiding: askedQuestions
             )
 
             questions = generated
             askedQuestions.append(contentsOf: generated)
+
+            // A persistência na vaga (para nunca repetir em treinos futuros)
+            // acontece só ao final da sessão, quando as perguntas foram de fato
+            // treinadas — veja InterviewSessionViewModel.advance().
 
         } catch {
             handleGenerationError(error)
@@ -71,7 +90,9 @@ final class InterviewViewModel {
     }
 
     func startNewInterview() {
-        askedQuestions = []
+        // Mantém o histórico persistido da vaga para continuar evitando
+        // perguntas de treinos anteriores.
+        askedQuestions = jobPosting.askedQuestions
         questions = []
         errorMessage = nil
 

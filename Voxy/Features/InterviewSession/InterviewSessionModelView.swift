@@ -155,7 +155,16 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             stopTimer()
             resetTranscript()
         } else {
-            jobPosting.countInterview += 1
+            // Só conta o treino e registra a ofensiva se houve ao menos uma
+            // resposta transcrita; pular tudo não deve pontuar.
+            if !feedbacks.isEmpty {
+                jobPosting.countInterview += 1
+                StreakManager.recordSession()
+
+                // Guarda as perguntas desta sessão para que nunca se repitam em
+                // treinos futuros desta mesma vaga (persistido via SwiftData).
+                jobPosting.askedQuestions.append(contentsOf: questions)
+            }
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
@@ -193,7 +202,8 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     func  finishCurrentQuestion() async {
         let question = currentQuestion
         let answer = speechAnalyzerManager.transcript
-        
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
         guard !answer.isEmpty else { return }
         
         isGeneratingFeedback = true

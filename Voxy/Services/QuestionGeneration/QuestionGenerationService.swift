@@ -44,9 +44,16 @@ struct GeneratedInterview {
     let projectDecisionQuestions: [String]
 }
 
+// Contexto completo da vaga usado para gerar as perguntas.
+struct JobContext {
+    let title: String
+    let companyName: String
+    let description: String
+}
+
 @MainActor
 protocol QuestionGenerationServiceProtocol {
-    
+
     var tokenUsagePercent: Int { get }
 
 // Verifica se o modelo está disponível pro iOS da pessoa
@@ -54,12 +61,15 @@ protocol QuestionGenerationServiceProtocol {
 
 //     Gera novas perguntas, evitando as que já foram geradas anteriormente
     func generateQuestions(
-        for jobDescription: String,
+        for job: JobContext,
         avoiding previousQuestions: [String]
     ) async throws -> [String]
 
 //    Reinicia a sessão, resetando os tokens da janela de contexto
     func reset()
+
+//    Pré-carrega o modelo para reduzir a latência da primeira geração
+    func prewarm()
 }
 
 @MainActor
@@ -120,25 +130,27 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
         session = LanguageModelSession(instructions: instructions)
     }
 
+    func prewarm() {
+        session.prewarm()
+    }
+
     func generateQuestions(
-        for jobDescription: String,
+        for job: JobContext,
         avoiding previousQuestions: [String]
     ) async throws -> [String] {
         do {
             return try await respond(
-                jobDescription: jobDescription,
-                previousQuestions: previousQuestions,
-                includeAvoidList: false
+                job: job,
+                previousQuestions: previousQuestions
             )
         } catch let error as LanguageModelSession.GenerationError {
             // Contexto (tokens) esgotado após várias recargas: reinicia a sessão
-            // e tenta de novo, enviando as perguntas anteriores para evitar repetições.
+            // e tenta de novo. As perguntas anteriores são reenviadas no prompt.
             guard case .exceededContextWindowSize = error else { throw error }
             reset()
             return try await respond(
-                jobDescription: jobDescription,
-                previousQuestions: previousQuestions,
-                includeAvoidList: true
+                job: job,
+                previousQuestions: previousQuestions
             )
         }
     }
@@ -149,14 +161,12 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
     }
 
     private func respond(
-        jobDescription: String,
-        previousQuestions: [String],
-        includeAvoidList: Bool
+        job: JobContext,
+        previousQuestions: [String]
     ) async throws -> [String] {
         let prompt = makePrompt(
-            jobDescription: jobDescription,
-            previousQuestions: previousQuestions,
-            includeAvoidList: includeAvoidList
+            job: job,
+            previousQuestions: previousQuestions
         )
 
         let response = try await session.respond(
@@ -171,39 +181,73 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
         let questions = content.projectDecisionQuestions + content.technicalQuestions
 
         await updateTokenUsage(prompt: prompt, questions: questions)
-        return questions
+
+        // Rede de segurança: mesmo instruído a não repetir, o modelo pode
+        // reformular uma pergunta antiga. Removemos duplicatas (contra o
+        // histórico e dentro do próprio lote) para garantir que nunca se repitam.
+        return deduplicated(questions, avoiding: previousQuestions)
     }
 
     private func makePrompt(
-        jobDescription: String,
-        previousQuestions: [String],
-        includeAvoidList: Bool
+        job: JobContext,
+        previousQuestions: [String]
     ) -> String {
-        if previousQuestions.isEmpty {
-            return "Gere as perguntas de entrevista para esta vaga:\n\(jobDescription)"
+        // Bloco de contexto da vaga (cargo, empresa e descrição) para ancorar
+        // melhor as perguntas.
+        let jobBlock = """
+        Cargo: \(job.title)
+        Empresa: \(job.companyName)
+        Descrição da vaga:
+        \(job.description)
+        """
+
+        guard !previousQuestions.isEmpty else {
+            return "Gere as perguntas de entrevista para esta vaga:\n\(jobBlock)"
         }
 
-        if includeAvoidList {
-            // Sessão recém-reiniciada: sem memória do que já foi perguntado, então
-            // listamos explicitamente as perguntas a evitar (limitado para poupar tokens).
-            let avoid = previousQuestions
-                .suffix(30)
-                .map { "- \($0)" }
-                .joined(separator: "\n")
+        // Uma sessão nova (outro treino ou nova abertura do app) não tem memória
+        // do que já foi perguntado em treinos passados, então listamos
+        // explicitamente as perguntas a evitar (limitado para poupar tokens).
+        let avoid = previousQuestions
+            .suffix(40)
+            .map { "- \($0)" }
+            .joined(separator: "\n")
 
-            return """
-            Gere novas perguntas de entrevista para esta vaga, diferentes das anteriores. \
-            Não repita nem reformule nenhuma destas:
-            \(avoid)
+        return """
+        Gere novas perguntas de entrevista para esta vaga, completamente diferentes das anteriores. \
+        Não repita nem reformule nenhuma destas perguntas já feitas:
+        \(avoid)
 
-            Descrição da vaga:
-            \(jobDescription)
-            """
+        \(jobBlock)
+        """
+    }
+
+    // Remove perguntas que repetem (ignorando maiúsculas, acentos e pontuação)
+    // qualquer uma do histórico ou uma anterior do mesmo lote.
+    private func deduplicated(
+        _ questions: [String],
+        avoiding previous: [String]
+    ) -> [String] {
+        var seen = Set(previous.map(normalizedKey))
+        var result: [String] = []
+
+        for question in questions {
+            let key = normalizedKey(question)
+            guard !key.isEmpty, !seen.contains(key) else { continue }
+            seen.insert(key)
+            result.append(question)
         }
 
-        // Mesma sessão: o modelo lembra o que já perguntou nesta conversa,
-        // então basta um prompt curto (economiza tokens do contexto).
-        return "Gere novas perguntas de entrevista para a mesma vaga, completamente diferentes das que você já fez nesta conversa."
+        return result
+    }
+
+    private func normalizedKey(_ text: String) -> String {
+        text
+            .folding(options: .diacriticInsensitive, locale: .current)
+            .lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
     }
 
     private func updateTokenUsage(prompt: String, questions: [String]) async {
