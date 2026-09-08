@@ -55,6 +55,7 @@ struct GameButton: ButtonStyle {
                 )
                 .offset(y: configuration.isPressed ? 0 : -lipHeight * 1.6)
         }
+       
         .frame(height: height)
         .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
         .onChange(of: configuration.isPressed) { _, isPressed in

@@ -7,7 +7,7 @@ struct InterviewSessionView: View {
     @State private var didRecordSession = false
     @Environment(\.dismiss) private var dismiss
     
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting? = nil) {
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
         _viewModel = State(initialValue: InterviewSessionViewModel(
             questions: questions,
             feedbackEngine: feedbackEngine,
@@ -20,8 +20,7 @@ struct InterviewSessionView: View {
         ZStack {
             Color(Color.bg)
                 .ignoresSafeArea(edges: .all)
-            
-            VStack(spacing: 0) {
+            VStack {
                 ScrollView {
                     VStack {
                         
@@ -68,24 +67,23 @@ struct InterviewSessionView: View {
                         
                         Spacer(minLength: 40)
                     }
-                    .padding(.horizontal, 24)
+                    //    .padding(.horizontal, 24)
                 }
                 .scrollIndicators(.hidden)
                 
-                VStack {
-                    Button(action: {
-                        Task { await viewModel.advance() }
-                    }, label: {
-                        Text("Próxima pergunta!")
-                            .bold()
-                            .frame(maxWidth: .infinity)
-                    })
-                    .buttonStyle(GameButton())
-                    .disabled(viewModel.canGoToNextQuestion)
-                    .controlSize(.large)
-                }
-                .padding(24)
+                Button(action: {
+                    Task { await viewModel.advance() }
+                }, label: {
+                    Text("Próxima pergunta!")
+                        .bold()
+                })
+                .frame(maxWidth: .infinity)
+                .buttonStyle(GameButton())
+                .disabled(viewModel.canGoToNextQuestion)
+                .controlSize(.regular)
             }
+            .padding(.horizontal, 24)
+            
         }
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)
@@ -115,14 +113,15 @@ struct InterviewSessionView: View {
                 didRecordSession = true
             }
         }
-        .navigationDestination(isPresented: $viewModel.goToFeedback, destination: {
-            FeedbackView(
-                engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
-                question: viewModel.currentQuestion,
-                feedbacks: viewModel.feedbacks,
-                interviewCount: viewModel.jobPosting?.countInterview ?? 0
-            )
-        })
+        
+        .navigationDestination(isPresented: $viewModel.goToFeedback) {
+          FeedbackView(
+                    engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
+                    question: viewModel.currentQuestion,
+                    feedbacks: viewModel.feedbacks,
+                    job: viewModel.jobPosting,
+                )
+        }
         .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
             Button("Recomeçar", role: .destructive) {
                 Task {

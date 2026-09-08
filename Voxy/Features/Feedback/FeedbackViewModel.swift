@@ -1,10 +1,3 @@
-//
-//  FeedbackViewModel.swift
-//  Voxy
-//
-//  Created by Voxy Team on 01/09/26.
-//
-
 import Foundation
 import Observation
 
@@ -20,8 +13,10 @@ final class FeedbackViewModel {
     private let engine: FeedbackEngineProtocol & FinalFeedbackProtocol
     var finalFeedback: FinalFeedback?
     var feedbacks: [AnswerFeedback] = []
+    var job: JobPosting // recebe a vaga ligada ao feedback
     
-    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil) {
+    init(job: JobPosting, engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil) {
+        self.job = job
         self.engine = engine ?? FoundationFeedbackEngine()
     }
 
@@ -88,4 +83,14 @@ final class FeedbackViewModel {
         feedback?.technicalGaps ?? []
     }
     
+    func saveLastFeedback() {
+        let feedback = InterviewFeedbackRecord(
+            improve: finalFeedback?.improve ?? [],
+            bestMoments: finalFeedback?.bestMoments ?? [],
+            clarity: finalFeedback?.clarity ?? [],
+            vicios: finalFeedback?.vicios ?? [],
+            profundity: finalFeedback?.profundity ?? []
+        )
+        job.feedback = feedback
+    }
 }
