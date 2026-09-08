@@ -66,6 +66,7 @@ struct SectionLabel: View {
             if required {
                 Text("*")
                     .foregroundStyle(Color(("PrimaryFontColor")))
+                    .accessibilityHidden(true)
             }
         }
         .frame(maxWidth:.infinity, alignment: .leading)

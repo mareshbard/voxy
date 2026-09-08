@@ -4,7 +4,6 @@ import AVFoundation
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
-    @State private var didRecordSession = false
     @Environment(\.dismiss) private var dismiss
     
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
@@ -37,6 +36,10 @@ struct InterviewSessionView: View {
                                     .bold()
                                     .foregroundStyle(Color(.bg))
                             })
+                          //  .accessibilityHidden(true)
+                            .accessibilityLabel(viewModel.isTranscribing ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
+
+                        //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.circle)
                             .tint(Color(.timerBg))
@@ -50,6 +53,7 @@ struct InterviewSessionView: View {
                                 VStack(alignment: .leading) {
                                     Text(viewModel.currentQuestion)
                                         .font(Font.custom("Nunito", size: 17).weight(.semibold))
+                                        .accessibilityHidden(true)
                                 }
                                 .padding()
                                 .background(Color(.systemGray6))

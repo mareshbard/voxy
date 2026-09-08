@@ -30,6 +30,7 @@ struct MicCard: View {
                     
                 }
                 )
+                .accessibilityLabel(isTranscribing ? Text("Parar gravação") : Text("Iniciar gravação"))
                 .buttonStyle(.glassProminent)
                 .tint(.timerBg)
                 

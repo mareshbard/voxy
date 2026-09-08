@@ -27,6 +27,7 @@ struct HeaderSectionForm: View {
                     .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
                     .foregroundStyle(Color("BallonSecondaryFontColor"))
             }
+            .accessibilityElement(children: .combine)
             .padding(.horizontal, 24)
             .padding(.vertical, 45)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -42,6 +43,8 @@ struct HeaderSectionForm: View {
                         resizingMode: .stretch
                     )
                     .padding(.horizontal, -24)
+                    .accessibilityHidden(true)
+
             )
         }
         .frame(maxWidth: .infinity)

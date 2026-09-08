@@ -39,6 +39,7 @@ struct HeaderSection: View {
                         .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
                         .foregroundStyle(Color("BallonSecondaryFontColor"))
                 }
+                .accessibilityElement(children: .combine)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 40)
                 .padding(.trailing, 24)
@@ -52,6 +53,7 @@ struct HeaderSection: View {
                             capInsets: EdgeInsets(top: 24, leading: 40, bottom: 24, trailing: 24),
                             resizingMode: .stretch
                         )
+                        .accessibilityHidden(true)
                 )
             }
 
@@ -109,9 +111,8 @@ struct HeaderSectionHistory: View {
 
                     Text("Esse é seu histórico de vagas")
                     Text("Escolha uma para treinar!")
-                       
-                    
                 }
+                .accessibilityElement(children: .combine)
                 .foregroundStyle(Color("BallonSecondaryFontColor"))
                 .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
                 .fixedSize(horizontal: false, vertical: true)
@@ -127,6 +128,7 @@ struct HeaderSectionHistory: View {
                             capInsets: EdgeInsets(top: 24, leading: 40, bottom: 24, trailing: 24),
                             resizingMode: .stretch
                         )
+                        .accessibilityHidden(true)
                 )
             }
 

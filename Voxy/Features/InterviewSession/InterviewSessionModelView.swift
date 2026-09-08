@@ -26,19 +26,22 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var currentQuestion: String {
         questions[currentIndex]
     }
-    var isTranscribing: Bool {
-        speechAnalyzerManager.isTranscribing
-    }
-    var showMicPermissionAlert: Bool {
-        get { speechAnalyzerManager.showMicDeniedAlert }
-        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
-    }
+    
+    var isTranscribing: Bool = false
+    var showMicPermissionAlert: Bool = false
+//    var isTranscribing: Bool {
+//        speechAnalyzerManager.isTranscribing
+//    }
+//    var showMicPermissionAlert: Bool {
+//        get { speechAnalyzerManager.showMicDeniedAlert }
+//        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
+//    }
     var canGoToNextQuestion: Bool {
         if lastQuestion {
-            return speechAnalyzerManager.isTranscribing
+            return self.isTranscribing
         }
         
-        return elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
+        return elapsedSeconds < 10 || self.isTranscribing
     }
     
     var restartConfirmation: Bool = false
@@ -122,12 +125,14 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func record() async {
-        if speechAnalyzerManager.isTranscribing {
+        if self.isTranscribing {
             await speechAnalyzerManager.stopTranscription()
+            self.isTranscribing = false
             stopTimer()
         } else {
             synthesizer.stopSpeaking(at: .immediate)
             await speechAnalyzerManager.startTranscription()
+            self.isTranscribing = true
             startTimer()
         }
     }
@@ -135,6 +140,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     func restartTranscript() {
         resetTranscript()
         elapsedSeconds = 0
+        isTranscribing = false
         stopTimer()
     }
     
@@ -173,7 +179,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func checkingReset() async {
-        if elapsedSeconds >= 10 && !speechAnalyzerManager.isTranscribing {
+        if elapsedSeconds >= 10 && !self.isTranscribing {
             restartConfirmation = true
         } else {
             await record()
