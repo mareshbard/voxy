@@ -23,7 +23,7 @@ struct MicCard: View {
                         onTap()
                     }
                 }, label: {
-                    Image(systemName: isTranscribing ? "stop.fill" : "play.fill")
+                    Image(systemName: isTranscribing ? "stop.fill" : "mic.fill")
                         .foregroundColor(Color(.bg))
                         .font(Font.system(size: 36))
                         .padding(12)

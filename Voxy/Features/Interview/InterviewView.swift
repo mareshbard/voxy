@@ -72,7 +72,7 @@ struct InterviewView: View {
             Button {
                 isSessionActive = true
             } label: {
-                Text("Começar entrevista")
+                Text("Começar")
             }
             .buttonStyle(GameButton())
             .disabled(viewModel.questions.isEmpty || viewModel.isLoading)

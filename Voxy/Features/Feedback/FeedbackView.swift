@@ -35,10 +35,11 @@ struct FeedbackView: View {
                             .font(Font.custom("Nunito", size: 14)
                                 .weight(.bold))
                     }
+                    
                     .accessibilityElement(children: .combine)
                     .padding(16)
                     //.frame(width: 120, height: 100)
-                    .foregroundStyle(Color(.fbText))
+                    .foregroundStyle(Color("PrimaryFontColor"))
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 16)

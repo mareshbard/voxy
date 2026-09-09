@@ -57,7 +57,7 @@ struct GameButton: ButtonStyle {
 }
 
 #Preview {
-    Button("Treinar agora!") {
+    Button("Treinar!") {
     }
     .font(.custom("Satoshi-Bold", size: 20))
     .frame(maxWidth: .infinity)
