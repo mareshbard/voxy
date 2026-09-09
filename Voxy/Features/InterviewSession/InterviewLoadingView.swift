@@ -36,7 +36,7 @@ struct InterviewLoadingView: View {
                 )
             }
         }
-        .navigationBarBackButtonHidden(viewModel.questions.isEmpty)
+        .navigationBarBackButtonHidden(true)
         .task {
             guard viewModel.questions.isEmpty else { return }
 

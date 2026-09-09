@@ -5,6 +5,7 @@ struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
     @State private var didRecordSession = false
+    @State private var showExitConfirmation = false
     @Environment(\.dismiss) private var dismiss
     
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
@@ -97,7 +98,16 @@ struct InterviewSessionView: View {
         }
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showExitConfirmation = true
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     Task { await viewModel.advance() }
@@ -146,6 +156,16 @@ struct InterviewSessionView: View {
         }
         .onAppear {
             Task { await viewModel.speakQuestion() }
+        }
+        
+        .alert("Tem certeza?", isPresented: $showExitConfirmation) {
+            Button("Cancelar", role: .cancel) {}
+
+            Button("Sair", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Se voltar ao início, você perderá o progresso da sua entrevista.")
         }
     }
 }
