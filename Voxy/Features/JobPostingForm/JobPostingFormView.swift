@@ -11,12 +11,13 @@ import PhotosUI
 
 struct JobPostingFormView: View {
 
-    @State private var shouldShowJobDetails = false
     @State private var shouldStartInterview = false
     @State private var savedJobPosting: JobPosting?
     @State private var selectedPhoto: PhotosPickerItem?
 
     @Bindable var viewModel: JobPostingFormViewModel
+
+    var onStartTraining: ((JobPosting) -> Void)?
 
     @Environment(\.dismiss) private var dismiss
 
@@ -90,8 +91,8 @@ struct JobPostingFormView: View {
 
                     Spacer()
 
-                    Button("Continuar") {
-                        saveAndShowDetails()
+                    Button("Treinar!") {
+                        startTraining()
                     }
                     .frame(maxWidth: .infinity)
                     .buttonStyle(GameButton())
@@ -102,10 +103,10 @@ struct JobPostingFormView: View {
                 .padding(24)
             }
             .navigationDestination(
-                isPresented: $shouldShowJobDetails
+                isPresented: $shouldStartInterview
             ) {
                 if let jobPosting = savedJobPosting {
-                    JobPostingDetailsView(
+                    InterviewLoadingView(
                         jobPosting: jobPosting
                     )
                 }
@@ -130,23 +131,20 @@ struct JobPostingFormView: View {
                                 "Cancela o formulário e volta à tela anterior"
                             )
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 24)
-                    .padding(.bottom, 24)
                 }
 
                 ToolbarItem(
                     placement: .confirmationAction
                 ) {
                     Button {
-                        saveAndShowDetails()
+                        saveAndDismiss()
                     } label: {
                         Image(systemName: "checkmark")
                             .accessibilityLabel(
                                 Text("Salvar")
                             )
                             .accessibilityHint(
-                                "Salva a vaga e exibe seus detalhes"
+                                "Salva a vaga e volta para a lista"
                             )
                     }
                     .buttonStyle(.borderedProminent)
@@ -169,9 +167,6 @@ struct JobPostingFormView: View {
                 }
             }
         }
-
-//        savedJobPosting = jobPosting
-//        shouldStartInterview = true
     }
 
     private var canSave: Bool {
@@ -186,13 +181,26 @@ struct JobPostingFormView: View {
                 .isEmpty
     }
 
-    private func saveAndShowDetails() {
+    private func saveAndDismiss() {
+        guard viewModel.save() != nil else {
+            return
+        }
+
+        // Fecha a sheet; a lista recarrega no onDismiss e mostra a nova vaga.
+        dismiss()
+    }
+
+    private func startTraining() {
         guard let jobPosting = viewModel.save() else {
             return
         }
 
-        savedJobPosting = jobPosting
-        shouldShowJobDetails = true
+        if let onStartTraining {
+            onStartTraining(jobPosting)
+        } else {
+            savedJobPosting = jobPosting
+            shouldStartInterview = true
+        }
     }
 }
 
