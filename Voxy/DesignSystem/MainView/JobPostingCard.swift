@@ -11,7 +11,6 @@ struct JobPostingCard: View {
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    /// Empilha empresa e data verticalmente quando a fonte atinge tamanhos de acessibilidade.
     private var isStacked: Bool {
         dynamicTypeSize.isAccessibilitySize
     }
@@ -58,6 +57,7 @@ struct JobPostingCard: View {
             }
             .fixedSize(horizontal: true, vertical: false)
         }
+        .accessibilityElement(children: .combine)
         .padding(12)
         .background(
             ZStack {

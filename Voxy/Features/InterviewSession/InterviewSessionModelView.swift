@@ -26,19 +26,22 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var currentQuestion: String {
         questions[currentIndex]
     }
-    var isTranscribing: Bool {
-        speechAnalyzerManager.isTranscribing
-    }
-    var showMicPermissionAlert: Bool {
-        get { speechAnalyzerManager.showMicDeniedAlert }
-        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
-    }
+    
+    var isTranscribing: Bool = false
+    var showMicPermissionAlert: Bool = false
+//    var isTranscribing: Bool {
+//        speechAnalyzerManager.isTranscribing
+//    }
+//    var showMicPermissionAlert: Bool {
+//        get { speechAnalyzerManager.showMicDeniedAlert }
+//        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
+//    }
     var canGoToNextQuestion: Bool {
         if lastQuestion {
-            return speechAnalyzerManager.isTranscribing
+            return self.isTranscribing
         }
         
-        return elapsedSeconds < 10 || speechAnalyzerManager.isTranscribing
+        return elapsedSeconds < 10 || self.isTranscribing
     }
     
     var restartConfirmation: Bool = false
@@ -122,12 +125,14 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func record() async {
-        if speechAnalyzerManager.isTranscribing {
+        if self.isTranscribing {
             await speechAnalyzerManager.stopTranscription()
+            self.isTranscribing = false
             stopTimer()
         } else {
             synthesizer.stopSpeaking(at: .immediate)
             await speechAnalyzerManager.startTranscription()
+            self.isTranscribing = true
             startTimer()
         }
     }
@@ -135,6 +140,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     func restartTranscript() {
         resetTranscript()
         elapsedSeconds = 0
+        isTranscribing = false
         stopTimer()
     }
     
@@ -149,8 +155,18 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             stopTimer()
             resetTranscript()
         } else {
-            jobPosting.countInterview += 1
-            jobPosting.lastSimulated = .now
+            // Só conta o treino e registra a ofensiva se houve ao menos uma
+            // resposta transcrita; pular tudo não deve pontuar.
+            if !feedbacks.isEmpty {
+                jobPosting.countInterview += 1
+                jobPosting.lastSimulated = .now
+                StreakManager.recordSession()
+
+                // Guarda as perguntas desta sessão para que nunca se repitam em
+                // treinos futuros desta mesma vaga.
+                jobPosting.askedQuestions.append(contentsOf: questions)
+            }
+
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
@@ -174,7 +190,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func checkingReset() async {
-        if elapsedSeconds >= 10 && !speechAnalyzerManager.isTranscribing {
+        if elapsedSeconds >= 10 && !self.isTranscribing {
             restartConfirmation = true
         } else {
             await record()
@@ -188,7 +204,8 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     func  finishCurrentQuestion() async {
         let question = currentQuestion
         let answer = speechAnalyzerManager.transcript
-        
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
         guard !answer.isEmpty else { return }
         
         isGeneratingFeedback = true

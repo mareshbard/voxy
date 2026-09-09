@@ -1,7 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct FeedbackView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel: FeedbackViewModel
     @State private var goHome = false
     // private let interviewCount: Int
@@ -17,12 +19,13 @@ struct FeedbackView: View {
         ScrollView {
             VStack {
                 VStack {
-                    Text("Mandou bem!")
+                    Text(viewModel.hasAnswers ? "Mandou bem!" : "Entrevista incompleta")
                         .font(.custom("Satoshi-Bold", size: 32))
                         .bold()
-                    Text("Você está arrasando!")
+                    Text(viewModel.hasAnswers ? "Você está arrasando!" : "Você não respondeu nenhuma pergunta.")
                         .font(Font.custom("Nunito", size: 20)
                             .weight(.bold))
+                        .multilineTextAlignment(.center)
                     VStack {
                         Text("JÁ TREINOU")
                             .font(Font.custom("Satoshi-Bold", size: 12)
@@ -35,26 +38,51 @@ struct FeedbackView: View {
                             .font(Font.custom("Nunito", size: 14)
                                 .weight(.bold))
                     }
+                    .accessibilityElement(children: .combine)
                     .padding(16)
-                    .frame(width: 120, height: 100) // Dimensões do cartão
-                    .background(Color(.fbBg))
-                    .cornerRadius(24)
+                    //.frame(width: 120, height: 100)
                     .foregroundStyle(Color(.fbText))
+                    .background(
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color("PrimaryBlue"))
+                            
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color("BackgroundJobCardColor"))
+                                .offset(x: -5, y: -5) // Efeito 3D de sombra/deslocamento
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(Color("PrimaryBlue"), lineWidth: 1)
+                    )
                 }
                 
                 Spacer(minLength: 25)
                 
-                if viewModel.isLoading {
+                if !viewModel.hasAnswers {
+                    VStack(spacing: 8) {
+                        Text("Não há nada para analisar")
+                            .font(.custom("Satoshi-Bold", size: 18))
+                        Text("Responda ao menos uma pergunta em voz alta para receber seu feedback.")
+                            .font(Font.custom("Nunito", size: 16).weight(.bold))
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 20)
+                } else if viewModel.isLoading {
                     ProgressView("Analisando entrevista...")
                         .padding()
                 } else if let final = viewModel.finalFeedback {
-                    
+
                     FeedbackSection(title: "CLAREZA", items: final.clarity, highlighted: true)
                     FeedbackSection(title: "VÍCIOS", items: final.vicios, highlighted: true)
                     FeedbackSection(title: "PROFUNDIDADE", items: final.profundity, highlighted: true)
                     FeedbackSection(title: "MELHORES MOMENTOS", items: final.bestMoments)
                     FeedbackSection(title: "ONDE MELHORAR", items: final.improve)
-                    
+
                 }
             }
             .padding(24)
@@ -64,7 +92,11 @@ struct FeedbackView: View {
             viewModel.saveLastFeedback()
         }
         .navigationDestination(isPresented: $goHome) {
-            OnBoardingView()
+            JobPostingListView(
+                viewModel: JobPostingListViewModel(
+                    store: JobPostingStore(modelContext: modelContext)
+                )
+            )
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

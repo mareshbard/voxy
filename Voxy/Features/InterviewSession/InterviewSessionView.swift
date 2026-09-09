@@ -23,10 +23,13 @@ struct InterviewSessionView: View {
             VStack {
                 ScrollView {
                     VStack {
-                        
+                        MiaInterview(isSpeaking: viewModel.isSpeaking)
+                            .fixedSize()                  // Garante o tamanho original de referência
+                            .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
+                            .frame(width: 160, height: 160) // Ajusta a caixa de layout para a View pai
+                            .clipped()
                     }
-                    .padding(40)
-                    .background(Color(.systemGray6))
+                    
                     VStack(alignment: .center, spacing: 20) {
                         // Bloco da Pergunta e Áudio
                         VStack(alignment: .center, spacing: 0) {
@@ -37,6 +40,10 @@ struct InterviewSessionView: View {
                                     .bold()
                                     .foregroundStyle(Color(.bg))
                             })
+                          //  .accessibilityHidden(true)
+                            .accessibilityLabel(viewModel.isTranscribing ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
+
+                        //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.circle)
                             .tint(Color(.timerBg))
@@ -50,6 +57,7 @@ struct InterviewSessionView: View {
                                 VStack(alignment: .leading) {
                                     Text(viewModel.currentQuestion)
                                         .font(Font.custom("Nunito", size: 17).weight(.semibold))
+                                        .accessibilityHidden(true)
                                 }
                                 .padding()
                                 .background(Color(.systemGray6))
@@ -141,7 +149,15 @@ struct InterviewSessionView: View {
 }
 
 #Preview {
-    //    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
-    //    InterviewSessionView(questions: questions)
-    //
+    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
+    let jobPosting = JobPosting(
+        title: "iOS Developer",
+        companyName: "Voxy",
+        jobDescription: "Desenvolvimento de apps em Swift/SwiftUI."
+    )
+    InterviewSessionView(
+        questions: questions,
+        feedbackEngine: FoundationFeedbackEngine(),
+        jobPosting: jobPosting
+    )
 }

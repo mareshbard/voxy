@@ -85,6 +85,8 @@ struct InterviewView: View {
                 )
             }
         }
+        .toolbar(.hidden, for: .tabBar)
+
     }
 }
 

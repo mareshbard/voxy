@@ -16,16 +16,13 @@ struct FoxyView: View {
     var body: some View {
         
         ZStack {
-
-            Image("MacCat")
-                .offset(x: 20 * scale / 2, y: 80 * scale / 2)
             
             Image("FoxyMascot")
                 .offset(x: -5 * scale / 2, y: 10 * scale / 2)
 
             Image("FoxyEyes")
                 .scaleEffect(y: isBlinking ? 0.02 : 1, anchor: .center)
-                .offset(x: -5 * scale / 2, y: 5 * scale / 2)
+                .offset(x: -5 * scale / 2, y: 2 * scale / 2)
                 .animation(.easeInOut(duration: 0.05), value: isBlinking)
 
         }

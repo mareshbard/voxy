@@ -12,6 +12,8 @@ struct JobPostingListView: View {
     
     @Bindable var viewModel: JobPostingListViewModel
     @State private var isShowingJobPostingForm: Bool = false
+    @State private var jobPostingToTrain: JobPosting?
+    @State private var isShowingInterview: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -77,6 +79,11 @@ struct JobPostingListView: View {
             .navigationDestination(for: JobPosting.self) { jobPosting in
                 JobPostingDetailsView(jobPosting: jobPosting)
             }
+            .navigationDestination(isPresented: $isShowingInterview) {
+                if let jobPostingToTrain {
+                    InterviewLoadingView(jobPosting: jobPostingToTrain)
+                }
+            }
             .ignoresSafeArea(edges: .top)
             .task {
                 viewModel.loadJobPostings()
@@ -84,6 +91,7 @@ struct JobPostingListView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("Nova vaga", systemImage: "plus") {
+                        jobPostingToTrain = nil
                         isShowingJobPostingForm = true
                     }
                     .buttonStyle(GlassProminentButtonStyle())
@@ -93,9 +101,17 @@ struct JobPostingListView: View {
             
             .sheet(isPresented: $isShowingJobPostingForm, onDismiss: {
                 viewModel.loadJobPostings()
+
+                if jobPostingToTrain != nil {
+                    isShowingInterview = true
+                }
             }) {
                 JobPostingFormView(
-                    viewModel: viewModel.makeFormViewModel()
+                    viewModel: viewModel.makeFormViewModel(),
+                    onStartTraining: { jobPosting in
+                        jobPostingToTrain = jobPosting
+                        isShowingJobPostingForm = false
+                    }
                 )
             }
             .scrollEdgeEffectHidden(true, for: .top)
