@@ -7,7 +7,7 @@ struct FeedbackView: View {
     @State private var viewModel: FeedbackViewModel
     @State private var goHome = false
     var job: JobPosting
-    
+
     init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], answers: [String] = [], job: JobPosting) {
         _viewModel = State(initialValue: FeedbackViewModel(job: job, engine: engine))
         _viewModel.wrappedValue.question = question
@@ -16,8 +16,6 @@ struct FeedbackView: View {
         self.job = job
     }
     
-    /// Enquanto o feedback final não chega (e não houve erro), mostramos a tela
-    /// de carregamento dedicada em vez do conteúdo.
     private var isGeneratingFeedback: Bool {
         viewModel.hasAnswers && viewModel.finalFeedback == nil && viewModel.errorMessage == nil
     }
@@ -39,7 +37,6 @@ struct FeedbackView: View {
         ScrollView {
             VStack {
                 VStack {
-                    // Imagem do Mascote dinâmica conforme o título/resultado
                     Image(viewModel.headerMascotImageName)
                         .resizable()
                         .scaledToFit()
@@ -49,23 +46,19 @@ struct FeedbackView: View {
                     Text(viewModel.headerTitle)
                         .font(.custom("Satoshi-Bold", size: 32))
                         .bold()
-                    
+
                     Text(viewModel.headerSubtitle)
-                        .font(Font.custom("Nunito", size: 20)
-                            .weight(.bold))
+                        .font(Font.custom("Nunito", size: 20).weight(.bold))
                         .multilineTextAlignment(.center)
-                    
+
                     VStack {
                         Text("JÁ TREINOU")
-                            .font(Font.custom("Satoshi-Bold", size: 12)
-                                .weight(.bold))
+                            .font(Font.custom("Satoshi-Bold", size: 12).weight(.bold))
                         Text("\(job.countInterview)")
-                            .font(Font.custom("Nunito", size: 24)
-                                .weight(.bold))
+                            .font(Font.custom("Nunito", size: 24).weight(.bold))
                             .foregroundStyle(Color(.total))
                         Text(job.countInterview == 1 ? "vez!" : "vezes!")
-                            .font(Font.custom("Nunito", size: 14)
-                                .weight(.bold))
+                            .font(Font.custom("Nunito", size: 14).weight(.bold))
                     }
                     .accessibilityElement(children: .combine)
                     .padding(16)
@@ -77,7 +70,7 @@ struct FeedbackView: View {
                             
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color("BackgroundJobCardColor"))
-                                .offset(x: -5, y: -5) // Efeito 3D de sombra/deslocamento
+                                .offset(x: -5, y: -5)
                         }
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     )
@@ -100,17 +93,12 @@ struct FeedbackView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 20)
-//                } else if viewModel.isLoading {
-//                    ProgressView("Analisando entrevista...")
-//                        .padding()
                 } else if let final = viewModel.finalFeedback {
-
                     FeedbackSection(title: "CLAREZA", items: final.clarity, highlighted: true)
                     FeedbackSection(title: "VÍCIOS", items: final.vicios, highlighted: true)
                     FeedbackSection(title: "PROFUNDIDADE", items: final.profundity, highlighted: true)
                     FeedbackSection(title: "MELHORES MOMENTOS", items: final.bestMoments)
                     FeedbackSection(title: "ONDE MELHORAR", items: final.improve)
-
                 }
             }
             .padding(24)
@@ -128,7 +116,7 @@ struct FeedbackView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    goHome = true // Ativa a navegação para a home
+                    goHome = true
                 }) {
                     Label("Início", systemImage: "xmark")
                 }
