@@ -44,7 +44,7 @@ struct InterviewSessionView: View {
                                     .foregroundStyle(Color(.bg))
                             })
                           //  .accessibilityHidden(true)
-                            .accessibilityLabel(viewModel.isTranscribing ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
+                            .accessibilityLabel(viewModel.isSpeaking ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
 
                         //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
                             .buttonStyle(.borderedProminent)
@@ -89,7 +89,7 @@ struct InterviewSessionView: View {
                         .bold()
                 })
                 .frame(maxWidth: .infinity)
-                .buttonStyle(GameButton())
+                .buttonStyle(BlueGameButton())
                 .disabled(viewModel.canGoToNextQuestion)
                 .controlSize(.regular)
             }
