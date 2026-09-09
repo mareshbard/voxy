@@ -11,6 +11,9 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     private var feedbackEngine: FeedbackEngineProtocol
     let jobPosting: JobPosting
     var feedbacks: [AnswerFeedback] = []
+    // Respostas transcritas cruas, alinhadas com `feedbacks`. Usadas no feedback
+    // final como sinal determinístico de esforço (ex.: detectar "não sei").
+    var answers: [String] = []
     var isGeneratingFeedback: Bool = false
     var finalFeedback: String = ""
     var responses: String = ""
@@ -213,6 +216,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         .joined(separator: "\n\n")
     }
     
+    
     func checkingReset() async {
         if elapsedSeconds >= 10 && !self.isTranscribing {
             restartConfirmation = true
@@ -240,6 +244,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
                 answer: answer
             )
             feedbacks.append(feedback)
+            answers.append(answer)
         } catch {
             print("Erro ao gerar feedback")
         }

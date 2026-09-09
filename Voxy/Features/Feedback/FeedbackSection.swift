@@ -6,6 +6,16 @@ struct FeedbackSection: View {
     var highlighted: Bool = false
     
     var body: some View {
+        // Sem itens não há o que mostrar: escondemos a seção inteira para não
+        // exibir um cabeçalho vazio (ex.: "MELHORES MOMENTOS" sem conteúdo).
+        if items.isEmpty {
+            EmptyView()
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(Font.custom("Nunito", size: 14))

@@ -140,6 +140,7 @@ struct InterviewSessionView: View {
                     engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
                     question: viewModel.currentQuestion,
                     feedbacks: viewModel.feedbacks,
+                    answers: viewModel.answers,
                     job: viewModel.jobPosting,
                 )
         }

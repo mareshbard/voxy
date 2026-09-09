@@ -10,95 +10,75 @@ import FoundationModels
 
 @Generable
 struct AnswerFeedback: Hashable {
-    @Guide(description: "Seja honesto e dê uma nota de 1 a 5 que condiz com a clareza e a articulação da resposta.", .range(1...5))
+    @Guide(description: "Nota de 1 a 5 para a clareza e articulação. ATENÇÃO: Respostas evasivas, vazias ou 'não sei' devem obrigatoriamente receber nota 1 ou 2.", .range(1...5))
     let articulationScore: Int
 
-    @Guide(description: "Seja honesto e diga duas a três frases sobre a articulação: o que ficou claro e o que ficou confuso.")
+    @Guide(description: "Análise sucinta da articulação em 2-3 frases. Se a resposta for 'não sei' ou muito curta, aponte a falta de desenvolvimento. Dizer que não sabe NÃO conta como clareza.")
     let articulationNotes: String
 
-    @Guide(description: "Vícios de linguagem e muletas encontrados no texto (ex.: repetições, 'tipo', 'né', 'então'). Deixe vazio se não houver.")
+    @Guide(description: "Vícios de linguagem e muletas de fala (ex.: repetições, 'tipo', 'né'). Deixe a lista totalmente vazia [] se não houver.")
     let languageVices: [String]
 
-    @Guide(description: "Seja honesto com os pontos técnicos fortes demonstrados na resposta. Valide se o que o usuário respondeu condiz com a pergunta feita.", .count(3))
+    @Guide(description: "Pontos técnicos fortes REALMENTE demonstrados. REGRA OBRIGATÓRIA: Se a resposta for 'não sei', vazia ou incorreta, retorne uma lista VAZIA []. NUNCA invente elogios.", .maximumCount(3))
     let technicalStrengths: [String]
 
-    @Guide(description: "Seja honesto e aponte lacunas técnicas na resposta do usuário ou pontos a melhorar, enquadrados como sugestões de estudo.", .count(4))
+    @Guide(description: "Lacunas técnicas enquadradas como sugestões de estudo. Se o candidato não soube responder, descreva o tópico da pergunta como algo a ser estudado.", .count(2...4))
     let technicalGaps: [String]
 
-    @Guide(description: "Seja honesto e faça um resumo final acionável, em uma frase.")
+    @Guide(description: "Resumo acionável do desempenho nesta resposta em uma frase curta.")
     let summary: String
-    
 }
 
 @Generable
-
 struct FinalFeedback {
-    @Guide(description: "Seja honesto e diga onde o usuário deve melhorar, com sugestões específicas e curtas, sem repetir pontos técnicos.", .count(4))
+    @Guide(description: "Ações concretas do que praticar ou estudar. Cada item DEVE começar com um verbo no imperativo (ex.: 'Estude...', 'Pratique...'). Foco exclusivo em melhorias futuras.", .count(2...4))
     let improve: [String]
-    
-    @Guide(description: "Seja honesto e diga os melhores momentos da entrevista, onde o usuário foi bem, em frases curtas, sem repetir pontos técnicos", .count(3))
+
+    @Guide(description: "Elogios a acertos concretos demonstrados. REGRA OBRIGATÓRIA: Se o candidato disse que não sabia ou deu respostas vazias em toda a entrevista, retorne uma lista VAZIA []. NUNCA invente acertos.", .maximumCount(3))
     let bestMoments: [String]
-    
-    @Guide(description: "Seja honesto e diga informacoes sobre a clareza das respostas, de maneira curta e concisa, sem repetir pontos técnicos", .count(2))
+
+    @Guide(description: "Análise da CLAREZA e organização em argumentos bem estruturados. Se o candidato apenas disse 'não sei' ou não desenvolveu respostas, retorne uma lista VAZIA [].", .maximumCount(2))
     let clarity: [String]
-    
-    @Guide(description: "Seja honesto e diga os principais vicios encontrados na entrevista de maneira curta, sem repetir pontos técnicos", .count(3))
+
+    @Guide(description: "Vícios e muletas usados (ex.: 'tipo', 'né'). Cada item é uma única palavra ou expressão curta. Se não houver vícios, retorne uma lista VAZIA [].", .maximumCount(3))
     let vicios: [String]
-    
-    @Guide(description: "Seja honesto e comente sobre a profundidade das respostas com frases curtas", .count(3))
+
+    @Guide(description: "Análise da PROFUNDIDADE técnica. Se as respostas do candidato foram sucintas, evasivas ou 'não sei', retorne uma lista VAZIA [].", .maximumCount(3))
     let profundity: [String]
 }
 
 @MainActor
 protocol FeedbackEngineProtocol {
-    
     var availabilityMessage: String? { get }
-
-    /// Avalia a resposta a uma pergunta e retorna o feedback estruturado.
-    /// `question` pode ser vazia (a análise foca só na resposta).
     func evaluate(question: String, answer: String) async throws -> AnswerFeedback
 }
 
 @MainActor
 protocol FinalFeedbackProtocol {
-    
     var availabilityMessage: String? { get }
-
-    /// Avalia a resposta a uma pergunta e retorna o feedback estruturado.
-    /// `question` pode ser vazia (a análise foca só na resposta).
     func evaluate(feedbacks: String) async throws -> FinalFeedback
 }
+
 // Implementação on-device (offline-first) baseada no FoundationModels
-
 @MainActor
-final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProtocol{
-    func evaluate(feedbacks: String) async throws -> FinalFeedback {
-        let session = LanguageModelSession(instructions: instructions)
-        let prompt = makePrompt(feedbacks: feedbacks)
-
-        let response = try await session.respond(
-            to: prompt,
-            generating: FinalFeedback.self,
-            options: options
-        )
-        return response.content
-    }
+final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProtocol {
     
     private let model = SystemLanguageModel.default
     private let instructions: String
 
-    /// Temperatura baixa: feedback deve ser estável e consistente
-    /// (o oposto da geração de perguntas, que busca variedade).
-    private let options = GenerationOptions(temperature: 0.3)
+    /// Temperatura baixa (0.1) força o modelo a respeitar
+    /// rigidamente as restrições de formatação e listas vazias.
+    private let options = GenerationOptions(temperature: 0.1)
 
     init() {
         instructions = """
-        Você é um avaliador de entrevistas técnicas em tecnologia e design. \
-        Avalie a RESPOSTA do candidato de forma construtiva, específica e honesta, \
-        em português. Considere três eixos: (1) articulação da resposta e clareza; \
-        (2) vícios de linguagem e muletas; (3) conteúdo técnico frente à pergunta feita. \
-        Baseie o feedback apenas no texto fornecido levando em consideração a pergunta que foi feita, sem inventar informações, e \
-        enquadre lacunas técnicas como sugestões de estudo, não como verdades absolutas.
+        Você é um avaliador estrito de entrevistas técnicas em tecnologia e design. \
+        Sua prioridade máxima é ser REALISTA, HONESTO e EVITAR ELOGIOS FALSOS.
+        
+        Siga rigorosamente estas regras:
+        1. BASEIE-SE APENAS NO TEXTO: Não deduza conhecimento que não esteja escrito explicitamente na resposta.
+        2. REGRA DO 'NÃO SEI': Se o candidato responder "não sei", der uma resposta vazia ou evasiva, você DEVE retornar as listas de pontos fortes, melhores momentos, clareza e profundidade como listas VAZIAS [].
+        3. ENQUADRAMENTO: Trate desconhecimento técnico como sugestão de estudo, sem tentar compensating com elogios artificiais à honestidade do candidato.
         """
     }
 
@@ -118,7 +98,6 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProto
     }
 
     func evaluate(question: String, answer: String) async throws -> AnswerFeedback {
-        // Sessão nova por avaliação: análise stateless, contexto (tokens) sempre limpo.
         let session = LanguageModelSession(instructions: instructions)
         let prompt = makePrompt(question: question, answer: answer)
 
@@ -130,9 +109,19 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProto
         return response.content
     }
 
+    func evaluate(feedbacks: String) async throws -> FinalFeedback {
+        let session = LanguageModelSession(instructions: instructions)
+        let prompt = makePrompt(feedbacks: feedbacks)
+
+        let response = try await session.respond(
+            to: prompt,
+            generating: FinalFeedback.self,
+            options: options
+        )
+        return deduplicatedAcrossSections(response.content)
+    }
+
     private func makePrompt(question: String, answer: String) -> String {
-        // Delimitadores explícitos evitam que instruções contidas na fala do
-        // candidato sejam interpretadas como comando ao modelo.
         let questionBlock = question.isEmpty
             ? "PERGUNTA: (não informada)"
             : "PERGUNTA:\n\"\"\"\n\(question)\n\"\"\""
@@ -145,10 +134,11 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProto
         \(answer)
         \"\"\"
 
-        Gere o feedback estruturado da resposta acima.
+        Analise a RESPOSTA estritamente com base na PERGUNTA. 
+        REGRA CRÍTICA: Se a resposta for "não sei", muito curta ou evasiva, ZERE a lista de pontos fortes, retornando-a totalmente VAZIA. Concentre o feedback apenas no que deve ser estudado.
         """
     }
-    
+
     private func makePrompt(feedbacks: String) -> String {
         let block = feedbacks.isEmpty
             ? "FEEDBACKS: (não encontrados)"
@@ -157,8 +147,40 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProto
         return """
         \(block)
 
-        Com base no conjunto de feedbacks acima de toda a entrevista, \
-        gere um feedback final consolidado.
+        Consolide os feedbacks da entrevista em um relatório final rigoroso. 
+        Cada seção trata de um aspecto INDEPENDENTE. Não repita a mesma frase em seções diferentes.
+        
+        REGRA CRÍTICA: Se os feedbacks mostram que o candidato respondeu apenas "não sei" ou deu respostas vazias, DEIXE as listas "bestMoments", "clarity" e "profundity" COMPLETAMENTE VAZIAS []. Foque o retorno unicamente em "improve".
         """
+    }
+
+    private func deduplicatedAcrossSections(_ feedback: FinalFeedback) -> FinalFeedback {
+        var seen = Set<String>()
+
+        func unique(_ items: [String]) -> [String] {
+            items.filter { item in
+                let key = normalizedKey(item)
+                guard !key.isEmpty, !seen.contains(key) else { return false }
+                seen.insert(key)
+                return true
+            }
+        }
+
+        return FinalFeedback(
+            improve: unique(feedback.improve),
+            bestMoments: unique(feedback.bestMoments),
+            clarity: unique(feedback.clarity),
+            vicios: unique(feedback.vicios),
+            profundity: unique(feedback.profundity)
+        )
+    }
+
+    private func normalizedKey(_ text: String) -> String {
+        text
+            .folding(options: .diacriticInsensitive, locale: .current)
+            .lowercased()
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
     }
 }
