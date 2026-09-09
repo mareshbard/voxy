@@ -8,10 +8,11 @@ struct FeedbackView: View {
     @State private var goHome = false
     // private let interviewCount: Int
     var job: JobPosting
-    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], job: JobPosting) {
+    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], answers: [String] = [], job: JobPosting) {
         _viewModel = State(initialValue: FeedbackViewModel(job: job, engine: engine))
         _viewModel.wrappedValue.question = question
         _viewModel.wrappedValue.feedbacks = feedbacks
+        _viewModel.wrappedValue.answers = answers
         self.job = job
     }
     
@@ -19,10 +20,10 @@ struct FeedbackView: View {
         ScrollView {
             VStack {
                 VStack {
-                    Text(viewModel.hasAnswers ? "Mandou bem!" : "Entrevista incompleta")
+                    Text(viewModel.headerTitle)
                         .font(.custom("Satoshi-Bold", size: 32))
                         .bold()
-                    Text(viewModel.hasAnswers ? "Você está arrasando!" : "Você não respondeu nenhuma pergunta.")
+                    Text(viewModel.headerSubtitle)
                         .font(Font.custom("Nunito", size: 20)
                             .weight(.bold))
                         .multilineTextAlignment(.center)
