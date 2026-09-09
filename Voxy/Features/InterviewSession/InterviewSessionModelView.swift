@@ -25,31 +25,33 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var goToFeedback: Bool = false
     var questions: [String]
     var currentIndex: Int = 0
-    
+    var isAdvancing: Bool = false
     var currentQuestion: String {
         questions[currentIndex]
     }
     
     var isTranscribing: Bool = false
     var showMicPermissionAlert: Bool = false
-//    var isTranscribing: Bool {
-//        speechAnalyzerManager.isTranscribing
-//    }
-//    var showMicPermissionAlert: Bool {
-//        get { speechAnalyzerManager.showMicDeniedAlert }
-//        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
-//    }
+
     var canGoToNextQuestion: Bool {
-        if lastQuestion {
-            return self.isTranscribing
+
+        let currentAnswer = speechAnalyzerManager.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        if currentAnswer.isEmpty || isAdvancing {
+            return true
         }
-        
-        return elapsedSeconds < 10 || self.isTranscribing
+        if isTranscribing {
+            return true
+        }
+        return false
     }
     
     var restartConfirmation: Bool = false
     
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
+    init(
+        questions: [String],
+        feedbackEngine: FeedbackEngineProtocol,
+        jobPosting: JobPosting
+    ) {
         self.questions = questions
         self.feedbackEngine = feedbackEngine
         self.jobPosting = jobPosting
@@ -78,7 +80,13 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         }
         lastSpokenIndex = currentIndex
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
+            try AVAudioSession
+                .sharedInstance()
+                .setCategory(
+                    .playAndRecord,
+                    mode: .default,
+                    options: [.defaultToSpeaker]
+                )
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("Erro: \(error)")
@@ -90,16 +98,28 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         
     }
     
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(
+        _ synthesizer: AVSpeechSynthesizer,
+        didStart utterance: AVSpeechUtterance
+    ) {
         Task { @MainActor in isSpeaking = true }
     }
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer,  didFinish utterance: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(
+        _ synthesizer: AVSpeechSynthesizer,
+        didFinish utterance: AVSpeechUtterance
+    ) {
         Task { @MainActor in isSpeaking = false }
     }
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(
+        _ synthesizer: AVSpeechSynthesizer,
+        didCancel utterance: AVSpeechUtterance
+    ) {
         Task { @MainActor in isSpeaking = false }
     }
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
+    nonisolated func speechSynthesizer(
+        _ synthesizer: AVSpeechSynthesizer,
+        didPause utterance: AVSpeechUtterance
+    ) {
         Task { @MainActor in isSpeaking = false }
     }
     
@@ -129,9 +149,10 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     func record() async {
         if self.isTranscribing {
-            await speechAnalyzerManager.stopTranscription()
-            self.isTranscribing = false
             stopTimer()
+            self.isTranscribing = false
+            await speechAnalyzerManager.stopTranscription()
+            
         } else {
             synthesizer.stopSpeaking(at: .immediate)
             await speechAnalyzerManager.startTranscription()
@@ -148,9 +169,12 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func advance () async {
+        guard !isAdvancing else { return } // se ja ta retornando ignora novas chamadas
+        isAdvancing = true
+        defer { isAdvancing = false } // libera no final
         if synthesizer.isSpeaking {
-                synthesizer.stopSpeaking(at: .immediate)
-            }
+            synthesizer.stopSpeaking(at: .immediate)
+        }
         await finishCurrentQuestion()
         if currentIndex < questions.count - 1 {
             currentIndex += 1
@@ -162,12 +186,14 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             // resposta transcrita; pular tudo não deve pontuar.
             if !feedbacks.isEmpty {
                 jobPosting.countInterview += 1
+                jobPosting.lastSimulated = .now
                 StreakManager.recordSession()
 
                 // Guarda as perguntas desta sessão para que nunca se repitam em
-                // treinos futuros desta mesma vaga (persistido via SwiftData).
+                // treinos futuros desta mesma vaga.
                 jobPosting.askedQuestions.append(contentsOf: questions)
             }
+
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
@@ -213,7 +239,10 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         isGeneratingFeedback = true
         defer { isGeneratingFeedback = false }
         do {
-            let feedback = try await feedbackEngine.evaluate(question: question, answer: answer)
+            let feedback = try await feedbackEngine.evaluate(
+                question: question,
+                answer: answer
+            )
             feedbacks.append(feedback)
             answers.append(answer)
         } catch {

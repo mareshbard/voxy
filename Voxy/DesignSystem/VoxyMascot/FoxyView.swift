@@ -26,6 +26,8 @@ struct FoxyView: View {
                 .animation(.easeInOut(duration: 0.05), value: isBlinking)
 
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Mia preparando sua entrevista")
         .scaleEffect(scale / 2)
         .offset(y: isFloating ? -10 : 0)
         .animation(

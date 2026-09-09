@@ -76,7 +76,7 @@ struct HeaderSection: View {
 }
 
 #Preview {
-    HeaderSection()
+    HeaderSectionHistory()
 }
 
 struct HeaderSectionHistory: View {
@@ -91,16 +91,19 @@ struct HeaderSectionHistory: View {
             ? AnyLayout(VStackLayout(spacing: 8))
             : AnyLayout(HStackLayout(spacing: 0))
 
-        HStack {
-            Spacer()
-
-            layout {
-                Image("MascotImage")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 90, height: 90)
+            HStack {
                 Spacer()
-                
+
+                layout {
+
+                    MiaAnimation()
+                        .fixedSize()                  // Garante o tamanho original de referência
+                        .scaleEffect(0.5)             // Reduz a imagem e todas as posições em 70%
+                        .frame(width: 150, height: 150) // Ajusta a caixa de layout para a View pai
+                        .clipped()                    // Corta as áreas
+                    
+    //                Spacer()
+                    
                 VStack(alignment: .leading, spacing: 2) {
 
                     Text("Esse é seu histórico de vagas")
@@ -113,13 +116,13 @@ struct HeaderSectionHistory: View {
                 .padding(.leading, 40)
                 .padding(.trailing, 24)
                 .padding(.vertical, 16)
-                .frame(minWidth: 256, minHeight: 78, alignment: .leading)
+                .frame(minWidth: 220, minHeight: 78, alignment: .leading)
                 .background(
                     // Balão redimensionável: as bordas/rabinho ficam protegidas pelos capInsets
                     // enquanto o miolo estica para acompanhar o texto escalado pelo Dynamic Type.
                     Image("BallonImage")
                         .resizable(
-                            capInsets: EdgeInsets(top: 24, leading: 40, bottom: 24, trailing: 24),
+                            capInsets: EdgeInsets(top: 24, leading: 50, bottom: 24, trailing: 24),
                             resizingMode: .stretch
                         )
                         .accessibilityHidden(true)
@@ -130,7 +133,7 @@ struct HeaderSectionHistory: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
-        .frame(maxWidth: .infinity, minHeight: 234, alignment: .bottom)
+        .frame(maxWidth: .infinity, minHeight: 300, alignment: .bottom)
         .background(
             // Sangra o fundo azul para fora dos listRowInsets (24pt) para não sobrar
             // borda branca da lista nas laterais, mesmo com o header crescendo.

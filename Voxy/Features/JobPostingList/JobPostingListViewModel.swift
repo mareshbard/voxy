@@ -28,6 +28,11 @@ final class JobPostingListViewModel {
     /// Formata a data do último treino: "Hoje" ou "Ontem" com o horário,
     /// e para datas mais antigas exibe a data completa.
     func lastSimulatedText(for jobPosting: JobPosting) -> String {
+        
+        guard jobPosting.countInterview > 0 else {
+            return "Ainda não treinou"
+        }
+        
         let date = jobPosting.lastSimulated
         let calendar = Calendar.current
         let time = Self.timeFormatter.string(from: date)

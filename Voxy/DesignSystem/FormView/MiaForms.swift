@@ -27,6 +27,8 @@ struct MiaForms: View {
             
             
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Mia está esperando para treinar com você!")
         .frame(maxWidth: .infinity)
         
         .onAppear {

@@ -17,11 +17,6 @@ struct JobPostingCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .frame(width: 48, height: 48)
-            
-            
             VStack(alignment: .leading, spacing: 6) {
                 Text(title)
                     .font(.custom("Satoshi-Medium", size: 17, relativeTo: .body))

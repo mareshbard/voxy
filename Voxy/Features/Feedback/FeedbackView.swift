@@ -60,9 +60,11 @@ struct FeedbackView: View {
                         Text(job.countInterview == 1 ? "vez!" : "vezes!")
                             .font(Font.custom("Nunito", size: 14).weight(.bold))
                     }
+                    
                     .accessibilityElement(children: .combine)
                     .padding(16)
-                    .foregroundStyle(Color(.fbText))
+                    //.frame(width: 120, height: 100)
+                    .foregroundStyle(Color("PrimaryFontColor"))
                     .background(
                         ZStack {
                             RoundedRectangle(cornerRadius: 16)
@@ -102,7 +104,9 @@ struct FeedbackView: View {
                 }
             }
             .padding(24)
+            .navigationBarBackButtonHidden(true)
         }
+        .scrollIndicators(.hidden)
         .onAppear {
             viewModel.saveLastFeedback()
         }

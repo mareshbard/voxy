@@ -5,6 +5,7 @@ struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
     @State private var didRecordSession = false
+    @State private var showExitConfirmation = false
     @Environment(\.dismiss) private var dismiss
     
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
@@ -28,6 +29,8 @@ struct InterviewSessionView: View {
                             .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
                             .frame(width: 160, height: 160) // Ajusta a caixa de layout para a View pai
                             .clipped()
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("Mia está falando")
                     }
                     
                     VStack(alignment: .center, spacing: 20) {
@@ -41,7 +44,7 @@ struct InterviewSessionView: View {
                                     .foregroundStyle(Color(.bg))
                             })
                           //  .accessibilityHidden(true)
-                            .accessibilityLabel(viewModel.isTranscribing ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
+                            .accessibilityLabel(viewModel.isSpeaking ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
 
                         //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
                             .buttonStyle(.borderedProminent)
@@ -82,11 +85,11 @@ struct InterviewSessionView: View {
                 Button(action: {
                     Task { await viewModel.advance() }
                 }, label: {
-                    Text("Próxima pergunta!")
+                    viewModel.lastQuestion ? Text("Finalizar") : Text("Próxima")
                         .bold()
                 })
                 .frame(maxWidth: .infinity)
-                .buttonStyle(GameButton())
+                .buttonStyle(BlueGameButton())
                 .disabled(viewModel.canGoToNextQuestion)
                 .controlSize(.regular)
             }
@@ -95,7 +98,17 @@ struct InterviewSessionView: View {
         }
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .background(SwipeBackBlocker())
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showExitConfirmation = true
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     Task { await viewModel.advance() }
@@ -145,6 +158,47 @@ struct InterviewSessionView: View {
         }
         .onAppear {
             Task { await viewModel.speakQuestion() }
+        }
+        
+        .alert("Tem certeza?", isPresented: $showExitConfirmation) {
+            Button("Cancelar", role: .cancel) {}
+
+            Button("Sair", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Se voltar ao início, você perderá o progresso da sua entrevista.")
+        }
+    }
+}
+
+private struct SwipeBackBlocker: UIViewControllerRepresentable {
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        SwipeBackBlockerViewController()
+    }
+
+    func updateUIViewController(
+        _ uiViewController: UIViewController,
+        context: Context
+    ) {}
+
+    private final class SwipeBackBlockerViewController: UIViewController {
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+
+            navigationController?
+                .interactivePopGestureRecognizer?
+                .isEnabled = false
+        }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+
+            navigationController?
+                .interactivePopGestureRecognizer?
+                .isEnabled = true
         }
     }
 }

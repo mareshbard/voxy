@@ -36,6 +36,8 @@ struct MiaAnimation: View {
                 .offset(x: -60, y: 95)
                 .animation(.easeInOut(duration: 3).repeatForever(autoreverses: true), value: isWaving)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Mia feliz e acenando")
         .frame(maxWidth: .infinity)
         .task {
             await blinkEyes()

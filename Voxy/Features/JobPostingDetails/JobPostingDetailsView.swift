@@ -31,6 +31,7 @@ struct JobPostingDetailsView: View {
                 .padding(.bottom, 120)
             }
         }
+        .scrollIndicators(.hidden)
         .scrollEdgeEffectHidden(true, for: .top)
         .background(Color(.systemBackground))
         .toolbar(.hidden, for: .tabBar)
@@ -87,17 +88,17 @@ struct JobPostingDetailsView: View {
                     .font(.custom("Satoshi-Black", size: 32))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                    .frame(width: 242, alignment: .top)
+                //    .frame(width: 242, alignment: .top)
 
                 Text(jobPosting.companyName)
                     .font(.custom("Nunito-Bold", size: 20))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, alignment: .top)
+                //    .frame(maxWidth: .infinity, alignment: .top)
             }
             .padding(.top, 110)
         }
-        .frame(height: 234)
+    //    .frame(height: 234)
     }
 
 
@@ -127,7 +128,7 @@ struct JobPostingDetailsView: View {
         case 0:
             return "ainda não\ntreinou :("
         case 1:
-            return "1 treino\nrealizado"
+            return "treino\nrealizado"
         default:
             return "treinos\nrealizados"
         }
@@ -209,7 +210,7 @@ struct JobPostingDetailsView: View {
         Button {
             shouldStartInterview = true
         } label: {
-            Text("Treinar agora!")
+            Text("Treinar")
                 .frame(maxWidth: .infinity)
             
         }
