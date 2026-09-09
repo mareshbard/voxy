@@ -88,7 +88,7 @@ struct InterviewSessionView: View {
                         .bold()
                 })
                 .frame(maxWidth: .infinity)
-                .buttonStyle(GameButton())
+                .buttonStyle(BlueGameButton())
                 .disabled(viewModel.canGoToNextQuestion)
                 .controlSize(.regular)
             }
