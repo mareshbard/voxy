@@ -28,7 +28,7 @@ struct GameButton: ButtonStyle {
         ZStack {
             // Borda externa
             RoundedRectangle(cornerRadius: 16)
-                .fill(borderColor)
+                .fill(isEnabled ? .white : borderColor)
                 .shadow(radius: 1, x: 0, y: 2)
             // Cor principal
             RoundedRectangle(cornerRadius: 16)
@@ -43,7 +43,7 @@ struct GameButton: ButtonStyle {
  
                 .overlay(
                     configuration.label
-                        .foregroundColor(.white)
+                        .foregroundColor(isEnabled ? .white : borderColor)
                         .font(.custom("Satoshi-Bold", size: 24))
                 )
                 .offset(y: configuration.isPressed ? 0 : -lipHeight * 1.6)
