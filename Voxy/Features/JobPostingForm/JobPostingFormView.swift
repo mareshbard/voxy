@@ -164,8 +164,6 @@ struct JobPostingFormView: View {
             }
         }
 
-        savedJobPosting = jobPosting
-        shouldStartInterview = true
     }
 
     private var canSave: Bool {
