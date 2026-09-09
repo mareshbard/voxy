@@ -13,8 +13,8 @@ struct GameButton: ButtonStyle {
     var faceColor: Color = Color("ButtonFaceColor")
     var deepColor: Color = Color("ButtonBackgroundColor")
     var borderColor: Color = Color("ButtonBorder")
-    var ButtonDisabledColor: Color = Color("BlueDisabledColor")
-    var blueDisabledForeground: Color = Color("BlueDisabledForeground")
+    var ButtonDisabledColor: Color = Color("ButtonDisabledColor")
+    var blueDisabledForeground: Color = Color("ButtonDisabledForeground")
     let feedback = UIImpactFeedbackGenerator(style: .soft)
     
     @Environment(\.isEnabled) private var isEnabled
