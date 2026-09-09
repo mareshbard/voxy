@@ -31,13 +31,12 @@ struct GeneratedInterview {
     @Guide(
         description: """
         Gere 3 perguntas pedindo que o candidato conte sobre uma decisão de \
-        projeto, arquitetura ou experiência real — no estilo "me conte sobre \
-        uma vez que..." ou "descreva uma decisão que você tomou e por quê". \
+        projeto, arquitetura ou experiência real — no estilo "me fale sobre alguma situação que você já teve experiência com..." ou "descreva uma decisão que você tomou e por quê". \
         Sempre que possível, direcione o tema da pergunta para algo coerente \
         com a descrição da vaga (ex: se a vaga menciona escalabilidade, peça \
         uma decisão relacionada a performance ou arquitetura. Evite perguntas que peçam apenas uma definição \
         teórica — o objetivo é fazer o candidato narrar uma experiência \
-        Além disso, não repita perguntas na mesma sessão.
+        Além disso, as perguntas devem ter o nível técnico explícito de acordo com a vaga - por exemplo, se uma vaga é de desenvolvedor júnior faça perguntas para júniors que ainda e etc. Também não repita perguntas na mesma sessão.
         """,
         .count(3)
     )
@@ -77,7 +76,13 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
     private let model = SystemLanguageModel.default
     private let instructions: String
     private var session: LanguageModelSession
-    
+
+    // Toda entrevista deve ter sempre esta quantidade de perguntas.
+    private let targetQuestionCount = 6
+    // Limite de tentativas para completar as 6 perguntas caso a deduplicação
+    // remova repetições e o lote fique curto.
+    private let maxGenerationAttempts = 4
+
 // Responsável pela geração de perguntas diferentes
     private let options = GenerationOptions(
         sampling: .random(probabilityThreshold: 0.95),
@@ -138,14 +143,41 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
         for job: JobContext,
         avoiding previousQuestions: [String]
     ) async throws -> [String] {
+        // A deduplicação pode encurtar um lote quando o modelo repete ou
+        // reformula perguntas. Geramos em rodadas — cada uma evitando tudo o
+        // que já foi coletado — até atingir as 6 perguntas exigidas.
+        var collected: [String] = []
+        var avoid = previousQuestions
+
+        for _ in 0..<maxGenerationAttempts {
+            let batch = try await respondResilient(
+                job: job,
+                previousQuestions: avoid
+            )
+
+            for question in batch where collected.count < targetQuestionCount {
+                collected.append(question)
+            }
+            avoid += batch
+
+            if collected.count >= targetQuestionCount { break }
+        }
+
+        return Array(collected.prefix(targetQuestionCount))
+    }
+
+    // Faz uma geração e, se o contexto (tokens) estiver esgotado, reinicia a
+    // sessão e tenta novamente reenviando as perguntas anteriores no prompt.
+    private func respondResilient(
+        job: JobContext,
+        previousQuestions: [String]
+    ) async throws -> [String] {
         do {
             return try await respond(
                 job: job,
                 previousQuestions: previousQuestions
             )
         } catch let error as LanguageModelSession.GenerationError {
-            // Contexto (tokens) esgotado após várias recargas: reinicia a sessão
-            // e tenta de novo. As perguntas anteriores são reenviadas no prompt.
             guard case .exceededContextWindowSize = error else { throw error }
             reset()
             return try await respond(
