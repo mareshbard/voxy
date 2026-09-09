@@ -159,12 +159,14 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             // resposta transcrita; pular tudo não deve pontuar.
             if !feedbacks.isEmpty {
                 jobPosting.countInterview += 1
+                jobPosting.lastSimulated = .now
                 StreakManager.recordSession()
 
                 // Guarda as perguntas desta sessão para que nunca se repitam em
-                // treinos futuros desta mesma vaga (persistido via SwiftData).
+                // treinos futuros desta mesma vaga.
                 jobPosting.askedQuestions.append(contentsOf: questions)
             }
+
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
