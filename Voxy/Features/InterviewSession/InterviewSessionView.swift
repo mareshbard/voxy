@@ -99,6 +99,7 @@ struct InterviewSessionView: View {
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .background(SwipeBackBlocker())
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -166,6 +167,37 @@ struct InterviewSessionView: View {
             }
         } message: {
             Text("Se voltar ao início, você perderá o progresso da sua entrevista.")
+        }
+    }
+}
+
+private struct SwipeBackBlocker: UIViewControllerRepresentable {
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        SwipeBackBlockerViewController()
+    }
+
+    func updateUIViewController(
+        _ uiViewController: UIViewController,
+        context: Context
+    ) {}
+
+    private final class SwipeBackBlockerViewController: UIViewController {
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+
+            navigationController?
+                .interactivePopGestureRecognizer?
+                .isEnabled = false
+        }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+
+            navigationController?
+                .interactivePopGestureRecognizer?
+                .isEnabled = true
         }
     }
 }
