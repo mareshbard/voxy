@@ -65,7 +65,7 @@ struct BlueGameButton: ButtonStyle {
     var deepColor: Color = Color("ButtonBackgroundColor")
     var borderColor: Color = Color("ButtonBorder")
   
-    var blueDisabledForeground: Color = Color("BlueDisabledForeground")
+    var blueDisabledBg: Color = Color("blueDisabledBg")
     var blueDisabledBorder: Color = Color("BlueDisabledBorder")
     let feedback = UIImpactFeedbackGenerator(style: .soft)
     
@@ -78,18 +78,18 @@ struct BlueGameButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         
         ZStack {
-            // Borda externa
+            // cor lateral
             RoundedRectangle(cornerRadius: 16)
                 .fill(isEnabled ? .white : blueDisabledBorder)
                 .shadow(radius: 1, x: 0, y: 2)
             // Cor principal
             RoundedRectangle(cornerRadius: 16)
-                .fill(isEnabled ? deepColor : blueDisabledForeground)
+                .fill(isEnabled ? deepColor : blueDisabledBg)
                 .shadow(radius: 1, x: 0, y: 2)
                 .padding(borderWidth)
             // Face do botão
             RoundedRectangle(cornerRadius: 16)
-                .fill(isEnabled ? faceColor : blueDisabledForeground)
+                .fill(isEnabled ? faceColor : blueDisabledBg)
                 .shadow(color: .white.opacity(0.3), radius: 0, x: 0, y: 4)
                 .padding(borderWidth)
  

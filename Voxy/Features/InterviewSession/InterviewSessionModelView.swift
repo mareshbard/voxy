@@ -146,9 +146,10 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     func record() async {
         if self.isTranscribing {
-            await speechAnalyzerManager.stopTranscription()
-            self.isTranscribing = false
             stopTimer()
+            self.isTranscribing = false
+            await speechAnalyzerManager.stopTranscription()
+            
         } else {
             synthesizer.stopSpeaking(at: .immediate)
             await speechAnalyzerManager.startTranscription()
