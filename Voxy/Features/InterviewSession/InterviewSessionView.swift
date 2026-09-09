@@ -82,7 +82,7 @@ struct InterviewSessionView: View {
                 Button(action: {
                     Task { await viewModel.advance() }
                 }, label: {
-                    Text("Próxima pergunta!")
+                    viewModel.lastQuestion ? Text("Finalizar") : Text("Próxima")
                         .bold()
                 })
                 .frame(maxWidth: .infinity)

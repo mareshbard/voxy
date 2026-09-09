@@ -22,26 +22,28 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     var goToFeedback: Bool = false
     var questions: [String]
     var currentIndex: Int = 0
-    
+    var isAdvancing: Bool = false
     var currentQuestion: String {
         questions[currentIndex]
     }
     
     var isTranscribing: Bool = false
     var showMicPermissionAlert: Bool = false
-//    var isTranscribing: Bool {
-//        speechAnalyzerManager.isTranscribing
-//    }
-//    var showMicPermissionAlert: Bool {
-//        get { speechAnalyzerManager.showMicDeniedAlert }
-//        set { speechAnalyzerManager.showMicDeniedAlert = newValue}
-//    }
+
     var canGoToNextQuestion: Bool {
         if lastQuestion {
             return self.isTranscribing
         }
         
-        return elapsedSeconds < 10 || self.isTranscribing
+        if isAdvancing {
+                    return true // true desabilita o botão via .disabled()
+                }
+                
+                if lastQuestion {
+                    return self.isTranscribing
+                }
+        
+        return self.isTranscribing
     }
     
     var restartConfirmation: Bool = false
