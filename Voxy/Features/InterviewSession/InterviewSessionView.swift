@@ -28,6 +28,8 @@ struct InterviewSessionView: View {
                             .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
                             .frame(width: 160, height: 160) // Ajusta a caixa de layout para a View pai
                             .clipped()
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("Mia está falando")
                     }
                     
                     VStack(alignment: .center, spacing: 20) {

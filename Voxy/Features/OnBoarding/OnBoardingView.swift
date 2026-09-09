@@ -23,6 +23,7 @@ struct OnBoardingView: View {
                     .foregroundStyle(Color("BallonSecondaryFontColor"))
                     .padding(.bottom, 10)
             }
+            .accessibilityElement(children: .combine)
             .padding(.horizontal, 24)
             .padding(.vertical, 24)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -32,9 +33,11 @@ struct OnBoardingView: View {
                         capInsets: EdgeInsets(top: 20, leading: 16, bottom: 10, trailing: 10),
                         resizingMode: .stretch
                     )
+                    .accessibilityHidden(true)
             )
             
             MiaAnimation()
+                .accessibilityLabel("Mia, nosso mascote, é uma raposa esperta vestida para uma entrevista de emprego.")
             
             FocusableTextField(
                 placeholder: "Insira o seu nome...",

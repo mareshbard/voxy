@@ -20,6 +20,7 @@ struct LoadingScreenView: View {
             ThreeDotsLoadingView()
             FoxyView()
         }
+
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .scrollContentBackground(.hidden)
         .background(Color("PrimaryBlue").ignoresSafeArea())

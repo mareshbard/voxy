@@ -31,6 +31,7 @@ struct JobPostingDetailsView: View {
                 .padding(.bottom, 120)
             }
         }
+        .scrollIndicators(.hidden)
         .scrollEdgeEffectHidden(true, for: .top)
         .background(Color(.systemBackground))
         .toolbar(.hidden, for: .tabBar)
@@ -127,7 +128,7 @@ struct JobPostingDetailsView: View {
         case 0:
             return "ainda não\ntreinou :("
         case 1:
-            return "1 treino\nrealizado"
+            return "treino\nrealizado"
         default:
             return "treinos\nrealizados"
         }

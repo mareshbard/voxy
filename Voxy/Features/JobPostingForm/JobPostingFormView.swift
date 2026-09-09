@@ -102,6 +102,8 @@ struct JobPostingFormView: View {
                 }
                 .padding(24)
             }
+            .scrollIndicators(.hidden)
+
             .navigationDestination(
                 isPresented: $shouldStartInterview
             ) {

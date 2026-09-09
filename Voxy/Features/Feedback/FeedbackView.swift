@@ -87,8 +87,9 @@ struct FeedbackView: View {
                 }
             }
             .padding(24)
-            
+            .navigationBarBackButtonHidden(true)
         }
+        .scrollIndicators(.hidden)
         .onAppear {
             viewModel.saveLastFeedback()
         }
