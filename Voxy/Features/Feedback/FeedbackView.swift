@@ -6,8 +6,8 @@ struct FeedbackView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: FeedbackViewModel
     @State private var goHome = false
-    // private let interviewCount: Int
     var job: JobPosting
+    
     init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], answers: [String] = [], job: JobPosting) {
         _viewModel = State(initialValue: FeedbackViewModel(job: job, engine: engine))
         _viewModel.wrappedValue.question = question
@@ -16,17 +16,45 @@ struct FeedbackView: View {
         self.job = job
     }
     
+    /// Enquanto o feedback final não chega (e não houve erro), mostramos a tela
+    /// de carregamento dedicada em vez do conteúdo.
+    private var isGeneratingFeedback: Bool {
+        viewModel.hasAnswers && viewModel.finalFeedback == nil && viewModel.errorMessage == nil
+    }
+
     var body: some View {
+        Group {
+            if isGeneratingFeedback {
+                LoadingFeedbackView()
+            } else {
+                resultsView
+            }
+        }
+        .task {
+            await viewModel.analyzeFinal()
+        }
+    }
+
+    private var resultsView: some View {
         ScrollView {
             VStack {
                 VStack {
+                    // Imagem do Mascote dinâmica conforme o título/resultado
+                    Image(viewModel.headerMascotImageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 100)
+                        .padding(.bottom, 4)
+
                     Text(viewModel.headerTitle)
                         .font(.custom("Satoshi-Bold", size: 32))
                         .bold()
+                    
                     Text(viewModel.headerSubtitle)
                         .font(Font.custom("Nunito", size: 20)
                             .weight(.bold))
                         .multilineTextAlignment(.center)
+                    
                     VStack {
                         Text("JÁ TREINOU")
                             .font(Font.custom("Satoshi-Bold", size: 12)
@@ -41,7 +69,6 @@ struct FeedbackView: View {
                     }
                     .accessibilityElement(children: .combine)
                     .padding(16)
-                    //.frame(width: 120, height: 100)
                     .foregroundStyle(Color(.fbText))
                     .background(
                         ZStack {
@@ -73,9 +100,9 @@ struct FeedbackView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 20)
-                } else if viewModel.isLoading {
-                    ProgressView("Analisando entrevista...")
-                        .padding()
+//                } else if viewModel.isLoading {
+//                    ProgressView("Analisando entrevista...")
+//                        .padding()
                 } else if let final = viewModel.finalFeedback {
 
                     FeedbackSection(title: "CLAREZA", items: final.clarity, highlighted: true)
@@ -87,7 +114,6 @@ struct FeedbackView: View {
                 }
             }
             .padding(24)
-            
         }
         .onAppear {
             viewModel.saveLastFeedback()
@@ -113,7 +139,6 @@ struct FeedbackView: View {
             await viewModel.analyzeFinal()
         }
     }
-    
 }
 
 #Preview {

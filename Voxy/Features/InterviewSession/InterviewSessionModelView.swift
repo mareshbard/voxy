@@ -190,6 +190,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         .joined(separator: "\n\n")
     }
     
+    
     func checkingReset() async {
         if elapsedSeconds >= 10 && !self.isTranscribing {
             restartConfirmation = true

@@ -13,9 +13,9 @@ final class FeedbackViewModel {
     private let engine: FeedbackEngineProtocol & FinalFeedbackProtocol
     var finalFeedback: FinalFeedback?
     var feedbacks: [AnswerFeedback] = []
-    var answers: [String] = [] // respostas transcritas cruas, alinhadas com `feedbacks`
-    var job: JobPosting // recebe a vaga ligada ao feedback
-    
+    var answers: [String] = [] // Respostas transcritas cruas
+    var job: JobPosting
+
     init(job: JobPosting, engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil) {
         self.job = job
         self.engine = engine ?? FoundationFeedbackEngine()
@@ -25,37 +25,66 @@ final class FeedbackViewModel {
         engine.availabilityMessage
     }
 
-    /// Indica se houve ao menos uma resposta transcrita para avaliar.
-    /// Quando o usuário pula todas as perguntas, `feedbacks` fica vazio.
     var hasAnswers: Bool {
-        !feedbacks.isEmpty
+        !feedbacks.isEmpty || !answers.isEmpty
     }
 
-    /// Sinal de qualidade da entrevista: quando o feedback final não trouxe
-    /// nenhum ponto positivo real (melhores momentos, clareza e profundidade
-    /// todos vazios), o desempenho foi fraco — ex.: respostas "não sei". Só é
-    /// confiável depois que o feedback final é gerado.
-    var hadWeakPerformance: Bool {
-        guard let final = finalFeedback else { return false }
-        return final.bestMoments.isEmpty
-            && final.clarity.isEmpty
-            && final.profundity.isEmpty
+    private var performanceLevel: PerformanceLevel {
+        guard let final = finalFeedback else { return .unknown }
+        
+        let hasBestMoments = !final.bestMoments.isEmpty
+        let hasClarityOrProfundity = !final.clarity.isEmpty || !final.profundity.isEmpty
+        
+        if hasBestMoments {
+            return .excellent
+        } else if hasClarityOrProfundity {
+            return .moderate
+        } else {
+            return .weak
+        }
     }
 
-    /// Título do cabeçalho, coerente com o desempenho real da entrevista.
+    /// Retorna o nome da imagem do mascote no Asset Catalog de acordo com o nível de desempenho
+    var headerMascotImageName: String {
+        guard hasAnswers else { return "mascot_sad" }
+        if isLoading || finalFeedback == nil { return "mascot_thinking" }
+
+        switch performanceLevel {
+        case .excellent:
+            return "MiaFeedbackHappy"       // Raposa sorrindo ("Mandou bem!")
+        case .moderate:
+            return "MiaFeedbackNeutral"     // Raposa neutra ("Bom ponto de partida!")
+        case .weak, .unknown:
+            return "MiaFeedbackSad"         // Raposa triste ("Continue a treinar!")
+        }
+    }
+
     var headerTitle: String {
         guard hasAnswers else { return "Entrevista incompleta" }
-        if isLoading || finalFeedback == nil { return "Quase lá!" }
-        return hadWeakPerformance ? "Bora treinar mais!" : "Mandou bem!"
+        if isLoading || finalFeedback == nil { return "Analisando..." }
+
+        switch performanceLevel {
+        case .excellent:
+            return "Mandou bem!"
+        case .moderate:
+            return "Bom ponto de partida!"
+        case .weak, .unknown:
+            return "Continue a treinar!"
+        }
     }
 
-    /// Subtítulo do cabeçalho, coerente com o desempenho real da entrevista.
     var headerSubtitle: String {
         guard hasAnswers else { return "Você não respondeu nenhuma pergunta." }
-        if isLoading || finalFeedback == nil { return "Estamos analisando suas respostas..." }
-        return hadWeakPerformance
-            ? "Tem bastante espaço para evoluir. Confira as dicas de melhoria abaixo."
-            : "Você está arrasando!"
+        if isLoading || finalFeedback == nil { return "Estamos analisando as suas respostas..." }
+
+        switch performanceLevel {
+        case .excellent:
+            return "Você se destacou nas respostas!"
+        case .moderate:
+            return "Você se expressou bem!"
+        case .weak, .unknown:
+            return "Tem bastante espaço para evoluir!"
+        }
     }
 
     var canAnalyze: Bool {
@@ -84,10 +113,8 @@ final class FeedbackViewModel {
             errorMessage = "Erro ao gerar feedback: \(error.localizedDescription)"
         }
     }
-    
+
     func analyzeFinal() async {
-        // Sem nenhuma resposta transcrita não há o que avaliar. Gerar mesmo
-        // assim faria o modelo inventar feedback por causa do schema @Generable.
         guard hasAnswers else {
             finalFeedback = nil
             return
@@ -97,7 +124,6 @@ final class FeedbackViewModel {
         errorMessage = nil
         defer { isLoading = false }
 
-        // Serializa os feedbacks já coletados em texto para o modelo resumir
         let joined = feedbacks.enumerated().map { i, fb in
             """
             Resposta \(i + 1) — nota \(fb.articulationScore)/5
@@ -115,15 +141,10 @@ final class FeedbackViewModel {
         }
     }
 
-    /// Verdadeiro se ao menos uma resposta transcrita teve conteúdo real —
-    /// sinal determinístico (lido do texto bruto, não do modelo), imune às
-    /// alucinações da avaliação.
     var hasSubstantiveAnswer: Bool {
         answers.contains { isSubstantive($0) }
     }
 
-    /// Uma resposta é substantiva quando não é vazia, não é uma frase de
-    /// desistência ("não sei", "sei lá"...) e tem pelo menos algumas palavras.
     private func isSubstantive(_ answer: String) -> Bool {
         let normalized = answer
             .folding(options: .diacriticInsensitive, locale: .current)
@@ -139,16 +160,10 @@ final class FeedbackViewModel {
         ]
         if lowEffortPhrases.contains(normalized) { return false }
 
-        // Uma resposta real de entrevista tem ao menos uma frase; respostas com
-        // pouquíssimas palavras não têm conteúdo avaliável.
         let wordCount = normalized.split { $0 == " " || $0 == "\n" }.count
         return wordCount >= 4
     }
 
-    /// Corrige alucinações do modelo de consolidação com um sinal determinístico.
-    /// Quando NENHUMA resposta teve conteúdo real (ex.: "não sei" em tudo), não
-    /// existem pontos positivos, clareza nem profundidade a comentar — zeramos
-    /// essas seções, ignorando o que o modelo final possa ter inventado.
     private func sanitized(_ feedback: FinalFeedback) -> FinalFeedback {
         let noSubstance = !answers.isEmpty && !hasSubstantiveAnswer
         guard noSubstance else { return feedback }
@@ -161,18 +176,16 @@ final class FeedbackViewModel {
             profundity: []
         )
     }
-    // MARK: Funções para a tela de feedback
-    
+
     var bestMoments: [String] {
         feedback?.technicalStrengths ?? []
     }
-    
+
     var improvementSuggestions: [String] {
         feedback?.technicalGaps ?? []
     }
-    
+
     func saveLastFeedback() {
-        // Não persiste um registro vazio quando não houve respostas.
         guard hasAnswers else { return }
 
         let feedback = InterviewFeedbackRecord(
@@ -183,5 +196,15 @@ final class FeedbackViewModel {
             profundity: finalFeedback?.profundity ?? []
         )
         job.feedback = feedback
+    }
+}
+
+// MARK: - Enum Auxiliar de Desempenho
+private extension FeedbackViewModel {
+    enum PerformanceLevel {
+        case excellent
+        case moderate
+        case weak
+        case unknown
     }
 }
