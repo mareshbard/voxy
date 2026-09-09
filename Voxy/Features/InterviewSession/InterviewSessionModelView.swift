@@ -150,6 +150,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             resetTranscript()
         } else {
             jobPosting.countInterview += 1
+            jobPosting.lastSimulated = .now
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
