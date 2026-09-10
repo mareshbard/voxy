@@ -11,10 +11,13 @@ struct InterviewLoadingView: View {
     @State private var viewModel: InterviewViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
     @Environment(\.dismiss) private var dismiss
+    // Encerra todo o fluxo de entrevista e volta à tela inicial.
+    private let onFinish: () -> Void
 
     init(
         jobPosting: JobPosting,
-        feedbackEngine: FeedbackEngineProtocol? = nil
+        feedbackEngine: FeedbackEngineProtocol? = nil,
+        onFinish: @escaping () -> Void = {}
     ) {
         _viewModel = State(
             initialValue: InterviewViewModel(jobPosting: jobPosting)
@@ -22,6 +25,7 @@ struct InterviewLoadingView: View {
         _feedbackEngine = State(
             initialValue: feedbackEngine ?? FoundationFeedbackEngine()
         )
+        self.onFinish = onFinish
     }
 
     var body: some View {
@@ -32,7 +36,8 @@ struct InterviewLoadingView: View {
                 InterviewSessionView(
                     questions: viewModel.questions,
                     feedbackEngine: feedbackEngine,
-                    jobPosting: viewModel.jobPosting
+                    jobPosting: viewModel.jobPosting,
+                    onFinish: onFinish
                 )
             }
         }

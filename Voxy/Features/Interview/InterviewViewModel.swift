@@ -68,7 +68,6 @@ final class InterviewViewModel {
         do {
             let job = JobContext(
                 title: jobPosting.title,
-                companyName: jobPosting.companyName,
                 description: description
             )
 

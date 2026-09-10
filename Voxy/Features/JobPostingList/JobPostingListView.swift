@@ -13,10 +13,11 @@ struct JobPostingListView: View {
     @Bindable var viewModel: JobPostingListViewModel
     @State private var isShowingJobPostingForm: Bool = false
     @State private var jobPostingToTrain: JobPosting?
-    @State private var isShowingInterview: Bool = false
-    
+    // Pilha de navegação controlada: permite voltar direto à raiz (esvaziar).
+    @State private var path = NavigationPath()
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 // Seções do topo inseridas como itens da List
                 Group {
@@ -77,12 +78,16 @@ struct JobPostingListView: View {
             }
             .listStyle(.plain)
             .navigationDestination(for: JobPosting.self) { jobPosting in
-                JobPostingDetailsView(jobPosting: jobPosting)
+                JobPostingDetailsView(
+                    jobPosting: jobPosting,
+                    onStartInterview: { path.append(InterviewRoute(job: jobPosting)) }
+                )
             }
-            .navigationDestination(isPresented: $isShowingInterview) {
-                if let jobPostingToTrain {
-                    InterviewLoadingView(jobPosting: jobPostingToTrain)
-                }
+            .navigationDestination(for: InterviewRoute.self) { route in
+                InterviewLoadingView(
+                    jobPosting: route.job,
+                    onFinish: { path.removeLast(path.count) }
+                )
             }
             .ignoresSafeArea(edges: .top)
             .task {
@@ -102,8 +107,8 @@ struct JobPostingListView: View {
             .sheet(isPresented: $isShowingJobPostingForm, onDismiss: {
                 viewModel.loadJobPostings()
 
-                if jobPostingToTrain != nil {
-                    isShowingInterview = true
+                if let jobPostingToTrain {
+                    path.append(InterviewRoute(job: jobPostingToTrain))
                 }
             }) {
                 JobPostingFormView(
@@ -136,6 +141,12 @@ struct JobPostingListView: View {
             viewModel.loadJobPostings()
         }
     }
+}
+
+/// Rota de navegação para o fluxo de entrevista, empurrada na pilha da lista.
+/// Fica na pilha controlada para que o feedback possa voltar direto à raiz.
+struct InterviewRoute: Hashable {
+    let job: JobPosting
 }
 
 #Preview {

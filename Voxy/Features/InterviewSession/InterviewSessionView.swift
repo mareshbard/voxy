@@ -7,14 +7,17 @@ struct InterviewSessionView: View {
     @State private var didRecordSession = false
     @State private var showExitConfirmation = false
     @Environment(\.dismiss) private var dismiss
-    
-    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting) {
+    // Chamado para encerrar todo o fluxo de entrevista e voltar à tela inicial.
+    private let onFinish: () -> Void
+
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting, onFinish: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: InterviewSessionViewModel(
             questions: questions,
             feedbackEngine: feedbackEngine,
             jobPosting: jobPosting
         ))
         _feedbackEngine = State(initialValue: feedbackEngine)
+        self.onFinish = onFinish
     }
     
     var body: some View {
@@ -99,6 +102,7 @@ struct InterviewSessionView: View {
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .tabBar)
         .background(SwipeBackBlocker())
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -142,6 +146,7 @@ struct InterviewSessionView: View {
                     feedbacks: viewModel.feedbacks,
                     answers: viewModel.answers,
                     job: viewModel.jobPosting,
+                    onClose: onFinish
                 )
         }
         .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {

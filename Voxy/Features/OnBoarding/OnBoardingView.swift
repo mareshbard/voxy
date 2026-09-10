@@ -48,7 +48,7 @@ struct OnBoardingView: View {
                 viewModel.register()
             }
             .frame(maxWidth: .infinity)
-            .buttonStyle(GameButton())
+            .buttonStyle(BlueGameButton())
             .disabled(!viewModel.canRegister)
             
         }
