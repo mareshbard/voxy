@@ -12,5 +12,10 @@ CODE_SIGN_STYLE = Automatic
 
 // Bundle identifier. O prefixo permite que cada dev tenha um id único
 // (necessário quando usam contas Apple diferentes / gratuitas).
-// Com DEV_BUNDLE_PREFIX vazio, o id continua sendo com.leticiagomes.Voxy.
-PRODUCT_BUNDLE_IDENTIFIER = $(DEV_BUNDLE_PREFIX)com.leticiagomes.Voxy
+// Com DEV_BUNDLE_PREFIX vazio, o id continua sendo com.yohane.Voxy.
+PRODUCT_BUNDLE_IDENTIFIER = $(DEV_BUNDLE_PREFIX)com.yohane.Voxy
+
+// Conformidade de exportação (App Store Connect / TestFlight).
+// NO = o app usa apenas criptografia isenta (HTTPS/TLS padrão), então
+// não é preciso responder a pergunta de export compliance a cada upload.
+INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO
