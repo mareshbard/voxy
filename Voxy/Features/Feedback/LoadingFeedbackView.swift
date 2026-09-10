@@ -22,6 +22,8 @@ struct LoadingFeedbackView: View {
                 .padding(.bottom, 30)
 //            Spacer()
             MiaGenerateFeedback()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text("Mia está olhando suas respostas!"))
                 .fixedSize()                  // Garante o tamanho original de referência
                 .scaleEffect(0.65)
             Spacer()

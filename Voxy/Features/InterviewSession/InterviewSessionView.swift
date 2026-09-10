@@ -9,7 +9,7 @@ struct InterviewSessionView: View {
     @Environment(\.dismiss) private var dismiss
     // Chamado para encerrar todo o fluxo de entrevista e voltar à tela inicial.
     private let onFinish: () -> Void
-
+    
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting, onFinish: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: InterviewSessionViewModel(
             questions: questions,
@@ -21,7 +21,7 @@ struct InterviewSessionView: View {
     }
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Color(Color.bg)
                 .ignoresSafeArea(edges: .all)
             VStack {
@@ -46,10 +46,10 @@ struct InterviewSessionView: View {
                                     .bold()
                                     .foregroundStyle(Color(.bg))
                             })
-                          //  .accessibilityHidden(true)
+                            //  .accessibilityHidden(true)
                             .accessibilityLabel(viewModel.isSpeaking ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
-
-                        //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
+                            
+                            //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.circle)
                             .tint(Color(.timerBg))
@@ -85,22 +85,25 @@ struct InterviewSessionView: View {
                 }
                 .scrollIndicators(.hidden)
                 
-                Button(action: {
-                    Task { await viewModel.advance() }
-                }, label: {
-                    viewModel.lastQuestion ? Text("Finalizar") : Text("Próxima")
-                        .bold()
-                })
-                .frame(maxWidth: .infinity)
-                .buttonStyle(BlueGameButton())
-                .disabled(viewModel.canGoToNextQuestion)
-                .controlSize(.regular)
+                
             }
             .padding(.horizontal, 24)
-            
+            Button(action: {
+                Task { await viewModel.advance() }
+            }, label: {
+                viewModel.lastQuestion ? Text("Finalizar") : Text("Próxima")
+                    .bold()
+            })
+            .frame(maxWidth: .infinity)
+            .buttonStyle(BlueGameButton())
+            .disabled(viewModel.canGoToNextQuestion)
+            .controlSize(.regular)
+            .padding(.horizontal, 24)
+         //   .padding(.bottom, 16)
         }
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .background(SwipeBackBlocker())
@@ -112,7 +115,7 @@ struct InterviewSessionView: View {
                     Image(systemName: "chevron.left")
                 }
             }
-
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     Task { await viewModel.advance() }
@@ -140,14 +143,14 @@ struct InterviewSessionView: View {
         }
         
         .navigationDestination(isPresented: $viewModel.goToFeedback) {
-          FeedbackView(
-                    engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
-                    question: viewModel.currentQuestion,
-                    feedbacks: viewModel.feedbacks,
-                    answers: viewModel.answers,
-                    job: viewModel.jobPosting,
-                    onClose: onFinish
-                )
+            FeedbackView(
+                engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
+                question: viewModel.currentQuestion,
+                feedbacks: viewModel.feedbacks,
+                answers: viewModel.answers,
+                job: viewModel.jobPosting,
+                onClose: onFinish
+            )
         }
         .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
             Button("Recomeçar", role: .destructive) {
@@ -167,7 +170,7 @@ struct InterviewSessionView: View {
         
         .alert("Tem certeza?", isPresented: $showExitConfirmation) {
             Button("Cancelar", role: .cancel) {}
-
+            
             Button("Sair", role: .destructive) {
                 dismiss()
             }
@@ -178,29 +181,29 @@ struct InterviewSessionView: View {
 }
 
 private struct SwipeBackBlocker: UIViewControllerRepresentable {
-
+    
     func makeUIViewController(context: Context) -> UIViewController {
         SwipeBackBlockerViewController()
     }
-
+    
     func updateUIViewController(
         _ uiViewController: UIViewController,
         context: Context
     ) {}
-
+    
     private final class SwipeBackBlockerViewController: UIViewController {
-
+        
         override func viewDidAppear(_ animated: Bool) {
             super.viewDidAppear(animated)
-
+            
             navigationController?
                 .interactivePopGestureRecognizer?
                 .isEnabled = false
         }
-
+        
         override func viewWillDisappear(_ animated: Bool) {
             super.viewWillDisappear(animated)
-
+            
             navigationController?
                 .interactivePopGestureRecognizer?
                 .isEnabled = true

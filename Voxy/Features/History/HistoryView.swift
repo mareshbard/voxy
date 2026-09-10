@@ -1,10 +1,3 @@
-//
-//  JobListView.swift
-//  Voxy
-//
-//  Created by Voxy Team on 02/09/26.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -12,7 +5,8 @@ struct HistoryView: View {
     
     @Bindable var viewModel: JobPostingListViewModel
     @State private var isShowingJobPostingForm: Bool = false
-    
+    @State private var path = NavigationPath()
+
     var body: some View {
         NavigationStack {
             List {
@@ -76,6 +70,12 @@ struct HistoryView: View {
             .listStyle(.plain)
             .navigationDestination(for: JobPosting.self) { jobPosting in
                 JobPostingDetailsView(jobPosting: jobPosting)
+            }
+            .navigationDestination(for: JobPosting.self) { jobPosting in
+                JobPostingDetailsView(
+                    jobPosting: jobPosting,
+                    onStartInterview: { path.append(InterviewRoute(job: jobPosting)) }
+                )
             }
             .ignoresSafeArea(edges: .top)
             .task {

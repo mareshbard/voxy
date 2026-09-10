@@ -58,7 +58,17 @@ final class FeedbackViewModel {
             return "MiaFeedbackSad"         // Raposa triste ("Continue a treinar!")
         }
     }
-
+    var miaDescription: String {
+        switch performanceLevel {
+        case .excellent:
+            return "Mia está muito orgulhosa!"
+        case .moderate:
+            return "Mia está feliz!"
+        case .weak, .unknown:
+            return "Mia está chateada."
+        }
+    }
+    
     var headerTitle: String {
         guard hasAnswers else { return "Entrevista incompleta" }
         if isLoading || finalFeedback == nil { return "Analisando..." }

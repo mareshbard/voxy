@@ -48,6 +48,7 @@ struct FeedbackView: View {
                         .scaledToFit()
                         .frame(width: 120, height: 100)
                         .padding(.bottom, 4)
+                        .accessibilityLabel(Text(viewModel.miaDescription))
 
                     Text(viewModel.headerTitle)
                         .font(.custom("Satoshi-Bold", size: 32))
@@ -93,6 +94,12 @@ struct FeedbackView: View {
                 
                 if !viewModel.hasAnswers {
                     VStack(spacing: 8) {
+                        Image("MiaFeedbackSad")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120, height: 100)
+                            .padding(.bottom, 4)
+                            .accessibilityLabel(Text(viewModel.miaDescription))
                         Text("Não há nada para analisar")
                             .font(.custom("Satoshi-Bold", size: 18))
                         Text("Responda ao menos uma pergunta em voz alta para receber seu feedback.")
