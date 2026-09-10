@@ -81,15 +81,15 @@ struct HistoryView: View {
             .task {
                 viewModel.loadJobPostings()
             }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Nova vaga", systemImage: "plus") {
-                        isShowingJobPostingForm = true
-                    }
-                    .buttonStyle(GlassProminentButtonStyle())
-                    .tint(Color("BackgroundJobCardColor"))
-                }
-            }
+//            .toolbar {
+//                ToolbarItem(placement: .primaryAction) {
+//                    Button("Nova vaga", systemImage: "plus") {
+//                        isShowingJobPostingForm = true
+//                    }
+//                    .buttonStyle(GlassProminentButtonStyle())
+//                    .tint(Color("BackgroundJobCardColor"))
+//                }
+//            }
             
             .sheet(isPresented: $isShowingJobPostingForm, onDismiss: {
                 viewModel.loadJobPostings()

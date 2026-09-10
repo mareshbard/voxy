@@ -81,7 +81,7 @@ final class FeedbackViewModel {
         case .excellent:
             return "Você se destacou nas respostas!"
         case .moderate:
-            return "Você se expressou bem!"
+            return "Você tentou!"
         case .weak, .unknown:
             return "Tem bastante espaço para evoluir!"
         }

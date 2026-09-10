@@ -36,17 +36,18 @@ struct GeneratedInterview {
         com a descrição da vaga (ex: se a vaga menciona escalabilidade, peça \
         uma decisão relacionada a performance ou arquitetura. Evite perguntas que peçam apenas uma definição \
         teórica — o objetivo é fazer o candidato narrar uma experiência \
-        Além disso, as perguntas devem ter o nível técnico explícito de acordo com a vaga - por exemplo, se uma vaga é de desenvolvedor júnior faça perguntas para júniors que ainda e etc. Também não repita perguntas na mesma sessão.
+        Além disso, as perguntas devem ter o nível técnico explícito de acordo com a vaga - por exemplo, se uma vaga é de desenvolvedor júnior faça perguntas para júniors que ainda e etc. Também não repita perguntas na mesma sessão e nem faça perguntas que envolvam o nome da empresa que o usuário colocou na vaga.
         """,
         .count(3)
     )
     let projectDecisionQuestions: [String]
 }
 
-// Contexto completo da vaga usado para gerar as perguntas.
+// Contexto da vaga usado para gerar as perguntas. O nome da empresa é
+// deliberadamente omitido: as perguntas devem se ancorar apenas no cargo e na
+// descrição da vaga.
 struct JobContext {
     let title: String
-    let companyName: String
     let description: String
 }
 
@@ -143,27 +144,39 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
         for job: JobContext,
         avoiding previousQuestions: [String]
     ) async throws -> [String] {
-        // A deduplicação pode encurtar um lote quando o modelo repete ou
-        // reformula perguntas. Geramos em rodadas — cada uma evitando tudo o
-        // que já foi coletado — até atingir as 6 perguntas exigidas.
-        var collected: [String] = []
-        var avoid = previousQuestions
+        // Geramos em rodadas até juntar 6 perguntas novas. Perguntas que só
+        // repetem o histórico de treinos passados vão para uma reserva: se as
+        // novas não bastarem, completamos com elas para garantir sempre 6.
+        let history = Set(previousQuestions.map(normalizedKey))
+        var seenKeys = Set<String>()   // evita repetição exata dentro desta geração
+        var fresh: [String] = []       // perguntas inéditas (fora do histórico)
+        var fallback: [String] = []    // únicas nesta sessão, mas já vistas antes
 
         for _ in 0..<maxGenerationAttempts {
+            // Enviamos tudo o que já temos como "evitar" para enviesar o modelo
+            // a produzir perguntas diferentes.
             let batch = try await respondResilient(
                 job: job,
-                previousQuestions: avoid
+                previousQuestions: previousQuestions + fresh + fallback
             )
 
-            for question in batch where collected.count < targetQuestionCount {
-                collected.append(question)
-            }
-            avoid += batch
+            for question in batch {
+                let key = normalizedKey(question)
+                guard !key.isEmpty, !seenKeys.contains(key) else { continue }
+                seenKeys.insert(key)
 
-            if collected.count >= targetQuestionCount { break }
+                if history.contains(key) {
+                    fallback.append(question)
+                } else {
+                    fresh.append(question)
+                }
+            }
+
+            if fresh.count >= targetQuestionCount { break }
         }
 
-        return Array(collected.prefix(targetQuestionCount))
+        // Preferimos as inéditas; só usamos a reserva se faltar para chegar a 6.
+        return Array((fresh + fallback).prefix(targetQuestionCount))
     }
 
     // Faz uma geração e, se o contexto (tokens) estiver esgotado, reinicia a
@@ -208,27 +221,25 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
         )
 
         // Ordem de exibição: primeiro as perguntas de decisão de projeto,
-        // depois as técnicas.
+        // depois as técnicas. Devolvemos o lote cru — a deduplicação e a
+        // classificação (nova x repetida) acontecem em `generateQuestions`, para
+        // que possamos completar até 6 mesmo quando o histórico corta perguntas.
         let content = response.content
         let questions = content.projectDecisionQuestions + content.technicalQuestions
 
         await updateTokenUsage(prompt: prompt, questions: questions)
 
-        // Rede de segurança: mesmo instruído a não repetir, o modelo pode
-        // reformular uma pergunta antiga. Removemos duplicatas (contra o
-        // histórico e dentro do próprio lote) para garantir que nunca se repitam.
-        return deduplicated(questions, avoiding: previousQuestions)
+        return questions
     }
 
     private func makePrompt(
         job: JobContext,
         previousQuestions: [String]
     ) -> String {
-        // Bloco de contexto da vaga (cargo, empresa e descrição) para ancorar
-        // melhor as perguntas.
+        // Bloco de contexto da vaga (cargo e descrição) para ancorar melhor as
+        // perguntas. O nome da empresa é omitido de propósito.
         let jobBlock = """
         Cargo: \(job.title)
-        Empresa: \(job.companyName)
         Descrição da vaga:
         \(job.description)
         """
@@ -252,25 +263,6 @@ final class FoundationQuestionGenerationService: QuestionGenerationServiceProtoc
 
         \(jobBlock)
         """
-    }
-
-    // Remove perguntas que repetem (ignorando maiúsculas, acentos e pontuação)
-    // qualquer uma do histórico ou uma anterior do mesmo lote.
-    private func deduplicated(
-        _ questions: [String],
-        avoiding previous: [String]
-    ) -> [String] {
-        var seen = Set(previous.map(normalizedKey))
-        var result: [String] = []
-
-        for question in questions {
-            let key = normalizedKey(question)
-            guard !key.isEmpty, !seen.contains(key) else { continue }
-            seen.insert(key)
-            result.append(question)
-        }
-
-        return result
     }
 
     private func normalizedKey(_ text: String) -> String {

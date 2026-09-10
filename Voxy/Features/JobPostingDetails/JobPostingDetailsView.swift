@@ -11,8 +11,9 @@ import SwiftData
 struct JobPostingDetailsView: View {
 
     let jobPosting: JobPosting
+    // Inicia o fluxo de entrevista pela pilha da lista (permite voltar à raiz).
+    var onStartInterview: () -> Void = {}
 
-    @State private var shouldStartInterview = false
     @State private var shouldEditJobPosting = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -41,12 +42,6 @@ struct JobPostingDetailsView: View {
         .safeAreaInset(edge: .bottom) {
             trainButton
         }
-        .navigationDestination(
-            isPresented: $shouldStartInterview
-        ) {
-            InterviewLoadingView(jobPosting: jobPosting)
-        }
-        
         .sheet(isPresented: $shouldEditJobPosting) {
             JobPostingFormView(
                 viewModel: JobPostingFormViewModel(
@@ -85,20 +80,20 @@ struct JobPostingDetailsView: View {
 
             VStack(spacing: 6) {
                 Text(jobPosting.title)
-                    .font(.custom("Satoshi-Black", size: 32))
+                    .font(.custom("Satoshi-Black", size: 30))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                //    .frame(width: 242, alignment: .top)
+                    .frame(width: 242, alignment: .top)
 
                 Text(jobPosting.companyName)
                     .font(.custom("Nunito-Bold", size: 20))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
-                //    .frame(maxWidth: .infinity, alignment: .top)
+                    .frame(maxWidth: .infinity, alignment: .top)
             }
             .padding(.top, 110)
         }
-    //    .frame(height: 234)
+        .frame(height: 234)
     }
 
 
@@ -208,7 +203,7 @@ struct JobPostingDetailsView: View {
 
     private var trainButton: some View {
         Button {
-            shouldStartInterview = true
+            onStartInterview()
         } label: {
             Text("Treinar")
                 .frame(maxWidth: .infinity)

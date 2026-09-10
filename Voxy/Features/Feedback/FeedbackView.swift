@@ -3,21 +3,26 @@ import SwiftData
 
 struct FeedbackView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
     @State private var viewModel: FeedbackViewModel
-    @State private var goHome = false
     var job: JobPosting
+    // Fecha o feedback e volta à tela inicial (JobPostingListView).
+    private let onClose: () -> Void
 
-    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], answers: [String] = [], job: JobPosting) {
+    init(engine: (FeedbackEngineProtocol & FinalFeedbackProtocol)? = nil, question: String, feedbacks: [AnswerFeedback] = [], answers: [String] = [], job: JobPosting, onClose: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: FeedbackViewModel(job: job, engine: engine))
         _viewModel.wrappedValue.question = question
         _viewModel.wrappedValue.feedbacks = feedbacks
         _viewModel.wrappedValue.answers = answers
         self.job = job
+        self.onClose = onClose
     }
     
+    /// Mostra a tela de carregamento desde antes de começar até a geração do
+    /// feedback final terminar por completo (enquanto `isLoading` for verdadeiro
+    /// ou ainda não houver resultado), sem erro.
     private var isGeneratingFeedback: Bool {
-        viewModel.hasAnswers && viewModel.finalFeedback == nil && viewModel.errorMessage == nil
+        guard viewModel.hasAnswers, viewModel.errorMessage == nil else { return false }
+        return viewModel.isLoading || viewModel.finalFeedback == nil
     }
 
     var body: some View {
@@ -28,6 +33,7 @@ struct FeedbackView: View {
                 resultsView
             }
         }
+        .navigationBarBackButtonHidden(true)
         .task {
             await viewModel.analyzeFinal()
         }
@@ -104,31 +110,19 @@ struct FeedbackView: View {
                 }
             }
             .padding(24)
-            .navigationBarBackButtonHidden(true)
         }
         .scrollIndicators(.hidden)
         .onAppear {
             viewModel.saveLastFeedback()
         }
-        .navigationDestination(isPresented: $goHome) {
-            JobPostingListView(
-                viewModel: JobPostingListViewModel(
-                    store: JobPostingStore(modelContext: modelContext)
-                )
-            )
-        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    goHome = true
+                    onClose()
                 }) {
                     Label("Início", systemImage: "xmark")
                 }
             }
-        }
-        .scrollIndicators(.hidden)
-        .task {
-            await viewModel.analyzeFinal()
         }
     }
 }
