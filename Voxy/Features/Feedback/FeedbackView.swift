@@ -65,7 +65,7 @@ struct FeedbackView: View {
                             .font(Font.custom("Nunito", size: 24).weight(.bold))
                             .foregroundStyle(Color(.total))
                         Text(job.countInterview == 1 ? "vez!" : "vezes!")
-                            .font(Font.custom("Nunito", size: 14).weight(.bold))
+                            .font(Font.custom("Nunito", size: 16).weight(.bold))
                     }
                     
                     .accessibilityElement(children: .combine)

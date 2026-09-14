@@ -14,7 +14,7 @@ struct FocusableTextField: View {
     
     var body: some View {
         TextField(placeholder, text: $text)
-            .font(.custom("Nunito-SemiBold", size: 14))
+            .font(.custom("Nunito-SemiBold", size: 16))
             .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -33,7 +33,7 @@ struct FocusableTextFieldDescription: View {
     
     var body: some View {
         TextField(placeholder, text: $text, axis: .vertical)
-            .font(.custom("Nunito-SemiBold", size: 14))
+            .font(.custom("Nunito-SemiBold", size: 16))
             .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
             .lineLimit(3...10)
             .multilineTextAlignment(.leading)
@@ -59,7 +59,7 @@ struct SectionLabel: View {
         HStack(spacing: 0) {
             Text(title)
                 
-                .font(.custom("Satoshi-Bold", size: 14))
+                .font(.custom("Satoshi-Bold", size: 16))
                 .tracking(1.1)
                 .foregroundStyle(Color("PrimaryFontColor"))
                 

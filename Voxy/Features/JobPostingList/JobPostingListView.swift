@@ -18,123 +18,135 @@ struct JobPostingListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            List {
-                // Seções do topo inseridas como itens da List
-                Group {
-                    HeaderSection()
-                        .padding(.bottom, 10)
-                    
-                    StreakSection()
-                        .padding(.vertical, 10)
-                    
-                    Text("VAGAS")
-                        .font(.custom("Satoshi-Bold", size: 12))
-                        .tracking(1.1)
-                        .foregroundStyle(Color("PrimaryFontColor"))
-                        .padding(.top, 10)
-                        .padding(.bottom, 5)
-                }
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
-                .listRowBackground(Color.clear)
-                
-                // Lista de Vagas
-                if viewModel.jobPostings.isEmpty {
-                    ContentUnavailableView(
-                        "Nenhuma vaga cadastrada",
-                        systemImage: "briefcase",
-                        description: Text("Toque em + para adicionar sua primeira vaga.")
-                            .font(Font.custom("Satoshi-Bold", size: 18))
-                    )
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                } else {
-                    ForEach(viewModel.jobPostings.prefix(5), id: \.persistentModelID) { jobPosting in
-                        JobPostingCard(
-                            title: jobPosting.title,
-                            companyName: jobPosting.companyName,
-                            lastSimulating: viewModel.lastSimulatedText(for: jobPosting),
-                            count: "\(jobPosting.countInterview)",
-                            unit: "treinos"
-                        )
-                        .background(
-                            NavigationLink(value: jobPosting) {
-                                EmptyView()
-                            }
-                            .opacity(0)
-                        )
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                viewModel.delete(jobPosting)
-                            } label: {
-                                Label("Excluir", systemImage: "trash")
-                            }
-                        }
-                    }
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
-                }
-            }
-            .listStyle(.plain)
-            .navigationDestination(for: JobPosting.self) { jobPosting in
-                JobPostingDetailsView(
-                    jobPosting: jobPosting,
-                    onStartInterview: { path.append(InterviewRoute(job: jobPosting)) }
-                )
-            }
-            .navigationDestination(for: InterviewRoute.self) { route in
-                InterviewLoadingView(
-                    jobPosting: route.job,
-                    onFinish: { path.removeLast(path.count) }
-                )
-            }
-            .ignoresSafeArea(edges: .top)
-            .task {
-                viewModel.loadJobPostings()
-            }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Nova vaga", systemImage: "plus") {
-                        jobPostingToTrain = nil
-                        isShowingJobPostingForm = true
-                    }
-                    .buttonStyle(GlassProminentButtonStyle())
-                    .tint(Color("BackgroundJobCardColor"))
-                }
-            }
+        ZStack(alignment: .top) {
+            // Topo azul para acompanhar o header
+            Color(.systemBackground)
+                                .ignoresSafeArea()
+            Color("PrimaryBlue")
+                .frame(height: 600)
+                .ignoresSafeArea(edges: .top)
             
-            .sheet(isPresented: $isShowingJobPostingForm, onDismiss: {
-                viewModel.loadJobPostings()
-
-                if let jobPostingToTrain {
-                    path.append(InterviewRoute(job: jobPostingToTrain))
-                }
-            }) {
-                JobPostingFormView(
-                    viewModel: viewModel.makeFormViewModel(),
-                    onStartTraining: { jobPosting in
-                        jobPostingToTrain = jobPosting
-                        isShowingJobPostingForm = false
+           
+                List {
+                    // Seções do topo inseridas como itens da List
+                    Group {
+                        HeaderSection()
+                            .padding(.bottom, 10)
+                        
+                        StreakSection()
+                            .padding(.vertical, 10)
+                        
+                        Text("VAGAS")
+                            .font(.custom("Satoshi-Bold", size: 12))
+                            .tracking(1.1)
+                            .foregroundStyle(Color("PrimaryFontColor"))
+                            .padding(.top, 10)
+                            .padding(.bottom, 5)
                     }
-                )
-            }
-            .scrollEdgeEffectHidden(true, for: .top)
-            .alert(
-                "Erro",
-                isPresented: Binding(
-                    get: { viewModel.errorMessage != nil },
-                    set: { isPresented in
-                        if !isPresented {
-                            viewModel.errorMessage = nil
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
+                    //.listRowBackground(Color.clear)
+                    
+                    // Lista de Vagas
+                    if viewModel.jobPostings.isEmpty {
+                        ContentUnavailableView(
+                            "Nenhuma vaga cadastrada",
+                            systemImage: "briefcase",
+                            description: Text("Toque em + para adicionar sua primeira vaga.")
+                                .font(Font.custom("Satoshi-Bold", size: 18))
+                        )
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    } else {
+                        ForEach(viewModel.jobPostings.prefix(5), id: \.persistentModelID) { jobPosting in
+                            JobPostingCard(
+                                title: jobPosting.title,
+                                companyName: jobPosting.companyName,
+                                lastSimulating: viewModel.lastSimulatedText(for: jobPosting),
+                                count: "\(jobPosting.countInterview)",
+                                unit: "treinos"
+                            )
+                            .background(
+                                NavigationLink(value: jobPosting) {
+                                    EmptyView()
+                                }
+                                    .opacity(0)
+                            )
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    viewModel.delete(jobPosting)
+                                } label: {
+                                    Label("Excluir", systemImage: "trash")
+                                }
+                            }
                         }
+                        .listRowSeparator(.hidden)
+                       // .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
                     }
-                ),
-                presenting: viewModel.errorMessage
-            ) { _ in
-                Button("OK", role: .cancel) {}
-            } message: { message in
-                Text(message)
+                }
+                .scrollIndicators(.hidden)
+                .listStyle(.plain)
+                // .scrollContentBackground(.hidden)
+                .navigationDestination(for: JobPosting.self) { jobPosting in
+                    JobPostingDetailsView(
+                        jobPosting: jobPosting,
+                        onStartInterview: { path.append(InterviewRoute(job: jobPosting)) }
+                    )
+                }
+                .navigationDestination(for: InterviewRoute.self) { route in
+                    InterviewLoadingView(
+                        jobPosting: route.job,
+                        onFinish: { path.removeLast(path.count) }
+                    )
+                }
+                .ignoresSafeArea(edges: .top)
+                .task {
+                    viewModel.loadJobPostings()
+                }
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button("Nova vaga", systemImage: "plus") {
+                            jobPostingToTrain = nil
+                            isShowingJobPostingForm = true
+                        }
+                        .buttonStyle(GlassProminentButtonStyle())
+                        .tint(Color("BackgroundJobCardColor"))
+                    }
+                }
+                
+                .sheet(isPresented: $isShowingJobPostingForm, onDismiss: {
+                    viewModel.loadJobPostings()
+                    
+                    if let jobPostingToTrain {
+                        path.append(InterviewRoute(job: jobPostingToTrain))
+                    }
+                }) {
+                    JobPostingFormView(
+                        viewModel: viewModel.makeFormViewModel(),
+                        onStartTraining: { jobPosting in
+                            jobPostingToTrain = jobPosting
+                            isShowingJobPostingForm = false
+                        }
+                    )
+                }
+                .scrollEdgeEffectHidden(true, for: .top)
+                .alert(
+                    "Erro",
+                    isPresented: Binding(
+                        get: { viewModel.errorMessage != nil },
+                        set: { isPresented in
+                            if !isPresented {
+                                viewModel.errorMessage = nil
+                            }
+                        }
+                    ),
+                    presenting: viewModel.errorMessage
+                ) { _ in
+                    Button("OK", role: .cancel) {}
+                } message: { message in
+                    Text(message)
+                }
             }
         }
         .onAppear {

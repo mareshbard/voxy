@@ -18,7 +18,7 @@ struct FeedbackSection: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(Font.custom("Nunito", size: 14))
+                .font(Font.custom("Nunito", size: 16))
                 .foregroundColor(highlighted ? Color(.black) : Color(.secondaryLabel))
                 .bold()
 
@@ -26,7 +26,7 @@ struct FeedbackSection: View {
                 HStack {
                     Circle().frame(width: 10, height: 10).foregroundColor(.bg)
                     Text(item)
-                        .font(Font.custom("Nunito", size: 14))
+                        .font(Font.custom("Nunito", size: 16))
                         .foregroundColor(Color(.gray))
                         .bold()
                 }

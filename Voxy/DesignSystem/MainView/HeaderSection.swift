@@ -39,7 +39,7 @@ struct HeaderSection: View {
                         .foregroundStyle(Color("BallonFontColor"))
 
                     Text("Vamos treinar hoje?")
-                        .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
+                        .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
                         .foregroundStyle(Color("BallonSecondaryFontColor"))
                 }
                 .accessibilityElement(children: .combine)
@@ -111,7 +111,7 @@ struct HeaderSectionHistory: View {
                 }
                 .accessibilityElement(children: .combine)
                 .foregroundStyle(Color("BallonSecondaryFontColor"))
-                .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
+                .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 40)
                 .padding(.trailing, 24)

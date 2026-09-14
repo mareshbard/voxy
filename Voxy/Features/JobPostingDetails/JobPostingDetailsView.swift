@@ -19,6 +19,7 @@ struct JobPostingDetailsView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
+        
         ScrollView {
             VStack(spacing: 0) {
                 header
@@ -104,7 +105,7 @@ struct JobPostingDetailsView: View {
                 .foregroundStyle(Color("DisabledFontColor"))
 
             Text(trainingMessage)
-                .font(.custom("Nunito-Bold", size: 14))
+                .font(.custom("Nunito-Bold", size: 16))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color("SecondaryFontColor"))
                 .frame(maxWidth: .infinity, alignment: .top)
@@ -133,7 +134,7 @@ struct JobPostingDetailsView: View {
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("DESCRIÇÃO DA VAGA")
-                .font(.custom("Satoshi-Bold", size: 14))
+                .font(.custom("Satoshi-Bold", size: 16))
                 .kerning(0.72)
                 .foregroundStyle(Color("PrimaryFontColor"))
 
@@ -146,7 +147,7 @@ struct JobPostingDetailsView: View {
                             .padding(.top, 4)
 
                         Text(item)
-                            .font(.custom("Nunito-Bold", size: 14))
+                            .font(.custom("Nunito-Bold", size: 16))
                             .foregroundStyle(Color("SecondaryFontColor"))
                             .frame(
                                 maxWidth: .infinity,

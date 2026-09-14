@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import AVFoundation
+import Speech
 
 @MainActor
 @Observable
@@ -32,17 +33,12 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     
     var isTranscribing: Bool = false
     var showMicPermissionAlert: Bool = false
+    var showSpeechDeniedAlert: Bool = false
 
     var canGoToNextQuestion: Bool {
 
         let currentAnswer = speechAnalyzerManager.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
-        if currentAnswer.isEmpty || isAdvancing {
-            return true
-        }
-        if isTranscribing {
-            return true
-        }
-        return false
+        return currentAnswer.isEmpty || isAdvancing || isTranscribing
     }
     
     var restartConfirmation: Bool = false
@@ -65,7 +61,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     func resetTranscript() {
         speechAnalyzerManager.resetTranscript()
     }
-    
+    /// começar a falar a pergunta
     func speakQuestion() async {
         // synthesizer.stopSpeaking(at: .immediate)
         if speechAnalyzerManager.isTranscribing  {
@@ -148,6 +144,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
     }
     
     func record() async {
+        
         if self.isTranscribing {
             stopTimer()
             self.isTranscribing = false
@@ -156,8 +153,21 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         } else {
             synthesizer.stopSpeaking(at: .immediate)
             await speechAnalyzerManager.startTranscription()
-            self.isTranscribing = true
-            startTimer()
+
+            if speechAnalyzerManager.speechPermissionDenied {
+                showSpeechDeniedAlert = true
+                return
+            }
+
+            if speechAnalyzerManager.microphonePermissionDenied {
+                showMicPermissionAlert = true
+                return
+            }
+
+            if speechAnalyzerManager.isTranscribing {
+                self.isTranscribing = true
+                startTimer()
+            }
         }
     }
     
@@ -188,12 +198,12 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
                 jobPosting.countInterview += 1
                 jobPosting.lastSimulated = .now
                 StreakManager.recordSession()
-
+                
                 // Guarda as perguntas desta sessão para que nunca se repitam em
                 // treinos futuros desta mesma vaga.
                 jobPosting.askedQuestions.append(contentsOf: questions)
             }
-
+            
             finalFeedback = buildFeedbackString()
             goToFeedback = true
             print(responses)
@@ -233,7 +243,7 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
         let question = currentQuestion
         let answer = speechAnalyzerManager.transcript
             .trimmingCharacters(in: .whitespacesAndNewlines)
-
+        
         guard !answer.isEmpty else { return }
         
         isGeneratingFeedback = true
@@ -247,6 +257,29 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             answers.append(answer)
         } catch {
             print("Erro ao gerar feedback")
+        }
+    }
+    
+    func requestSpeechPermission() {
+        // como isso roda secundariamente, precisan ser trazido pra thread principal
+        SFSpeechRecognizer.requestAuthorization { status in
+            Task { @MainActor in
+                
+                switch status {
+                case .authorized:
+                    print("Permissão concedida! Você já pode iniciar a gravação.")
+                case .denied:
+                    print("Usuário negou a permissão de reconhecimento de voz.")
+                    self.showSpeechDeniedAlert = true
+                case .restricted:
+                    print("Reconhecimento de voz restrito neste dispositivo.")
+                    self.showSpeechDeniedAlert = true
+                case .notDetermined:
+                    print("Permissão ainda não foi decidida.")
+                @unknown default:
+                    print("Erro desconhecido ao solicitar permissão.")
+                }
+            }
         }
     }
 }

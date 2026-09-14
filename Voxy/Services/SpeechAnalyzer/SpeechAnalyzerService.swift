@@ -10,7 +10,8 @@ final class SpeechAnalyzeManager {
     private var transcriber: Transcriber?
     var showMicDeniedAlert = false
     private(set) var isTranscribing: Bool = false
-    private(set) var permissionDenied: Bool = false
+    private(set) var speechPermissionDenied: Bool = false
+    private(set) var microphonePermissionDenied: Bool = false
     var error: Error?
     
     private let locale = Locale(identifier: "pt-br")
@@ -22,8 +23,20 @@ final class SpeechAnalyzeManager {
     private var resultsTask: Task<Void, Never>?
     
     func startTranscription() async {
-       
         guard !isTranscribing else { return }
+
+        speechPermissionDenied = false
+        microphonePermissionDenied = false
+        error = nil
+
+        let speechStatus = await requestSpeechPermission()
+        guard speechStatus == .authorized else {
+            speechPermissionDenied = true
+            return
+        }
+       // let microphoneStatus = await request()
+        
+
         do {
             resetTranscript()
             let transcriber = try await Transcriber(locale: locale)
@@ -58,7 +71,7 @@ final class SpeechAnalyzeManager {
             try await audioCapturer.start()
             isTranscribing = true
         } catch AudioCapturer.AudioCapturerError.permissionDenied {
-            permissionDenied = true
+            microphonePermissionDenied = true
             showMicDeniedAlert = true
             await stopTranscription()
         } catch {
@@ -86,6 +99,14 @@ final class SpeechAnalyzeManager {
         finalizedTranscript = ""
         volatileTranscript = ""
         transcript = ""
+    }
+
+    private func requestSpeechPermission() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
     }
     
     private func updateTranscript(with text: String, isFinal: Bool) {
