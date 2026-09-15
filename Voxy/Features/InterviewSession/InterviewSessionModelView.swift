@@ -183,8 +183,9 @@ class InterviewSessionViewModel: NSObject, AVSpeechSynthesizerDelegate {
             resetTranscript()
         } else {
             // Só conta o treino e registra a ofensiva se houve ao menos uma
-            // resposta transcrita; pular tudo não deve pontuar.
-            if !feedbacks.isEmpty {
+            // resposta *válida*. Respostas vazias ou de baixo esforço (ex.:
+            // "não sei") caracterizam entrevista não realizada e não pontuam.
+            if AnswerQuality.hasSubstantiveAnswer(in: answers) {
                 jobPosting.countInterview += 1
                 jobPosting.lastSimulated = .now
                 StreakManager.recordSession()

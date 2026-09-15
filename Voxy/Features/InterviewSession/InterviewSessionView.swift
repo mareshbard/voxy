@@ -4,7 +4,6 @@ import AVFoundation
 struct InterviewSessionView: View {
     @State private var viewModel: InterviewSessionViewModel
     @State private var feedbackEngine: FeedbackEngineProtocol
-    @State private var didRecordSession = false
     @State private var showExitConfirmation = false
     @Environment(\.dismiss) private var dismiss
     // Chamado para encerrar todo o fluxo de entrevista e voltar à tela inicial.
@@ -133,13 +132,6 @@ struct InterviewSessionView: View {
             Button("Agora não", role: .cancel) {}
         } message: {
             Text("Precisamos do microfone para analisar suas respostas")
-        }
-        
-        .onChange(of: viewModel.goToFeedback) { _, goToFeedback in
-            if goToFeedback && !didRecordSession {
-                StreakManager.recordSession()
-                didRecordSession = true
-            }
         }
         
         .navigationDestination(isPresented: $viewModel.goToFeedback) {
