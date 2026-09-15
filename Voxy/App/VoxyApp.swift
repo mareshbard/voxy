@@ -33,6 +33,8 @@ private struct RootView: View {
         switch viewModel.step {
         case .splash:
             SplashView(onFinished: { viewModel.splashDidFinish() })
+        case .tutorial:
+            TutorialView(onFinished: { viewModel.tutorialDidFinish() })
         case .onboarding:
             OnBoardingView(viewModel: viewModel)
         case .home:

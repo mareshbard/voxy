@@ -18,6 +18,7 @@ final class OnBoardingViewModel {
 
     enum Step {
         case splash
+        case tutorial
         case onboarding
         case home
     }
@@ -29,6 +30,8 @@ final class OnBoardingViewModel {
     private(set) var username: String
 
     private(set) var isShowingSplash = true
+
+    private(set) var didFinishTutorial = false
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -45,11 +48,18 @@ final class OnBoardingViewModel {
         if hasRegisteredName {
             return .home
         }
-        return isShowingSplash ? .splash : .onboarding
+        if isShowingSplash {
+            return .splash
+        }
+        return didFinishTutorial ? .onboarding : .tutorial
     }
 
     func splashDidFinish() {
         isShowingSplash = false
+    }
+
+    func tutorialDidFinish() {
+        didFinishTutorial = true
     }
 
     var canRegister: Bool {
