@@ -18,25 +18,25 @@ struct SecondMia: View {
         
         ZStack {
             Image("MiaTail")
-                .scaleEffect(0.9)
+                .scaleEffect(0.8)
                 .offset(x: -70, y: 55)
                 .rotationEffect(.degrees(isWaving ? 0 : 5), anchor: .bottomTrailing)
                 .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isWaving)
                 
             
             Image("SecondMiaBody")
-                .scaleEffect(0.9)
+                .scaleEffect(0.8)
                 .offset(x: 0, y: 0)
             
             Image("SecondMiaEyes")
-                .scaleEffect(1.6)
+                .scaleEffect(1.3)
                 .scaleEffect(y: isBlinking ? 0.1 : 1, anchor: .center)
 
                 .offset(x: 5, y: -50)
                 .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isWaving)
             
             Image("MiaSpeakingInterview")
-                .scaleEffect(0.8)
+                .scaleEffect(0.7)
                 // 1. Falar: abre/fecha a mandíbula escalando a partir do topo.
                 .scaleEffect(y: isMouthOpen ? 1 : 0.35, anchor: .top)
  
@@ -47,7 +47,7 @@ struct SecondMia: View {
 
 
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 250, maxHeight: 250)
         .task {
             await blinkEyes()
         }

@@ -22,25 +22,26 @@ struct ThirdMia: View {
                 .animation(.easeOut(duration: 1).repeatForever(autoreverses: true), value: isWaving)
                 
             Image("ThirdMiaArm")
-                .scaleEffect(1.5)
+                .scaleEffect(1.4)
                 .rotationEffect(.degrees(isWaving ? -2 : 25), anchor: .bottomLeading)
                 .offset(x: 70, y: -45)
                 
                 .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isWaving)
             
             Image("ThirdMiaBody")
-                .scaleEffect(1.5)
+                .scaleEffect(1.4)
                 .offset(x: 0, y: 50)
             
             Image("ThirdMiaHead")
-                .scaleEffect(1.5)
-                .offset(x: -10, y: -120)
+                .scaleEffect(1.4)
+                .offset(x: -10, y: -110)
             
             
 
 
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 250, maxHeight: 250)
+        .offset(y: 40)
         .task {
             await blinkEyes()
         }

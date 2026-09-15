@@ -17,7 +17,7 @@ struct FirstMia: View {
         
         ZStack {
             Image("MiaTail")
-                .scaleEffect(0.9)
+                .scaleEffect(0.8)
                 .offset(x: -70, y: 55)
                 .rotationEffect(.degrees(isWaving ? 0 : 5), anchor: .bottomTrailing)
                 .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isWaving)
@@ -37,7 +37,7 @@ struct FirstMia: View {
 
 
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 250, maxHeight: 250)
         .task {
             await blinkEyes()
         }
