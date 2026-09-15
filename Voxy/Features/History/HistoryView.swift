@@ -14,7 +14,7 @@ struct HistoryView: View {
                 Color(.systemBackground)
                     .ignoresSafeArea()
                 Color("PrimaryBlue")
-                    .frame(height: 600)
+                    .frame(height: 450)
                     .ignoresSafeArea(edges: .top)
                 
                 

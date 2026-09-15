@@ -56,7 +56,7 @@ struct InterviewSessionView: View {
                             .padding(.bottom, 8)
                             
                             VStack(alignment: .center, spacing: 0) {
-                                  Triangle()
+                                  UpTriangle()
                                     .frame(width: 20, height: 20)
                                     .foregroundStyle(Color(.systemGray6))
                                 

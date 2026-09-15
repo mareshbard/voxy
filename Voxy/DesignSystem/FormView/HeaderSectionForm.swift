@@ -18,14 +18,14 @@ struct HeaderSectionForm: View {
                 .clipped()
             
             VStack(alignment: .center, spacing: 0) {
-                Triangle()
+                UpTriangle()
+                    .accessibilityHidden(true)
                     .frame(width: 20, height: 20)
                     .foregroundStyle(Color(.systemBackground))
                 
                 VStack(alignment: .leading) {
                     Text("Vamos treinar!")
                         .font(.custom("Satoshi-Black", size: 24, relativeTo: .title3).weight(.black))
-                    //.accessibilityHidden(true)
                     Text("Insira a descrição da vaga ou envie uma captura de tela!")
                         .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
                         .foregroundStyle(Color.secondary)
