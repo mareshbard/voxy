@@ -19,7 +19,7 @@ struct OnBoardingView: View {
                     .foregroundStyle(Color("BallonFontColor"))
                 
                 Text("e estou aqui para te ajudar a entrar no mundo corporativo! Como você se chama?")
-                    .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
+                    .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
                     .foregroundStyle(Color("BallonSecondaryFontColor"))
                     .padding(.bottom, 10)
             }

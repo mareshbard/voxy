@@ -19,29 +19,36 @@ struct JobPostingDetailsView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                header
+        
+        ZStack(alignment: .top) {
+            Color(.systemBackground)
+                                .ignoresSafeArea()
+            Color("PrimaryBlue")
+                .frame(height: 500)
+                .ignoresSafeArea(edges: .top)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        header
+                           
+                        VStack(spacing: 24) {
+                            CounterCard(job: jobPosting)
+                            descriptionSection
+                        }
+                        .padding(.horizontal, 26)
+                        .padding(.top, 26)
+                        .padding(.bottom, 400)
+                    }
+                    .background(Color(.systemBackground))
 
-                VStack(spacing: 24) {
-                    trainingCountCard
-                    descriptionSection
                 }
-                .padding(.horizontal, 26)
-                .padding(.top, 26)
-                .padding(.bottom, 120)
+                .scrollIndicators(.hidden)
+                .toolbar(.hidden, for: .tabBar)
+                .ignoresSafeArea(edges: .top)
+                .safeAreaInset(edge: .bottom) {
+                    trainButton
+                }
             }
-        }
-        .scrollIndicators(.hidden)
-        .scrollEdgeEffectHidden(true, for: .top)
-        .background(Color(.systemBackground))
-        .toolbar(.hidden, for: .tabBar)
-
-        .background(Color.white)
-        .ignoresSafeArea(edges: .top)
-        .safeAreaInset(edge: .bottom) {
-            trainButton
-        }
+        
         .sheet(isPresented: $shouldEditJobPosting) {
             JobPostingFormView(
                 viewModel: JobPostingFormViewModel(
@@ -92,48 +99,23 @@ struct JobPostingDetailsView: View {
                     .frame(maxWidth: .infinity, alignment: .top)
             }
             .padding(.top, 110)
+            .padding(.bottom, 20)
         }
-        .frame(height: 234)
+       // .frame(height: 234)
     }
 
 
     private var trainingCountCard: some View {
-        VStack(spacing: 4) {
-            Text("\(jobPosting.countInterview)")
-                .font(.custom("Nunito-Black", size: 24))
-                .foregroundStyle(Color("DisabledFontColor"))
+        CounterCard(job: jobPosting)
 
-            Text(trainingMessage)
-                .font(.custom("Nunito-Bold", size: 14))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Color("SecondaryFontColor"))
-                .frame(maxWidth: .infinity, alignment: .top)
-        }
-        .accessibilityElement(children: .combine)
-        .padding(16)
-        .frame(width: 117, alignment: .center)
-        .overlay {
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color("PrimaryBlue"), lineWidth: 1)
-        }
     }
 
-    private var trainingMessage: String {
-        switch jobPosting.countInterview {
-        case 0:
-            return "ainda não\ntreinou :("
-        case 1:
-            return "treino\nrealizado"
-        default:
-            return "treinos\nrealizados"
-        }
-    }
 
 
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("DESCRIÇÃO DA VAGA")
-                .font(.custom("Satoshi-Bold", size: 14))
+                .font(.custom("Satoshi-Bold", size: 16))
                 .kerning(0.72)
                 .foregroundStyle(Color("PrimaryFontColor"))
 
@@ -146,7 +128,7 @@ struct JobPostingDetailsView: View {
                             .padding(.top, 4)
 
                         Text(item)
-                            .font(.custom("Nunito-Bold", size: 14))
+                            .font(.custom("Nunito-Bold", size: 16))
                             .foregroundStyle(Color("SecondaryFontColor"))
                             .frame(
                                 maxWidth: .infinity,

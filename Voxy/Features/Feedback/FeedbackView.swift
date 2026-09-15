@@ -58,36 +58,7 @@ struct FeedbackView: View {
                         .font(Font.custom("Nunito", size: 20).weight(.bold))
                         .multilineTextAlignment(.center)
 
-                    VStack {
-                        Text("JÁ TREINOU")
-                            .font(Font.custom("Satoshi-Bold", size: 12).weight(.bold))
-                        Text("\(job.countInterview)")
-                            .font(Font.custom("Nunito", size: 24).weight(.bold))
-                            .foregroundStyle(Color(.total))
-                        Text(job.countInterview == 1 ? "vez!" : "vezes!")
-                            .font(Font.custom("Nunito", size: 14).weight(.bold))
-                    }
-                    
-                    .accessibilityElement(children: .combine)
-                    .padding(16)
-                    //.frame(width: 120, height: 100)
-                    .foregroundStyle(Color("PrimaryFontColor"))
-                    .background(
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color("PrimaryBlue"))
-                            
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color("BackgroundJobCardColor"))
-                                .offset(x: -5, y: -5)
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(Color("PrimaryBlue"), lineWidth: 1)
-                    )
+                    CounterCard(job: viewModel.job)
                 }
                 
                 Spacer(minLength: 25)

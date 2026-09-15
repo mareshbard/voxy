@@ -16,34 +16,26 @@ struct HeaderSectionForm: View {
                 .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
                 .frame(width: 150, height: 150) // Ajusta a caixa de layout para a View pai
                 .clipped()
-
-            // Balão branco full-width com rabinho apontando para cima (centro).
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Vamos treinar!")
-                    .font(.custom("Satoshi-Black", size: 24, relativeTo: .title3).weight(.black))
-                    .foregroundStyle(Color("BallonFontColor"))
-
-                Text("Insira a descrição da vaga ou envie uma captura de tela!")
-                    .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
-                    .foregroundStyle(Color("BallonSecondaryFontColor"))
-            }
-            .accessibilityElement(children: .combine)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 45)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                
-                Image("BallonForm")
-                    .resizable(
-                        capInsets: EdgeInsets(top: 30, leading: 16, bottom: 16, trailing: 16),
-                        resizingMode: .stretch
-                    )
-                    .padding(.horizontal, -24)
+            
+            VStack(alignment: .center, spacing: 0) {
+                UpTriangle()
                     .accessibilityHidden(true)
-
-            )
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color(.systemBackground))
+                
+                VStack(alignment: .leading) {
+                    Text("Vamos treinar!")
+                        .font(.custom("Satoshi-Black", size: 24, relativeTo: .title3).weight(.black))
+                    Text("Insira a descrição da vaga ou envie uma captura de tela!")
+                        .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
+                        .foregroundStyle(Color.secondary)
+                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(24)
+            }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
     }
 }
 

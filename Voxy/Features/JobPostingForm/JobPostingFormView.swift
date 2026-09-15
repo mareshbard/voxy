@@ -65,7 +65,7 @@ struct JobPostingFormView: View {
                         )
                         
                         Text("Para uma melhor leitura, insira a imagem recortada, contendo apenas as informações da vaga.")
-                                .font(.custom("Nunito-SemiBold", size: 14))
+                                .font(.custom("Nunito-SemiBold", size: 16))
                                 .foregroundStyle(Color("SecondaryFontColor"))
                                 .fixedSize(horizontal: false, vertical: true)
                     } header: {

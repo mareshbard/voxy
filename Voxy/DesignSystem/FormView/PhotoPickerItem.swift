@@ -25,7 +25,7 @@ struct PhotoPickerItem: View {
                 }
 
                 Text(isRecognizing ? "Reconhecendo texto..." : title)
-                    .font(.custom("Nunito-SemiBold", size: 14))
+                    .font(.custom("Nunito-SemiBold", size: 16))
 
                 Spacer(minLength: 0)
             }

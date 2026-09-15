@@ -1,4 +1,5 @@
 import AVFAudio
+import Speech
 
 // nonisolated: não precisa usar o await pois não é algo ligado a um state mutável
 nonisolated final class AudioCapturer {
@@ -63,4 +64,5 @@ nonisolated final class AudioCapturer {
             throw AudioCapturerError.unknownPermission
         }
     }
+    
 }

@@ -78,7 +78,7 @@ struct StreakItemView: View {
                 .foregroundStyle(valueColor)
 
             Text(unit)
-                .font(.custom("Nunito", size: 14).weight(.bold))
+                .font(.custom("Nunito", size: 16).weight(.bold))
                 .foregroundStyle(Color("SecondaryFontColor"))
         }
         .accessibilityElement(children: .combine)

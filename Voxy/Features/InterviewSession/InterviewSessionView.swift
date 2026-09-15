@@ -55,7 +55,7 @@ struct InterviewSessionView: View {
                             .padding(.bottom, 8)
                             
                             VStack(alignment: .center, spacing: 0) {
-                                Triangle()
+                                  UpTriangle()
                                     .frame(width: 20, height: 20)
                                     .foregroundStyle(Color(.systemGray6))
                                 
@@ -90,7 +90,7 @@ struct InterviewSessionView: View {
             Button(action: {
                 Task { await viewModel.advance() }
             }, label: {
-                viewModel.lastQuestion ? Text("Finalizar") : Text("Próxima")
+                Text(viewModel.lastQuestion ? "Finalizar" : "Próxima")
                     .bold()
             })
             .frame(maxWidth: .infinity)
@@ -123,6 +123,17 @@ struct InterviewSessionView: View {
                 }
             }
         }
+        .alert("Reconhecimento de fala negado", isPresented: $viewModel.showSpeechDeniedAlert) {
+            Button("Abrir ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Agora não", role: .cancel) {}
+        } message: {
+            Text("Precisamos analisar suas respostas com o reconhecimento de fala")
+        }
+        
         .alert("Microfone bloqueado", isPresented: $viewModel.showMicPermissionAlert) {
             Button("Abrir ajustes") {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -131,7 +142,7 @@ struct InterviewSessionView: View {
             }
             Button("Agora não", role: .cancel) {}
         } message: {
-            Text("Precisamos do microfone para analisar suas respostas")
+            Text("Precisamos do microfone para escutar suas respostas da entrevista")
         }
         
         .navigationDestination(isPresented: $viewModel.goToFeedback) {
@@ -158,6 +169,7 @@ struct InterviewSessionView: View {
         }
         .onAppear {
             Task { await viewModel.speakQuestion() }
+            viewModel.requestSpeechPermission()
         }
         
         .alert("Tem certeza?", isPresented: $showExitConfirmation) {

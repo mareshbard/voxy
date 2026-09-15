@@ -6,6 +6,7 @@
 //
 // armazena vagas - persistência de vaga
 import SwiftData
+import Foundation
 
 @MainActor
 final class JobPostingStore {
@@ -30,7 +31,9 @@ final class JobPostingStore {
     }
 
     func fetchAll() throws -> [JobPosting] {
-        let descriptor = FetchDescriptor<JobPosting>()
+        let descriptor = FetchDescriptor<JobPosting>(
+            sortBy: [SortDescriptor(\JobPosting.lastSimulated, order: .reverse)]
+        )
         return try modelContext.fetch(descriptor)
     }
 }

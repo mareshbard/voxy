@@ -43,7 +43,7 @@ struct MicCard: View {
                     .background(Color.timerBg)
                     .foregroundColor(.black)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                
+                    .accessibilityHidden(true)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.bg, lineWidth: 1.31)
@@ -60,13 +60,25 @@ struct MicCard: View {
     }
 }
 
-struct Triangle: Shape {
+struct UpTriangle: Shape {
     func path(in rect: CGRect) -> Path {
         Path { path in
             path.move(to: CGPoint(x: rect.midX, y: rect.minY))
             path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
             path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
             path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+        }
+    }
+}
+
+struct SideTriangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.midY)) // Ponta
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            path.closeSubpath()
+            
         }
     }
 }
