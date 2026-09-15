@@ -152,26 +152,7 @@ final class FeedbackViewModel {
     }
 
     var hasSubstantiveAnswer: Bool {
-        answers.contains { isSubstantive($0) }
-    }
-
-    private func isSubstantive(_ answer: String) -> Bool {
-        let normalized = answer
-            .folding(options: .diacriticInsensitive, locale: .current)
-            .lowercased()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !normalized.isEmpty else { return false }
-
-        let lowEffortPhrases: Set<String> = [
-            "nao sei", "nao sei responder", "nao sei dizer", "nao faco ideia",
-            "sei la", "nao lembro", "nao me lembro", "passo", "sem resposta",
-            "nao entendi", "nao conheco", "nao"
-        ]
-        if lowEffortPhrases.contains(normalized) { return false }
-
-        let wordCount = normalized.split { $0 == " " || $0 == "\n" }.count
-        return wordCount >= 4
+        AnswerQuality.hasSubstantiveAnswer(in: answers)
     }
 
     private func sanitized(_ feedback: FinalFeedback) -> FinalFeedback {
