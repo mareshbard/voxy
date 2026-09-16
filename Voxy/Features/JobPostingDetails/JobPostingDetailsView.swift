@@ -24,7 +24,7 @@ struct JobPostingDetailsView: View {
             Color(.systemBackground)
                                 .ignoresSafeArea()
             Color("PrimaryBlue")
-                .frame(height: 500)
+                .frame(height: 300)
                 .ignoresSafeArea(edges: .top)
                 ScrollView {
                     VStack(spacing: 0) {

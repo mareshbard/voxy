@@ -14,7 +14,7 @@ struct HistoryView: View {
                 Color(.systemBackground)
                     .ignoresSafeArea()
                 Color("PrimaryBlue")
-                    .frame(height: 450)
+                    .frame(height: 300)
                     .ignoresSafeArea(edges: .top)
                 
                 
@@ -44,7 +44,7 @@ struct HistoryView: View {
                                 .font(Font.custom("Satoshi-Bold", size: 18))
                         )
                         .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+//                        .listRowBackground(Color.clear)
                     } else {
                         ForEach(viewModel.jobPostings, id: \.persistentModelID) { jobPosting in
                             JobPostingCard(
@@ -58,7 +58,7 @@ struct HistoryView: View {
                                 NavigationLink(value: jobPosting) {
                                     EmptyView()
                                 }
-                                    .opacity(0)
+                                .opacity(0)
                             )
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -67,10 +67,16 @@ struct HistoryView: View {
                                     Label("Excluir", systemImage: "trash")
                                 }
                             }
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
+                            .background(Color(.systemBackground))
                         }
-                        
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
+                        Section {
+                            Color.clear
+                                .frame(height: 100)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
+                        }
                     }
                 }
                 .listStyle(.plain)
@@ -194,3 +200,4 @@ struct HistoryView: View {
     )
     .modelContainer(container)
 }
+

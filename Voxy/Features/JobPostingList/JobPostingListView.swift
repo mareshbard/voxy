@@ -23,7 +23,7 @@ struct JobPostingListView: View {
             Color(.systemBackground)
                                 .ignoresSafeArea()
             Color("PrimaryBlue")
-                .frame(height: 450)
+                .frame(height: 300)
                 .ignoresSafeArea(edges: .top)
             
            
@@ -56,7 +56,7 @@ struct JobPostingListView: View {
                                 .font(Font.custom("Satoshi-Bold", size: 18))
                         )
                         .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+//                        .listRowBackground(Color.clear)
                     } else {
                         ForEach(viewModel.jobPostings.prefix(5), id: \.persistentModelID) { jobPosting in
                             JobPostingCard(
@@ -70,7 +70,7 @@ struct JobPostingListView: View {
                                 NavigationLink(value: jobPosting) {
                                     EmptyView()
                                 }
-                                    .opacity(0)
+                                .opacity(0)
                             )
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -79,10 +79,16 @@ struct JobPostingListView: View {
                                     Label("Excluir", systemImage: "trash")
                                 }
                             }
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
+                            .background(Color(.systemBackground))
                         }
-                        .listRowSeparator(.hidden)
-                       // .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
+                        Section {
+                            Color.clear
+                                .frame(height: 100)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
+                        }
                     }
                 }
                 .scrollIndicators(.hidden)
@@ -230,3 +236,4 @@ struct InterviewRoute: Hashable {
     )
     .modelContainer(container)
 }
+
