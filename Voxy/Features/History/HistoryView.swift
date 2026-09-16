@@ -73,7 +73,7 @@ struct HistoryView: View {
                         }
                         Section {
                             Color.clear
-                                .frame(height: 100)
+                                .frame(height: 200)
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)
                         }
