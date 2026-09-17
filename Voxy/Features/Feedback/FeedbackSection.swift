@@ -1,0 +1,48 @@
+import SwiftUI
+
+struct FeedbackSection: View {
+    let title: String
+    let items: [String]
+    var highlighted: Bool = false
+    
+    var body: some View {
+        // Sem itens não há o que mostrar: escondemos a seção inteira para não
+        // exibir um cabeçalho vazio (ex.: "MELHORES MOMENTOS" sem conteúdo).
+        if items.isEmpty {
+            EmptyView()
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(Font.custom("Nunito", size: 16))
+                .foregroundColor(highlighted ? Color(.black) : Color(.secondaryLabel))
+                .bold()
+
+            ForEach(items, id: \.self) { item in
+                HStack {
+                    Circle().frame(width: 10, height: 10).foregroundColor(.bg)
+                    Text(item)
+                        .font(Font.custom("Nunito", size: 16))
+                        .foregroundColor(Color(.gray))
+                        .bold()
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 12)
+        .background(highlighted ? Color(.fbBg) : Color.clear)
+        .cornerRadius(12)
+        .foregroundStyle(highlighted ? Color(.grayText) : Color.primary)
+    }
+}
+#Preview {
+    ScrollView {
+        FeedbackSection(title: "CLAREZA", items: ["Resposta clara", "Boa estrutura"])
+        FeedbackSection(title: "VÍCIOS", items: ["tipo", "né", "então"], highlighted: true)
+    }
+}

@@ -1,0 +1,12 @@
+// MODELO. Copie este arquivo para "Local.xcconfig" (na mesma pasta) e
+// preencha com os seus dados. "Local.xcconfig" é ignorado pelo git, então
+// cada desenvolvedor mantém o próprio team sem sobrescrever o dos outros.
+//
+//   cp Config/Local.xcconfig.example Config/Local.xcconfig
+
+// Seu Team ID (Xcode > Settings > Accounts, ou developer.apple.com > Membership).
+DEVELOPMENT_TEAM = SEU_TEAM_ID
+
+// Opcional: prefixo para deixar o bundle id único por dev.
+// Ex.: DEV_BUNDLE_PREFIX = dev.seunome.
+DEV_BUNDLE_PREFIX =

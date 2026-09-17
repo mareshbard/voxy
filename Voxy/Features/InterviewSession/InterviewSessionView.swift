@@ -1,0 +1,230 @@
+import SwiftUI
+import AVFoundation
+
+struct InterviewSessionView: View {
+    @State private var viewModel: InterviewSessionViewModel
+    @State private var feedbackEngine: FeedbackEngineProtocol
+    @State private var showExitConfirmation = false
+    @Environment(\.dismiss) private var dismiss
+    // Chamado para encerrar todo o fluxo de entrevista e voltar à tela inicial.
+    private let onFinish: () -> Void
+    
+    init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting, onFinish: @escaping () -> Void = {}) {
+        _viewModel = State(initialValue: InterviewSessionViewModel(
+            questions: questions,
+            feedbackEngine: feedbackEngine,
+            jobPosting: jobPosting
+        ))
+        _feedbackEngine = State(initialValue: feedbackEngine)
+        self.onFinish = onFinish
+    }
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Color(Color.bg)
+                .ignoresSafeArea(edges: .all)
+            VStack {
+                ScrollView {
+                    VStack {
+                        MiaInterview(isSpeaking: viewModel.isSpeaking)
+                            .fixedSize()                  // Garante o tamanho original de referência
+                            .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
+                            .frame(width: 160, height: 160) // Ajusta a caixa de layout para a View pai
+                            .clipped()
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("Mia está falando")
+                    }
+                    
+                    VStack(alignment: .center, spacing: 20) {
+                        // Bloco da Pergunta e Áudio
+                        VStack(alignment: .center, spacing: 0) {
+                            Button(action: {
+                                Task { await viewModel.speakQuestion() }
+                            }, label: {
+                                Image(systemName: viewModel.isSpeaking ? "stop.fill" : "speaker.wave.1.fill")
+                                    .bold()
+                                    .foregroundStyle(Color(.bg))
+                            })
+                            //  .accessibilityHidden(true)
+                            .accessibilityLabel(viewModel.isSpeaking ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
+                            
+                            //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
+                            .buttonStyle(.borderedProminent)
+                            .buttonBorderShape(.circle)
+                            .tint(Color(.timerBg))
+                            .padding(.bottom, 8)
+                            
+                            VStack(alignment: .center, spacing: 0) {
+                                  UpTriangle()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundStyle(Color(.systemGray6))
+                                
+                                VStack(alignment: .leading) {
+                                    Text(viewModel.currentQuestion)
+                                        .font(Font.custom("Nunito", size: 17).weight(.semibold))
+                                        .accessibilityHidden(true)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(24)
+                            }
+                        }
+                        .padding(.top, 16)
+                        
+                        Spacer(minLength: 20)
+                        
+                        // Card do Microfone
+                        MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
+                            Task { await viewModel.checkingReset() }
+                        })
+                        
+                        Spacer(minLength: 40)
+                    }
+                    //    .padding(.horizontal, 24)
+                }
+                .scrollIndicators(.hidden)
+                
+                
+            }
+            .padding(.horizontal, 24)
+            Button(action: {
+                Task { await viewModel.advance() }
+            }, label: {
+                Text(viewModel.lastQuestion ? "Finalizar" : "Próxima")
+                    .bold()
+            })
+            .frame(maxWidth: .infinity)
+            .buttonStyle(BlueGameButton())
+            .disabled(viewModel.canGoToNextQuestion)
+            .controlSize(.regular)
+            .padding(.horizontal, 24)
+         //   .padding(.bottom, 16)
+        }
+        .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .tabBar)
+        .background(SwipeBackBlocker())
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showExitConfirmation = true
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    Task { await viewModel.advance() }
+                } label: {
+                    Text("Pular")
+                }
+            }
+        }
+        .alert("Reconhecimento de fala negado", isPresented: $viewModel.showSpeechDeniedAlert) {
+            Button("Abrir ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Agora não", role: .cancel) {}
+        } message: {
+            Text("Precisamos analisar suas respostas com o reconhecimento de fala")
+        }
+        
+        .alert("Microfone bloqueado", isPresented: $viewModel.showMicPermissionAlert) {
+            Button("Abrir ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Agora não", role: .cancel) {}
+        } message: {
+            Text("Precisamos do microfone para escutar suas respostas da entrevista")
+        }
+        
+        .navigationDestination(isPresented: $viewModel.goToFeedback) {
+            FeedbackView(
+                engine: feedbackEngine as? (FeedbackEngineProtocol & FinalFeedbackProtocol),
+                question: viewModel.currentQuestion,
+                feedbacks: viewModel.feedbacks,
+                answers: viewModel.answers,
+                job: viewModel.jobPosting,
+                onClose: onFinish
+            )
+        }
+        .alert("Deseja recomeçar?", isPresented: $viewModel.restartConfirmation) {
+            Button("Recomeçar", role: .destructive) {
+                Task {
+                    viewModel.restartTranscript()
+                    await viewModel.record()
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .onChange(of: viewModel.currentIndex) {
+            Task { await viewModel.speakQuestion() }
+        }
+        .onAppear {
+            Task { await viewModel.speakQuestion() }
+            viewModel.requestSpeechPermission()
+        }
+        
+        .alert("Tem certeza?", isPresented: $showExitConfirmation) {
+            Button("Cancelar", role: .cancel) {}
+            
+            Button("Sair", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Se voltar ao início, você perderá o progresso da sua entrevista.")
+        }
+    }
+}
+
+private struct SwipeBackBlocker: UIViewControllerRepresentable {
+    
+    func makeUIViewController(context: Context) -> UIViewController {
+        SwipeBackBlockerViewController()
+    }
+    
+    func updateUIViewController(
+        _ uiViewController: UIViewController,
+        context: Context
+    ) {}
+    
+    private final class SwipeBackBlockerViewController: UIViewController {
+        
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            
+            navigationController?
+                .interactivePopGestureRecognizer?
+                .isEnabled = false
+        }
+        
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            
+            navigationController?
+                .interactivePopGestureRecognizer?
+                .isEnabled = true
+        }
+    }
+}
+
+#Preview {
+    let questions: [String] = ["Que dia é hoje?", "Que dia é amanha?", "Qual é o ano atual?"]
+    let jobPosting = JobPosting(
+        title: "iOS Developer",
+        companyName: "Voxy",
+        jobDescription: "Desenvolvimento de apps em Swift/SwiftUI."
+    )
+    InterviewSessionView(
+        questions: questions,
+        feedbackEngine: FoundationFeedbackEngine(),
+        jobPosting: jobPosting
+    )
+}

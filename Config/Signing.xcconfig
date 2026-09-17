@@ -1,0 +1,21 @@
+// Configuração de assinatura compartilhada por todos os desenvolvedores.
+// Os valores por-dev (team e prefixo de bundle) ficam em Local.xcconfig,
+// que NÃO é versionado (veja .gitignore).
+
+// Overrides locais de cada dev. O "?" torna o include opcional:
+// se o arquivo não existir, o build não quebra.
+#include? "Local.xcconfig"
+
+// Assinatura automática: o Xcode resolve o perfil a partir do DEVELOPMENT_TEAM
+// definido no Local.xcconfig de cada máquina (a conta logada no Xcode).
+CODE_SIGN_STYLE = Automatic
+
+// Bundle identifier. O prefixo permite que cada dev tenha um id único
+// (necessário quando usam contas Apple diferentes / gratuitas).
+// Com DEV_BUNDLE_PREFIX vazio, o id continua sendo com.yohane.Voxy.
+PRODUCT_BUNDLE_IDENTIFIER = $(DEV_BUNDLE_PREFIX)com.yohane.Voxy
+
+// Conformidade de exportação (App Store Connect / TestFlight).
+// NO = o app usa apenas criptografia isenta (HTTPS/TLS padrão), então
+// não é preciso responder a pergunta de export compliance a cada upload.
+INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO

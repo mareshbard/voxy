@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Xcode - User-specific state (per-developer, must never be committed)
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+
+# Xcode - Build products & derived data
+build/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Assinatura por-desenvolvedor (cada dev tem o seu; não versionar)
+Config/Local.xcconfig
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+# CocoaPods (descomente se usar)
+# Pods/
+
+# Fastlane (descomente se usar)
+# fastlane/report.xml
+# fastlane/screenshots/**/*.png
