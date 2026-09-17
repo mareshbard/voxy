@@ -6,24 +6,41 @@ struct HistoryView: View {
     @Bindable var viewModel: JobPostingListViewModel
     @State private var isShowingJobPostingForm: Bool = false
     @State private var path = NavigationPath()
+    // Altura real do header, usada para dimensionar a faixa azul do topo.
+    @State private var headerHeight: CGFloat = 300
 
     var body: some View {
         NavigationStack(path: $path) {
             ZStack(alignment: .top) {
-                // Topo azul para acompanhar o header
-                Color(.systemBackground)
+                // Fundo base da tela.
+                Color("VoxyBackground")
                     .ignoresSafeArea()
+
+                // Faixa azul no topo, para cobrir o overscroll. A altura acompanha
+                // dinamicamente a altura real do header (medida via GeometryReader),
+                // ficando sempre coberta por ele no estado normal.
                 Color("PrimaryBlue")
-                    .frame(height: 450)
+                    .frame(height: headerHeight)
+                    .frame(maxWidth: .infinity)
                     .ignoresSafeArea(edges: .top)
-                
-                
+
+
                 List {
                     // Seções do topo inseridas como itens da List
                     Group {
                         HeaderSectionHistory()
                             .padding(.bottom, 10)
-  
+                            .background(
+                                // Mede a altura real do header para dimensionar a
+                                // faixa azul do topo dinamicamente.
+                                GeometryReader { proxy in
+                                    Color.clear.preference(
+                                        key: HeaderHeightPreferenceKey.self,
+                                        value: proxy.size.height
+                                    )
+                                }
+                            )
+
                         Text("VAGAS")
                             .font(.custom("Satoshi-Bold", size: 12))
                             .tracking(1.1)
@@ -33,18 +50,14 @@ struct HistoryView: View {
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
-                  //  .listRowBackground(Color.clear)
+                    .listRowBackground(Color("VoxyBackground"))
                     
                     // Lista de Vagas
                     if viewModel.jobPostings.isEmpty {
-                        ContentUnavailableView(
-                            "Nenhuma vaga cadastrada",
-                            systemImage: "briefcase",
-                            description: Text("Toque em + para adicionar sua primeira vaga.")
-                                .font(Font.custom("Satoshi-Bold", size: 18))
-                        )
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                        EmptyJobPostingsHistoryCard()
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: 20, leading: 24, bottom: 5, trailing: 24))
                     } else {
                         ForEach(viewModel.jobPostings, id: \.persistentModelID) { jobPosting in
                             JobPostingCard(
@@ -70,11 +83,15 @@ struct HistoryView: View {
                         }
                         
                         .listRowSeparator(.hidden)
+                        .listRowBackground(Color("VoxyBackground"))
                         .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
                     }
                 }
                 .listStyle(.plain)
                 .scrollIndicators(.hidden)
+                .onPreferenceChange(HeaderHeightPreferenceKey.self) { newHeight in
+                    headerHeight = newHeight
+                }
                 .navigationDestination(for: JobPosting.self) { jobPosting in
                     JobPostingDetailsView(
                         jobPosting: jobPosting,

@@ -18,7 +18,7 @@ struct OnBoardingPageIndicator: View {
                 let size: CGFloat = isSelected ? 14 : 10
                 
                 Circle()
-                    .fill(isSelected ? Color("DarkerBlue") : Color.white.opacity(0.5))
+                    .fill(isSelected ? Color("OnBoardingSteps") : Color("StepsUnselected"))
                     .frame(width: size, height: size)
 
                     .padding(6)

@@ -21,7 +21,7 @@ struct HeaderSectionForm: View {
                 UpTriangle()
                     .accessibilityHidden(true)
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(Color(.systemBackground))
+                    .foregroundStyle(Color("VoxyBackground"))
                 
                 VStack(alignment: .leading) {
                     Text("Vamos treinar!")
@@ -31,7 +31,7 @@ struct HeaderSectionForm: View {
                         .foregroundStyle(Color.secondary)
                 }
                 .padding()
-                .background(Color(.systemBackground))
+                .background(Color("VoxyBackground"))
                 .cornerRadius(24)
             }
             .frame(maxWidth: .infinity)

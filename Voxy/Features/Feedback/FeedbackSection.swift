@@ -19,7 +19,7 @@ struct FeedbackSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(Font.custom("Nunito", size: 16))
-                .foregroundColor(highlighted ? Color(.black) : Color(.secondaryLabel))
+                .foregroundColor(highlighted ? Color(.fbText) : Color(.secondaryLabel))
                 .bold()
 
             ForEach(items, id: \.self) { item in
@@ -27,7 +27,7 @@ struct FeedbackSection: View {
                     Circle().frame(width: 10, height: 10).foregroundColor(.bg)
                     Text(item)
                         .font(Font.custom("Nunito", size: 16))
-                        .foregroundColor(Color(.gray))
+                        .foregroundColor(highlighted ? Color(.grayText) : Color(.gray))
                         .bold()
                 }
             }
@@ -35,7 +35,7 @@ struct FeedbackSection: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 16)
         .padding(.horizontal, 12)
-        .background(highlighted ? Color(.fbBg) : Color.clear)
+        .background(highlighted ? Color("BackgroundJobCardColor") : Color.clear)
         .cornerRadius(12)
         .foregroundStyle(highlighted ? Color(.grayText) : Color.primary)
     }

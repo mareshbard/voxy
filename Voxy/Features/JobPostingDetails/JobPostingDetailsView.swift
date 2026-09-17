@@ -192,7 +192,7 @@ struct JobPostingDetailsView: View {
             
         }
         .frame(width: 336)
-        .buttonStyle(GameButton())
+        .buttonStyle(BlueGameButton())
         .padding(.bottom, 8)
     }
 

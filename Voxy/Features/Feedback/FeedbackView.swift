@@ -17,9 +17,6 @@ struct FeedbackView: View {
         self.onClose = onClose
     }
     
-    /// Mostra a tela de carregamento desde antes de começar até a geração do
-    /// feedback final terminar por completo (enquanto `isLoading` for verdadeiro
-    /// ou ainda não houver resultado), sem erro.
     private var isGeneratingFeedback: Bool {
         guard viewModel.hasAnswers, viewModel.errorMessage == nil else { return false }
         return viewModel.isLoading || viewModel.finalFeedback == nil
