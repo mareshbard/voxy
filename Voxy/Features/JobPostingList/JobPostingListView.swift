@@ -87,7 +87,7 @@ struct JobPostingListView: View {
                                 NavigationLink(value: jobPosting) {
                                     EmptyView()
                                 }
-                                    .opacity(0)
+                                .opacity(0)
                             )
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
@@ -96,6 +96,15 @@ struct JobPostingListView: View {
                                     Label("Excluir", systemImage: "trash")
                                 }
                             }
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
+                            .background(Color(.systemBackground))
+                        }
+                        Section {
+                            Color.clear
+                                .frame(height: 100)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
                         }
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color("VoxyBackground"))
@@ -310,3 +319,4 @@ struct HeaderHeightPreferenceKey: PreferenceKey {
     )
     .modelContainer(container)
 }
+
