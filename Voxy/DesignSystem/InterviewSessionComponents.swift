@@ -10,10 +10,13 @@ struct MicCard: View {
 
     var body: some View {
         ZStack {
-            
+
             Color(.systemBackground)
-            VStack(alignment: .center, spacing: 20) {
-                
+            VStack(alignment: .center, spacing: 15) {
+
+                SpeakingWaveform(isActive: isTranscribing)
+                    .accessibilityHidden(true)
+
                 VStack(alignment: .center) {
                     Text("Toque no microfone para responder")
                     Text("Você tem 2 minutos!")
@@ -61,6 +64,40 @@ struct MicCard: View {
             
         }
         .cornerRadius(24)
+    }
+}
+
+struct SpeakingWaveform: View {
+    var isActive: Bool
+    var barCount: Int = 21
+    var barWidth: CGFloat = 4
+    var spacing: CGFloat = 5
+    var maxHeight: CGFloat = 20
+    var minHeight: CGFloat = 4
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: !isActive)) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            HStack(spacing: spacing) {
+                ForEach(0..<barCount, id: \.self) { index in
+                    Capsule()
+                        .fill(isActive ? Color("PrimaryBlue") : Color(.systemGray3))
+                        .frame(width: barWidth, height: height(for: index, at: time))
+                }
+            }
+            .frame(height: maxHeight)
+            .animation(.easeOut(duration: 0.12), value: isActive)
+        }
+    }
+
+    private func height(for index: Int, at time: TimeInterval) -> CGFloat {
+        guard isActive else { return minHeight }
+        // Combina duas ondas senoidais com defasagem por barra para um movimento
+        // orgânico, sem parecer um padrão repetitivo perfeito.
+        let phase = Double(index) * 0.55
+        let wave = sin(time * 7 + phase) * 0.6 + sin(time * 3.3 + phase * 0.5) * 0.4
+        let normalized = (wave + 1) / 2 // 0...1
+        return minHeight + CGFloat(normalized) * (maxHeight - minHeight)
     }
 }
 

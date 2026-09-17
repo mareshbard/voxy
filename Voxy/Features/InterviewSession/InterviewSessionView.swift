@@ -37,14 +37,29 @@ struct InterviewSessionView: View {
     }
     
     private var mascotSection: some View {
-        VStack {
-            MiaInterview(isSpeaking: viewModel.isSpeaking)
-                .fixedSize()                   // Garante o tamanho original de referência
-                .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
-                .frame(width: 160, height: 160) // Ajusta a caixa de layout para a View pai
-                .clipped()
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Mia está falando")
+        VStack(spacing:5) {
+            HStack(spacing:8) {
+                MiaInterview(isSpeaking: viewModel.isSpeaking)
+                    .fixedSize()                   // Garante o tamanho original de referência
+                    .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
+                    .frame(width: 100, height: 160) // Ajusta a caixa de layout para a View pai
+                    .clipped()
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Mia está falando")
+                    
+                speakerButton
+                    .padding(.top, 30)
+                
+            }
+            .padding(.top, 5)
+//            .padding()
+            questionBubble
+                .padding(.bottom, 15)
+            MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
+                Task { await viewModel.checkingReset() }
+            })
+            .padding(.bottom, 20)
+            Spacer(minLength: 50)
         }
     }
 
@@ -88,20 +103,20 @@ struct InterviewSessionView: View {
     private var sessionContent: some View {
         VStack(alignment: .center, spacing: 20) {
             // Bloco da Pergunta e Áudio
-            VStack(alignment: .center, spacing: 0) {
-                speakerButton
-                questionBubble
-            }
-            .padding(.top, 16)
+//            VStack(alignment: .center, spacing: 0) {
+//                speakerButton
+//                questionBubble
+//            }
+//            .padding(.top, 16)
 
 //          Spacer(minLength: 10)
 
             // Card do Microfone
-            MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
-                Task { await viewModel.checkingReset() }
-            })
-            .padding(.bottom, 20)
-            Spacer(minLength: 50)
+//            MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
+//                Task { await viewModel.checkingReset() }
+//            })
+//            .padding(.bottom, 20)
+//            Spacer(minLength: 50)
         }
         //    .padding(.horizontal, 24)
     }
