@@ -12,10 +12,10 @@ Acompanhe sua evolução com o histórico de sessões e a ofensiva (streak) de t
 
 ## Telas:
 
-<img width="220" alt="Image" src="https://github.com/user-attachments/assets/9823c7ea-e404-4e7b-9632-dbd67b64e5c8" />
-<img width="220" alt="Image" src="https://github.com/user-attachments/assets/bbbf242b-4d3f-4154-9ff6-96613afd29df" />
-<img width="220" alt="Image" src="https://github.com/user-attachments/assets/ba942791-a2b1-4fe5-8e7d-7205c719c50f" />
-<img width="220" alt="Image" src="https://github.com/user-attachments/assets/2cc49313-b11c-4764-ba1a-f561de39e6ec" />
+<img width="200" alt="Image" src="https://github.com/user-attachments/assets/9823c7ea-e404-4e7b-9632-dbd67b64e5c8" />
+<img width="200" alt="Image" src="https://github.com/user-attachments/assets/bbbf242b-4d3f-4154-9ff6-96613afd29df" />
+<img width="200" alt="Image" src="https://github.com/user-attachments/assets/ba942791-a2b1-4fe5-8e7d-7205c719c50f" />
+<img width="200" alt="Image" src="https://github.com/user-attachments/assets/2cc49313-b11c-4764-ba1a-f561de39e6ec" />
 
 ## Frameworks utilizados:
 
