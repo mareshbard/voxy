@@ -35,26 +35,26 @@ struct HeaderSection: View {
                 if isStacked {
                     VStack(alignment: .center, spacing: 0) {
                         UpTriangle()
-                        
+
                             .frame(width: 20, height: 20)
-                            .foregroundStyle(Color(.systemBackground))
-                        
+                            .foregroundStyle(Color("VoxyBackground"))
+
                         bubbleText
                             .padding()
-                            .background(Color(.systemBackground))
+                            .background(Color("VoxyBackground"))
                             .cornerRadius(24)
                     }
                     .frame(maxWidth: .infinity)
                 } else {
                     HStack(alignment: .center, spacing: 0) {
                         SideTriangle()
-                        
+
                             .frame(width: 20, height: 20)
-                            .foregroundStyle(Color(.systemBackground))
-                        
+                            .foregroundStyle(Color("VoxyBackground"))
+
                         bubbleText
                             .padding()
-                            .background(Color(.systemBackground))
+                            .background(Color("VoxyBackground"))
                             .cornerRadius(24)
                     }
                     .frame(maxWidth: .infinity)
@@ -120,10 +120,10 @@ struct HeaderSectionHistory: View {
                 if isStacked {
                     VStack(alignment: .center, spacing: 0) {
                         UpTriangle()
-                        
+
                             .frame(width: 20, height: 20)
                             .foregroundStyle(Color(.systemBackground))
-                        
+
                         bubbleText
                             .padding()
                             .background(Color(.systemBackground))
@@ -133,10 +133,10 @@ struct HeaderSectionHistory: View {
                 } else {
                     HStack(alignment: .center, spacing: 0) {
                         SideTriangle()
-                        
+
                             .frame(width: 20, height: 20)
                             .foregroundStyle(Color(.systemBackground))
-                        
+
                         bubbleText
                             .padding()
                             .background(Color(.systemBackground))

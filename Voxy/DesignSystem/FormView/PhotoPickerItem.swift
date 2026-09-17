@@ -38,7 +38,7 @@ struct PhotoPickerItem: View {
                         .fill(Color("PrimaryBlue"))
 
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemBackground))
+                        .fill(Color("VoxyBackground"))
                         .offset(x: -5, y: -5)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 12))

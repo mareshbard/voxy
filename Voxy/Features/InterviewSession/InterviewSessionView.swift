@@ -6,8 +6,25 @@ struct InterviewSessionView: View {
     @State private var feedbackEngine: FeedbackEngineProtocol
     @State private var showExitConfirmation = false
     @Environment(\.dismiss) private var dismiss
-    // Chamado para encerrar todo o fluxo de entrevista e voltar à tela inicial.
+    
     private let onFinish: () -> Void
+    
+    // Propriedades computadas para aliviar a verificação de tipos do compilador
+    private var speakerImageName: String {
+        viewModel.isSpeaking ? "stop.fill" : "speaker.wave.1.fill"
+    }
+    
+    private var speakerForegroundStyle: Color {
+        viewModel.isSpeaking ? Color("ButtonFaceColor") : Color.white
+    }
+    
+    private var speakerAccessibilityLabel: String {
+        viewModel.isSpeaking ? "Pausar pergunta" : "Ouvir pergunta"
+    }
+    
+    private var speakerTint: Color {
+        viewModel.isSpeaking ? Color("ButtonBorder") : Color("ButtonFaceColor")
+    }
     
     init(questions: [String], feedbackEngine: FeedbackEngineProtocol, jobPosting: JobPosting, onFinish: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: InterviewSessionViewModel(
@@ -19,86 +36,120 @@ struct InterviewSessionView: View {
         self.onFinish = onFinish
     }
     
+    private var mascotSection: some View {
+        VStack(spacing:5) {
+            HStack(spacing:8) {
+                MiaInterview(isSpeaking: viewModel.isSpeaking)
+                    .fixedSize()                   // Garante o tamanho original de referência
+                    .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
+                    .frame(width: 100, height: 160) // Ajusta a caixa de layout para a View pai
+                    .clipped()
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Mia está falando")
+                    
+                speakerButton
+                    .padding(.top, 30)
+                
+            }
+            .padding(.top, 5)
+//            .padding()
+            questionBubble
+                .padding(.bottom, 15)
+            MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
+                Task { await viewModel.checkingReset() }
+            })
+            .padding(.bottom, 20)
+            Spacer(minLength: 50)
+        }
+    }
+
+    private var speakerButton: some View {
+        Button {
+            Task { await viewModel.speakQuestion() }
+        } label: {
+            Image(systemName: speakerImageName)
+                .font(.title3)
+                .frame(width: 20, height: 20)
+                .bold()
+                .foregroundStyle(speakerForegroundStyle)
+                .padding(5)
+        }
+        //  .accessibilityHidden(true)
+        .accessibilityLabel(speakerAccessibilityLabel)
+        .accessibilityHint(Text("Ouvir a pergunta novamente"))
+        .tint(speakerTint)
+        .buttonBorderShape(.circle)
+        .buttonStyle(.glassProminent)
+        .padding(.bottom, 8)
+    }
+
+    private var questionBubble: some View {
+        VStack(alignment: .center, spacing: 0) {
+            UpTriangle()
+                .frame(width: 20, height: 20)
+                .foregroundStyle(Color("VoxyBackground"))
+
+            VStack(alignment: .leading) {
+                Text(viewModel.currentQuestion)
+                    .font(Font.custom("Nunito", size: 17).weight(.semibold))
+                    .accessibilityHidden(true)
+            }
+            .padding()
+            .background(Color("VoxyBackground"))
+            .cornerRadius(24)
+        }
+    }
+
+    private var sessionContent: some View {
+        VStack(alignment: .center, spacing: 20) {
+            // Bloco da Pergunta e Áudio
+//            VStack(alignment: .center, spacing: 0) {
+//                speakerButton
+//                questionBubble
+//            }
+//            .padding(.top, 16)
+
+//          Spacer(minLength: 10)
+
+            // Card do Microfone
+//            MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
+//                Task { await viewModel.checkingReset() }
+//            })
+//            .padding(.bottom, 20)
+//            Spacer(minLength: 50)
+        }
+        //    .padding(.horizontal, 24)
+    }
+
+    private var advanceButton: some View {
+        Button(action: {
+            Task { await viewModel.advance() }
+        }, label: {
+            Text(viewModel.lastQuestion ? "Finalizar" : "Próxima")
+                .bold()
+        })
+        .frame(maxWidth: .infinity)
+        .buttonStyle(BlueGameButton())
+        .disabled(viewModel.canGoToNextQuestion)
+        .controlSize(.regular)
+        .padding(.horizontal, 24)
+        //   .padding(.bottom, 16)
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color(Color.bg)
+            Color(Color("PrimaryBlue"))
                 .ignoresSafeArea(edges: .all)
             VStack {
                 ScrollView {
-                    VStack {
-                        MiaInterview(isSpeaking: viewModel.isSpeaking)
-                            .fixedSize()                  // Garante o tamanho original de referência
-                            .scaleEffect(0.35)             // Reduz a imagem e todas as posições em 70%
-                            .frame(width: 160, height: 160) // Ajusta a caixa de layout para a View pai
-                            .clipped()
-                            .accessibilityElement(children: .combine)
-                            .accessibilityLabel("Mia está falando")
-                    }
-                    
-                    VStack(alignment: .center, spacing: 20) {
-                        // Bloco da Pergunta e Áudio
-                        VStack(alignment: .center, spacing: 0) {
-                            Button(action: {
-                                Task { await viewModel.speakQuestion() }
-                            }, label: {
-                                Image(systemName: viewModel.isSpeaking ? "stop.fill" : "speaker.wave.1.fill")
-                                    .bold()
-                                    .foregroundStyle(Color(.bg))
-                            })
-                            //  .accessibilityHidden(true)
-                            .accessibilityLabel(viewModel.isSpeaking ? Text("Pausar pergunta") : Text("Ouvir pergunta"))
-                            
-                            //    .accessibilityHint(Text("Ouvir a pergunta novamente"))
-                            .buttonStyle(.borderedProminent)
-                            .buttonBorderShape(.circle)
-                            .tint(Color(.timerBg))
-                            .padding(.bottom, 8)
-                            
-                            VStack(alignment: .center, spacing: 0) {
-                                  UpTriangle()
-                                    .frame(width: 20, height: 20)
-                                    .foregroundStyle(Color(.systemGray6))
-                                
-                                VStack(alignment: .leading) {
-                                    Text(viewModel.currentQuestion)
-                                        .font(Font.custom("Nunito", size: 17).weight(.semibold))
-                                        .accessibilityHidden(true)
-                                }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(24)
-                            }
-                        }
-                        .padding(.top, 16)
-                        
-                        Spacer(minLength: 20)
-                        
-                        // Card do Microfone
-                        MicCard(isTranscribing: viewModel.isTranscribing, time: viewModel.formattedTime, onTap: {
-                            Task { await viewModel.checkingReset() }
-                        })
-                        
-                        Spacer(minLength: 40)
-                    }
-                    //    .padding(.horizontal, 24)
+                    mascotSection
+                    sessionContent
                 }
                 .scrollIndicators(.hidden)
-                
-                
+
             }
             .padding(.horizontal, 24)
-            Button(action: {
-                Task { await viewModel.advance() }
-            }, label: {
-                Text(viewModel.lastQuestion ? "Finalizar" : "Próxima")
-                    .bold()
-            })
-            .frame(maxWidth: .infinity)
-            .buttonStyle(BlueGameButton())
-            .disabled(viewModel.canGoToNextQuestion)
-            .controlSize(.regular)
-            .padding(.horizontal, 24)
-         //   .padding(.bottom, 16)
+            advanceButton
         }
         .navigationTitle("Pergunta \(viewModel.currentIndex + 1) de \(viewModel.questions.count)")
         .navigationBarTitleDisplayMode(.inline)

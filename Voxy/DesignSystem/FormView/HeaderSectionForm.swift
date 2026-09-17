@@ -21,17 +21,18 @@ struct HeaderSectionForm: View {
                 UpTriangle()
                     .accessibilityHidden(true)
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(Color(.systemBackground))
+                    .foregroundStyle(Color("VoxyBackground"))
                 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text("Vamos treinar!")
                         .font(.custom("Satoshi-Black", size: 24, relativeTo: .title3).weight(.black))
                     Text("Insira a descrição da vaga ou envie uma captura de tela!")
                         .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
                         .foregroundStyle(Color.secondary)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
-                .background(Color(.systemBackground))
+                .background(Color("VoxyBackground"))
                 .cornerRadius(24)
             }
             .frame(maxWidth: .infinity)
