@@ -23,7 +23,7 @@ struct JobPostingDetailsView: View {
     var body: some View {
         
         ZStack(alignment: .top) {
-            Color(.systemBackground)
+            Color("VoxyBackground")
                 .ignoresSafeArea()
 
             Color("PrimaryBlue")
@@ -45,7 +45,7 @@ struct JobPostingDetailsView: View {
                     .padding(.horizontal, 26)
                     .padding(.top, 26)
                     .padding(.bottom, jobPosting.feedback == nil ? 400 : 0)
-                    .background(Color(.systemBackground))
+                    .background(Color("VoxyBackground"))
 
                     if let feedback = jobPosting.feedback,
                        isFeedbackExpanded {
@@ -120,8 +120,6 @@ struct JobPostingDetailsView: View {
         CounterCard(job: jobPosting)
 
     }
-
-
 
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -208,7 +206,7 @@ struct JobPostingDetailsView: View {
         .padding(.horizontal, 26)
         .padding(.top, 16)
         .padding(.bottom, 140)
-        .background(Color(.systemBackground))
+        .background(Color("VoxyBackground"))
     }
     
     @ViewBuilder
@@ -218,7 +216,7 @@ struct JobPostingDetailsView: View {
                 Text("MELHORES MOMENTOS")
                     .font(.custom("Nunito", size: 16))
                     .bold()
-                    .foregroundStyle(Color(.secondaryLabel))
+                    .foregroundStyle(Color("PrimaryFontColor"))
 
                 feedbackItemsWithMascot(
                     items,
@@ -237,7 +235,7 @@ struct JobPostingDetailsView: View {
                 Text("ONDE MELHORAR")
                     .font(.custom("Nunito", size: 16))
                     .bold()
-                    .foregroundStyle(Color(.secondaryLabel))
+                    .foregroundStyle(Color("PrimaryFontColor"))
 
                 feedbackItemsWithMascot(
                     items,
@@ -292,7 +290,7 @@ struct JobPostingDetailsView: View {
             Text(item)
                 .font(.custom("Nunito", size: 16))
                 .bold()
-                .foregroundStyle(Color(.gray))
+                .foregroundStyle(Color("SecondaryFontColor"))
                 .frame(
                     maxWidth: .infinity,
                     alignment: .leading
@@ -305,13 +303,9 @@ struct JobPostingDetailsView: View {
         Image(imageName)
             .resizable()
             .scaledToFit()
-            .frame(width: 90, height: 100)
+            .frame(width: 100, height: 150)
             .accessibilityHidden(true)
     }
-
- 
-
-
 
     private var jobDescriptionItems: [String] {
         let lines = jobPosting.jobDescription
@@ -346,7 +340,6 @@ struct JobPostingDetailsView: View {
         return items
     }
 
-
     private func endsRequirement(_ text: String) -> Bool {
         guard let lastCharacter = text.last else {
             return false
@@ -354,7 +347,6 @@ struct JobPostingDetailsView: View {
 
         return ".;!?".contains(lastCharacter)
     }
-
 
     private var trainButton: some View {
         Button {
@@ -368,9 +360,6 @@ struct JobPostingDetailsView: View {
         .buttonStyle(BlueGameButton())
         .padding(.bottom, 8)
     }
-
-
-    
 }
 
 #Preview {

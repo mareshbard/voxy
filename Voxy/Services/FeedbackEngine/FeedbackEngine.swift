@@ -40,11 +40,17 @@ struct FinalFeedback {
     @Guide(description: "Análise da CLAREZA e organização em argumentos bem estruturados. Se o candidato apenas disse 'não sei' ou não desenvolveu respostas, retorne uma lista VAZIA [].", .maximumCount(2))
     let clarity: [String]
 
+    @Guide(description: "Nota de 1 a 5 para a CLAREZA geral. Reflita fielmente a análise: respostas curtas, evasivas ou pouco organizadas devem receber nota 1 ou 2; só use 4 ou 5 se a clareza for realmente boa.", .range(1...5))
+    let clarityScore: Int
+
     @Guide(description: "Vícios e muletas usados (ex.: 'tipo', 'né'). Cada item é uma única palavra ou expressão curta. Se não houver vícios, retorne uma lista VAZIA [].", .maximumCount(3))
     let vicios: [String]
 
     @Guide(description: "Análise da PROFUNDIDADE técnica. Se as respostas do candidato foram sucintas, evasivas ou 'não sei', retorne uma lista VAZIA [].", .maximumCount(3))
     let profundity: [String]
+
+    @Guide(description: "Nota de 1 a 5 para a PROFUNDIDADE técnica. Respostas sucintas, evasivas ou 'não sei' devem receber nota 1 ou 2; só use 4 ou 5 se houver profundidade técnica real.", .range(1...5))
+    let profundityScore: Int
 }
 
 @MainActor
@@ -147,18 +153,25 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProto
         return """
         \(block)
 
-        Consolide os feedbacks da entrevista em um relatório final rigoroso. 
+        Consolide os feedbacks da entrevista em um relatório final rigoroso.
         Cada seção trata de um aspecto INDEPENDENTE. Não repita a mesma frase em seções diferentes.
-        
-        REGRA CRÍTICA: Se os feedbacks mostram que o candidato respondeu apenas "não sei" ou deu respostas vazias, DEIXE as listas "bestMoments", "clarity" e "profundity" COMPLETAMENTE VAZIAS []. Foque o retorno unicamente em "improve".
+
+        As notas "clarityScore" e "profundityScore" (1 a 5) DEVEM ser coerentes com o texto das respectivas seções: se a análise aponta respostas curtas, evasivas ou rasas, a nota tem que ser baixa (1-2), nunca alta.
+
+        Expressões como "não sei", "sei lá" ou similares são muletas/evasivas: NUNCA as coloque em "clarity", "profundity" ou "bestMoments". No máximo registre-as em "vicios".
+
+        REGRA CRÍTICA: Se os feedbacks mostram que o candidato respondeu apenas "não sei" ou deu respostas vazias, DEIXE as listas "bestMoments", "clarity" e "profundity" COMPLETAMENTE VAZIAS [] e as notas "clarityScore" e "profundityScore" iguais a 1. Foque o retorno unicamente em "improve".
         """
     }
 
     private func deduplicatedAcrossSections(_ feedback: FinalFeedback) -> FinalFeedback {
         var seen = Set<String>()
 
-        func unique(_ items: [String]) -> [String] {
+        // `dropLowEffort`: remove itens como "não sei" de seções que descrevem
+        // qualidade (clareza, profundidade, melhores momentos) — isso é vício, não conteúdo.
+        func unique(_ items: [String], dropLowEffort: Bool = false) -> [String] {
             items.filter { item in
+                if dropLowEffort, AnswerQuality.isLowEffortMarker(item) { return false }
                 let key = normalizedKey(item)
                 guard !key.isEmpty, !seen.contains(key) else { return false }
                 seen.insert(key)
@@ -168,10 +181,12 @@ final class FoundationFeedbackEngine: FeedbackEngineProtocol, FinalFeedbackProto
 
         return FinalFeedback(
             improve: unique(feedback.improve),
-            bestMoments: unique(feedback.bestMoments),
-            clarity: unique(feedback.clarity),
+            bestMoments: unique(feedback.bestMoments, dropLowEffort: true),
+            clarity: unique(feedback.clarity, dropLowEffort: true),
+            clarityScore: feedback.clarityScore,
             vicios: unique(feedback.vicios),
-            profundity: unique(feedback.profundity)
+            profundity: unique(feedback.profundity, dropLowEffort: true),
+            profundityScore: feedback.profundityScore
         )
     }
 

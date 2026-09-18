@@ -46,8 +46,8 @@ final class FeedbackViewModel {
 
     /// Retorna o nome da imagem do mascote no Asset Catalog de acordo com o nível de desempenho
     var headerMascotImageName: String {
-        guard hasAnswers else { return "mascot_sad" }
-        if isLoading || finalFeedback == nil { return "mascot_thinking" }
+        guard hasAnswers else { return "MiaFeedbackSad" }
+        if isLoading || finalFeedback == nil { return "MiaFeedbackNeutral" }
 
         switch performanceLevel {
         case .excellent:
@@ -163,8 +163,10 @@ final class FeedbackViewModel {
             improve: feedback.improve,
             bestMoments: [],
             clarity: [],
+            clarityScore: 1,
             vicios: feedback.vicios,
-            profundity: []
+            profundity: [],
+            profundityScore: 1
         )
     }
 
