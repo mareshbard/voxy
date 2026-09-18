@@ -12,7 +12,7 @@ struct CounterCard: View {
         }
         
         .accessibilityElement(children: .combine)
-        .padding(16)
+        .padding(20)
         .foregroundStyle(Color("PrimaryFontColor"))
         .background(
             ZStack {

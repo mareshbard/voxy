@@ -31,7 +31,7 @@ struct TutorialView: View {
     private var isLastStep: Bool { step == steps.count - 1 }
 
     var body: some View {
-        VStack(spacing: 35) {
+        VStack(spacing: 30) {
             Image("VoxyLogo")
                 .resizable()
                 .scaledToFit()
@@ -81,6 +81,7 @@ struct TutorialView: View {
             .tint(Color(.white))
             .frame(maxWidth: .infinity)
         }
+        .padding(.top, 15)
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
         .safeAreaPadding(.top, 40)

@@ -20,21 +20,21 @@ struct JobPostingListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-        ZStack(alignment: .top) {
-            // Fundo base da tela.
-            Color("VoxyBackground")
-                .ignoresSafeArea()
+            ZStack(alignment: .top) {
+                // Fundo base da tela.
+                Color("VoxyBackground")
+                    .ignoresSafeArea()
 
-            // Faixa azul no topo, para cobrir o overscroll (quando o usuário
-            // puxa a tela e o header desce, evitando que o fundo apareça atrás).
-            // A altura acompanha dinamicamente a altura real do HeaderSection
-            // (medida via GeometryReader): assim ela fica sempre coberta pelo
-            // header no estado normal — sem sobrar uma faixa azul no meio — e
-            // cresce junto com o header (ex.: tamanhos de acessibilidade).
-            Color("PrimaryBlue")
-                .frame(height: headerHeight)
-                .frame(maxWidth: .infinity)
-                .ignoresSafeArea(edges: .top)
+                // Faixa azul no topo, para cobrir o overscroll (quando o usuário
+                // puxa a tela e o header desce, evitando que o fundo apareça atrás).
+                // A altura acompanha dinamicamente a altura real do HeaderSection
+                // (medida via GeometryReader): assim ela fica sempre coberta pelo
+                // header no estado normal — sem sobrar uma faixa azul no meio — e
+                // cresce junto com o header (ex.: tamanhos de acessibilidade).
+                Color("PrimaryBlue")
+                    .frame(height: headerHeight)
+                    .frame(maxWidth: .infinity)
+                    .ignoresSafeArea(edges: .top)
 
                 List {
                     // Seções do topo inseridas como itens da List
@@ -72,7 +72,7 @@ struct JobPostingListView: View {
                     if viewModel.jobPostings.isEmpty {
                         EmptyJobPostingsCard()
                             .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
+                            .listRowBackground(Color("VoxyBackground"))
                             .listRowInsets(EdgeInsets(top: 20, leading: 24, bottom: 5, trailing: 24))
                     } else {
                         ForEach(viewModel.jobPostings.prefix(5), id: \.persistentModelID) { jobPosting in
@@ -98,10 +98,10 @@ struct JobPostingListView: View {
                             }
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(top: 5, leading: 24, bottom: 5, trailing: 24))
-                            .background(Color(.systemBackground))
+                            .listRowBackground(Color("VoxyBackground"))
                         }
                         Section {
-                            Color.clear
+                            Color("VoxyBackground")
                                 .frame(height: 100)
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)
@@ -319,4 +319,3 @@ struct HeaderHeightPreferenceKey: PreferenceKey {
     )
     .modelContainer(container)
 }
-
