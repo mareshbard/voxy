@@ -95,7 +95,7 @@ struct JobPostingFormView: View {
                         startTraining()
                     }
                     .frame(maxWidth: .infinity)
-                    .buttonStyle(GameButton())
+                    .buttonStyle(BlueGameButton())
                     .disabled(!canSave)
 
                     Spacer()

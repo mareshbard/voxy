@@ -36,7 +36,7 @@ struct StreakSection: View {
                 .frame(maxWidth: .infinity)
         }
         .padding(.vertical, 10)
-        .background(Color(.systemBackground))
+        .background(Color("VoxyBackground"))
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
             RoundedRectangle(cornerRadius: 16)

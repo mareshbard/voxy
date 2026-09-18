@@ -13,14 +13,23 @@ struct FocusableTextField: View {
     @FocusState private var isFocused: Bool
     
     var body: some View {
-        TextField(placeholder, text: $text)
+        TextField("", text: $text)
             .font(.custom("Nunito-SemiBold", size: 16))
-            .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
+            .foregroundStyle(Color("PrimaryFontColor"))
+            .accessibilityLabel(placeholder)
+            .overlay(alignment: .leading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(.custom("Nunito-SemiBold", size: 16))
+                        .foregroundStyle(Color("DisabledFontColor"))
+                        .allowsHitTesting(false)
+                }
+            }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.systemBackground))
+                    .fill(Color("VoxyBackground"))
                     .stroke(isFocused ? Color("DarkerBlue") : Color("DropShadow"), lineWidth: 1)
             )
             .focused($isFocused)
@@ -32,21 +41,29 @@ struct FocusableTextFieldDescription: View {
     @FocusState private var isFocused: Bool
     
     var body: some View {
-        TextField(placeholder, text: $text, axis: .vertical)
+        TextField("", text: $text, axis: .vertical)
             .font(.custom("Nunito-SemiBold", size: 16))
-            .foregroundStyle(text.isEmpty ? Color("DisabledFontColor") : Color("PrimaryFontColor"))
+            .foregroundStyle(Color("PrimaryFontColor"))
+            .accessibilityLabel(placeholder)
             .lineLimit(3...10)
             .multilineTextAlignment(.leading)
+            .overlay(alignment: .topLeading) {
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(.custom("Nunito-SemiBold", size: 16))
+                        .foregroundStyle(Color("DisabledFontColor"))
+                        .allowsHitTesting(false)
+                }
+            }
             .padding(16)
             .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.systemBackground))
+                    .fill(Color("VoxyBackground"))
                     .stroke(isFocused ? Color("DarkerBlue") : Color("DropShadow"), lineWidth: 1)
                 
             )
             .focused($isFocused)
-        
     }
 }
 

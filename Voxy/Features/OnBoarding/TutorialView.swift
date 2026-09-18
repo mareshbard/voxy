@@ -31,7 +31,7 @@ struct TutorialView: View {
     private var isLastStep: Bool { step == steps.count - 1 }
 
     var body: some View {
-        VStack(spacing: 35) {
+        VStack(spacing: 30) {
             Image("VoxyLogo")
                 .resizable()
                 .scaledToFit()
@@ -81,6 +81,7 @@ struct TutorialView: View {
             .tint(Color(.white))
             .frame(maxWidth: .infinity)
         }
+        .padding(.top, 15)
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
         .safeAreaPadding(.top, 40)
@@ -93,26 +94,26 @@ struct TutorialView: View {
         VStack(spacing: 0) {
             VStack(spacing: 6) {
                 Text(steps[step].title)
-                    .font(.custom("Satoshi-Black", size: 22, relativeTo: .title3).weight(.black))
-                    .foregroundStyle(Color("BallonFontColor"))
+                    .font(.custom("Satoshi-Black", size: 24, relativeTo: .title3).weight(.black))
+                    .foregroundStyle(Color(.label))
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(steps[step].message)
-                    .font(.custom("Nunito", size: 14, relativeTo: .subheadline).weight(.bold))
-                    .foregroundStyle(Color("BallonSecondaryFontColor"))
+                    .font(.custom("Nunito", size: 16, relativeTo: .subheadline).weight(.bold))
+                    .foregroundStyle(Color(.secondaryLabel))
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 18)
-            .background(Color(.white))
+            .background(Color("VoxyBackground"))
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             DownTriangle()
                 .accessibilityHidden(true)
                 .frame(width: 22, height: 12)
-                .foregroundStyle(Color(.white))
+                .foregroundStyle(Color("VoxyBackground"))
                 .offset(y: -1)
         }
         .accessibilityElement(children: .combine)

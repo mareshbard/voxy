@@ -74,7 +74,7 @@ struct InterviewView: View {
             } label: {
                 Text("Começar")
             }
-            .buttonStyle(GameButton())
+            .buttonStyle(BlueGameButton())
             .disabled(viewModel.questions.isEmpty || viewModel.isLoading)
             .padding()
             .navigationDestination(isPresented: $isSessionActive) {

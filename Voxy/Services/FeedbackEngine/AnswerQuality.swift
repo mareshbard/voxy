@@ -29,4 +29,19 @@ nonisolated enum AnswerQuality {
     static func hasSubstantiveAnswer(in answers: [String]) -> Bool {
         answers.contains(where: isSubstantive)
     }
+
+    /// Indica se um item de feedback é apenas um marcador de baixo esforço
+    /// (ex.: "não sei"), que não deve aparecer em seções como Profundidade/Clareza.
+    static func isLowEffortMarker(_ text: String) -> Bool {
+        let normalized = text
+            .folding(options: .diacriticInsensitive, locale: .current)
+            .lowercased()
+            .trimmingCharacters(in: CharacterSet.alphanumerics.inverted.subtracting(.whitespaces))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !normalized.isEmpty else { return true }
+        if lowEffortPhrases.contains(normalized) { return true }
+        // Frases curtas que são essencialmente "não sei".
+        return normalized.hasPrefix("nao sei") && normalized.split(separator: " ").count <= 4
+    }
 }
