@@ -6,10 +6,21 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		44E1BC6C305D5AB00028460C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ADCC2F31303F22C600D82F9F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ADCC2F38303F22C600D82F9F;
+			remoteInfo = Voxy;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1DAE1CCD3041C91400E446F0 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
 		1DAE1CCE3041C91400E446F0 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Local.xcconfig.example; sourceTree = "<group>"; };
 		1DAE1CCF3041C91400E446F0 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		44E1BC68305D5AB00028460C /* VoxyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoxyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ADCC2F39303F22C600D82F9F /* Voxy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Voxy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -19,7 +30,7 @@
 			path = docs;
 			sourceTree = "<group>";
 		};
-		1DAE1CC73041C3C600E446F0 /* VoxyTests */ = {
+		44E1BC69305D5AB00028460C /* VoxyTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = VoxyTests;
 			sourceTree = "<group>";
@@ -32,6 +43,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		44E1BC65305D5AB00028460C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		ADCC2F36303F22C600D82F9F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -57,8 +75,8 @@
 			children = (
 				1DAE1CD03041C91400E446F0 /* Config */,
 				ADCC2F3B303F22C600D82F9F /* Voxy */,
+				44E1BC69305D5AB00028460C /* VoxyTests */,
 				ADCC2F3A303F22C600D82F9F /* Products */,
-				1DAE1CC73041C3C600E446F0 /* VoxyTests */,
 				1DAE1CC53041C36C00E446F0 /* docs */,
 			);
 			sourceTree = "<group>";
@@ -67,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				ADCC2F39303F22C600D82F9F /* Voxy.app */,
+				44E1BC68305D5AB00028460C /* VoxyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -74,6 +93,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		44E1BC67305D5AB00028460C /* VoxyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44E1BC6E305D5AB00028460C /* Build configuration list for PBXNativeTarget "VoxyTests" */;
+			buildPhases = (
+				44E1BC64305D5AB00028460C /* Sources */,
+				44E1BC65305D5AB00028460C /* Frameworks */,
+				44E1BC66305D5AB00028460C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				44E1BC6D305D5AB00028460C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				44E1BC69305D5AB00028460C /* VoxyTests */,
+			);
+			name = VoxyTests;
+			packageProductDependencies = (
+			);
+			productName = VoxyTests;
+			productReference = 44E1BC68305D5AB00028460C /* VoxyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		ADCC2F38303F22C600D82F9F /* Voxy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = ADCC2F44303F22C700D82F9F /* Build configuration list for PBXNativeTarget "Voxy" */;
@@ -88,7 +130,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				1DAE1CC53041C36C00E446F0 /* docs */,
-				1DAE1CC73041C3C600E446F0 /* VoxyTests */,
 				ADCC2F3B303F22C600D82F9F /* Voxy */,
 			);
 			name = Voxy;
@@ -105,9 +146,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2660;
+				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					44E1BC67305D5AB00028460C = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = ADCC2F38303F22C600D82F9F;
+					};
 					ADCC2F38303F22C600D82F9F = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -128,11 +173,19 @@
 			projectRoot = "";
 			targets = (
 				ADCC2F38303F22C600D82F9F /* Voxy */,
+				44E1BC67305D5AB00028460C /* VoxyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		44E1BC66305D5AB00028460C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		ADCC2F37303F22C600D82F9F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -143,6 +196,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		44E1BC64305D5AB00028460C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		ADCC2F35303F22C600D82F9F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -152,7 +212,59 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		44E1BC6D305D5AB00028460C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ADCC2F38303F22C600D82F9F /* Voxy */;
+			targetProxy = 44E1BC6C305D5AB00028460C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		44E1BC6F305D5AB00028460C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C3GCKW7ZF9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rmiv.VoxyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Voxy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Voxy";
+			};
+			name = Debug;
+		};
+		44E1BC70305D5AB00028460C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C3GCKW7ZF9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rmiv.VoxyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Voxy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Voxy";
+			};
+			name = Release;
+		};
 		ADCC2F42303F22C700D82F9F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1DAE1CCF3041C91400E446F0 /* Signing.xcconfig */;
@@ -284,7 +396,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5ZA287RU8X;
+				DEVELOPMENT_TEAM = C3GCKW7ZF9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Precisamos do microfone para suas respostas em áudio.";
@@ -322,7 +434,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5ZA287RU8X;
+				DEVELOPMENT_TEAM = C3GCKW7ZF9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Precisamos do microfone para suas respostas em áudio.";
@@ -355,6 +467,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		44E1BC6E305D5AB00028460C /* Build configuration list for PBXNativeTarget "VoxyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44E1BC6F305D5AB00028460C /* Debug */,
+				44E1BC70305D5AB00028460C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		ADCC2F34303F22C600D82F9F /* Build configuration list for PBXProject "Voxy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
