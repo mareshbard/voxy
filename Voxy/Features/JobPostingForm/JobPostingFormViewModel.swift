@@ -31,6 +31,9 @@ final class JobPostingFormViewModel {
         !title
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty
+        && !companyName
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
         && !jobDescription
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty
