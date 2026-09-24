@@ -111,4 +111,82 @@ struct InterviewViewModelTests {
 
         #expect(service.receivedPreviousQuestions == previousQuestions)
     }
+    
+    // CT-20
+    @Test
+    func storesGeneratedQuestions() async {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Experiência com Swift e SwiftUI."
+        )
+
+        let service = MockQuestionGenerationService()
+
+        let viewModel = InterviewViewModel(
+            jobPosting: jobPosting,
+            service: service
+        )
+
+        await viewModel.generateQuestions()
+
+        #expect(viewModel.questions == ["Pergunta 1"])
+    }
+    
+    // CT-21
+    @Test
+    func updatesLocalQuestionHistory() async {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Experiência com Swift e SwiftUI."
+        )
+
+        let service = MockQuestionGenerationService()
+
+        let viewModel = InterviewViewModel(
+            jobPosting: jobPosting,
+            service: service
+        )
+
+        await viewModel.generateQuestions()
+        await viewModel.generateQuestions()
+
+        #expect(service.receivedPreviousQuestions.contains("Pergunta 1"))
+    }
+    
+    // CT-38
+    @Test
+    func startingNewInterviewResetsCurrentStateAndRestoresQuestionHistory() async {
+        let persistedQuestions = [
+            "O que é SwiftUI?"
+        ]
+
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Experiência com Swift e SwiftUI.",
+            askedQuestions: persistedQuestions
+        )
+
+        let service = MockQuestionGenerationService()
+
+        let viewModel = InterviewViewModel(
+            jobPosting: jobPosting,
+            service: service
+        )
+
+        await viewModel.generateQuestions()
+
+        viewModel.errorMessage = "Erro"
+
+        viewModel.startNewInterview()
+
+        #expect(viewModel.questions.isEmpty)
+        #expect(viewModel.errorMessage == nil)
+
+        await viewModel.generateQuestions()
+
+        #expect(service.receivedPreviousQuestions == persistedQuestions)
+    }
 }
