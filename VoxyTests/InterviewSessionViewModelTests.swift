@@ -106,4 +106,124 @@ struct InterviewSessionViewModelTests {
         #expect(viewModel.feedbacks.count == 1)
         #expect(jobPosting.askedQuestions.contains("O que é SwiftUI?"))
     }
+    
+    // CT-22
+    @Test
+    func allowsAdvancingWithAnswerAndNoProcessing() {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Desenvolvimento de aplicações iOS."
+        )
+
+        let viewModel = InterviewSessionViewModel(
+            questions: ["O que é SwiftUI?", "O que é SwiftData?"],
+            feedbackEngine: MockFeedbackEngine(),
+            jobPosting: jobPosting
+        )
+
+        viewModel.speechAnalyzerManager.transcript =
+            "SwiftUI é um framework declarativo."
+
+        viewModel.isAdvancing = false
+        viewModel.isTranscribing = false
+
+        #expect(viewModel.canGoToNextQuestion == false)
+    }
+    
+    // CT-23
+    @Test
+    func doesNotAllowAdvancingWithEmptyAnswer() {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Desenvolvimento de aplicações iOS."
+        )
+
+        let viewModel = InterviewSessionViewModel(
+            questions: ["O que é SwiftUI?", "O que é SwiftData?"],
+            feedbackEngine: MockFeedbackEngine(),
+            jobPosting: jobPosting
+        )
+
+        viewModel.speechAnalyzerManager.transcript = ""
+
+        viewModel.isAdvancing = false
+        viewModel.isTranscribing = false
+
+        #expect(viewModel.canGoToNextQuestion)
+    }
+    
+    // CT-24
+    @Test
+    func doesNotAllowAdvancingWhileProcessing() {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Desenvolvimento de aplicações iOS."
+        )
+
+        let viewModel = InterviewSessionViewModel(
+            questions: ["O que é SwiftUI?", "O que é SwiftData?"],
+            feedbackEngine: MockFeedbackEngine(),
+            jobPosting: jobPosting
+        )
+
+        viewModel.speechAnalyzerManager.transcript =
+            "SwiftUI é um framework declarativo."
+
+        viewModel.isAdvancing = true
+        viewModel.isTranscribing = false
+
+        #expect(viewModel.canGoToNextQuestion)
+
+        viewModel.isAdvancing = false
+        viewModel.isTranscribing = true
+
+        #expect(viewModel.canGoToNextQuestion)
+    }
+    
+    // CT-25
+    @Test
+    func identifiesLastQuestion() {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Desenvolvimento de aplicações iOS."
+        )
+
+        let viewModel = InterviewSessionViewModel(
+            questions: ["O que é SwiftUI?", "O que é SwiftData?"],
+            feedbackEngine: MockFeedbackEngine(),
+            jobPosting: jobPosting
+        )
+
+        viewModel.currentIndex = 0
+        #expect(viewModel.lastQuestion == false)
+
+        viewModel.currentIndex = 1
+        #expect(viewModel.lastQuestion)
+    }
+    
+    // CT-26
+    @Test
+    func doesNotAddFeedbackForEmptyAnswer() async {
+        let jobPosting = JobPosting(
+            title: "iOS Developer",
+            companyName: "Empresa",
+            jobDescription: "Desenvolvimento de aplicações iOS."
+        )
+
+        let viewModel = InterviewSessionViewModel(
+            questions: ["O que é SwiftUI?"],
+            feedbackEngine: MockFeedbackEngine(),
+            jobPosting: jobPosting
+        )
+
+        viewModel.speechAnalyzerManager.transcript = "   "
+
+        await viewModel.finishCurrentQuestion()
+
+        #expect(viewModel.feedbacks.isEmpty)
+    }
 }
