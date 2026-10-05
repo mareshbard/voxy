@@ -6,7 +6,7 @@ import SwiftData
 @MainActor
 struct JobPostingListViewModelTests {
 
-    @Test
+    @Test // CT-27
     func showsNotTrainedWhenThereAreNoInterviews() throws {
         let (_, store) = try makeStore()
 
@@ -22,7 +22,7 @@ struct JobPostingListViewModelTests {
         #expect(viewModel.lastSimulatedText(for: job) == "Ainda não treinou")
     }
 
-    @Test
+    @Test // ct-28
     func showsTodayWhenLastTrainingWasToday() throws {
         let (_, store) = try makeStore()
 
@@ -41,7 +41,7 @@ struct JobPostingListViewModelTests {
         #expect(result.hasPrefix("Hoje, "))
     }
 
-    @Test
+    @Test // CT-29
     func showsYesterdayWhenLastTrainingWasYesterday() throws {
         let (_, store) = try makeStore()
 
@@ -66,7 +66,7 @@ struct JobPostingListViewModelTests {
         #expect(result.hasPrefix("Ontem, "))
     }
 
-    @Test
+    @Test // CT-30
     func showsFormattedDateWhenLastTrainingWasBeforeYesterday() throws {
         let (_, store) = try makeStore()
 
